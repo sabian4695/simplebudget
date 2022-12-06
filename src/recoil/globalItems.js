@@ -63,4 +63,9 @@ export const authAtom = atom({
     default: localStorage.getItem("auth")
 });
 
+export const currentUser = atom({
+    key: "currentUser",
+    default: '123'
+});
+
 export const appName = 'simpleBudget';

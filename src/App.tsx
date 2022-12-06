@@ -62,10 +62,14 @@ function App() {
     setSnackOpen(false);
   };
   return (
-      <ThemeProvider theme={actTheme}>
-        <CssBaseline/>
-        <Box sx={{display: 'flex'}}>
-          <Box sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}><AppToolbar/></Box>
+      <>
+        <ThemeProvider theme={actTheme}>
+          <CssBaseline/>
+          <Box sx={{
+            display: 'flex',
+            height: window.innerHeight,
+            bgcolor: (currentTheme === 'dark' ? 'grey.900' : 'grey.50') }}>
+            <Box sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}><AppToolbar/></Box>
             <Box component="main"
                  sx={{ width:'100%', p: 2, pb:10, height:'100%'}}>
               <Toolbar/><Outlet/>
@@ -86,13 +90,14 @@ function App() {
               </BottomNavigation>
             </Paper>
           </Box>
-          <Snackbar open={snackOpen} autoHideDuration={3000} onClose={snackClose} sx={{ mb: 6 }}>
-            {/*@ts-ignore*/}
-            <Alert onClose={snackClose} severity={snackSev} sx={{width: '100%'}}>
-              {snackText}
-            </Alert>
-          </Snackbar>
-      </ThemeProvider>
+            <Snackbar open={snackOpen} autoHideDuration={3000} onClose={snackClose} sx={{ mb: 6 }}>
+              {/*@ts-ignore*/}
+              <Alert onClose={snackClose} severity={snackSev} sx={{width: '100%'}}>
+                {snackText}
+              </Alert>
+            </Snackbar>
+        </ThemeProvider>
+      </>
   );
 }
 

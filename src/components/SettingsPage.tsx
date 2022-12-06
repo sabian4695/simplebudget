@@ -10,8 +10,7 @@ import {snackBarOpen, snackBarSeverity, snackBarText, themeAtom} from "../recoil
 import {useNavigate} from "react-router-dom";
 import Stack from '@mui/material/Stack';
 import Divider from "@mui/material/Divider";
-
-
+import Typography from '@mui/material/Typography';
 
 export default function SettingsPage() {
     const [slideCheck, setSlideCheck] = React.useState(false);
@@ -66,9 +65,14 @@ export default function SettingsPage() {
     }
     return (
         <>
-            <Stack spacing={2} alignItems="center">
+            <Stack spacing={1} alignItems="center">
+                <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Settings</Typography>
                 <Paper elevation={5} sx={{width:'100%'}}>
                     <List>
+                        <ListItem disablePadding>
+                            <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>General</Typography>
+                        </ListItem>
+                        <Divider/>
                         <ListItem disablePadding>
                             <ListItemButton onClick={handleListThemeClick}>
                                 <ListItemText primary="Dark Mode" />

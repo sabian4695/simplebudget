@@ -6,10 +6,11 @@ import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
-import {useSetRecoilState} from "recoil";
+import {useRecoilValue, useSetRecoilState} from "recoil";
 import {addSection, addTransaction} from "../recoil/modalStatusAtoms";
 import AddSection from "./modals/AddSection";
 import AddTransaction from "./modals/AddTransaction";
+import {budgetDetails, sections} from '../recoil/tableAtoms';
 
 const fabStyle = {
     position: 'fixed',
@@ -24,11 +25,15 @@ const CustomButton = styled(Button)({
 export default function BudgetPage() {
     const setAddNewSection = useSetRecoilState(addSection)
     const setAddNewTransaction = useSetRecoilState(addTransaction)
+    const sectionsArray = useRecoilValue(sections)
     return (
         <>
             <CustomButton size='large' sx={{mb:1}}><Typography variant='h5'>December 2022</Typography></CustomButton>
             <Stack spacing={2} alignItems="stretch">
-                <BudgetSection/>
+                {sectionsArray.map((row) => (
+                    <BudgetSection sectionID={row.recordID} key={row.recordID}/>
+                    )
+                )}
                 <Button variant='outlined' color='secondary' onClick={() => setAddNewSection(true)}>Add Section</Button>
             </Stack>
             <Fab color="secondary" sx={fabStyle} onClick={() => setAddNewTransaction(true)}>
