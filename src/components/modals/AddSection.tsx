@@ -11,7 +11,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import {snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles} from "../../recoil/globalItems";
-import {currentBudget, sections} from "../../recoil/tableAtoms";
+import {currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";
 import {v4 as uuidv4} from "uuid";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
@@ -28,7 +28,7 @@ export default function AddSection() {
             setSectionType(newType);
         }
     };
-    const currentBudgetID = useRecoilValue(currentBudget)
+    const currentBudget = useRecoilValue(currentBudgetAndMonth)
     const setSectionArray = useSetRecoilState(sections);
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
@@ -46,9 +46,11 @@ export default function AddSection() {
         if (verifyInputs()) {
             let newSection = {
                 recordID: uuidv4(),
-                budgetID: currentBudgetID,
+                budgetID: currentBudget.budgetID,
                 sectionName: sectionName,
                 sectionType: sectionType,
+                sectionYear: 0,
+                sectionMonth: '',
             };
             setSectionArray(prevState => [...prevState, newSection]);
             setAddNewSection(false)

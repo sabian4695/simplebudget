@@ -3,9 +3,18 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button"
 import Box from "@mui/material/Box";
-import {useSetRecoilState, useRecoilValue} from "recoil";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {useNavigate} from "react-router-dom";
-import {authAtom, snackBarOpen, snackBarSeverity, snackBarText, themeAtom, themes} from "../recoil/globalItems";
+import {
+    authAtom,
+    currentUser,
+    dialogPaperStyles,
+    snackBarOpen,
+    snackBarSeverity,
+    snackBarText,
+    themeAtom,
+    themes
+} from "../recoil/globalItems";
 import {ThemeProvider} from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from '@mui/material/Unstable_Grid2';
@@ -14,40 +23,76 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import {supabase} from "./LoginPage";
 
 export default function SignUpPage() {
     const navigate = useNavigate();
     const [fullName, setFullName] = React.useState("");
+    const [currentUserData, setCurrentUser] = useRecoilState(currentUser)
+    const [emailText, setEmailText] = React.useState('')
     const [email, setEmail] = React.useState("");
+    const [passwordText, setPasswordText] = React.useState('')
     const [password, setPassword] = React.useState("");
     const setAuth = useSetRecoilState(authAtom);
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const [errorText, setErrorText] = React.useState('')
+    const currentTheme = useRecoilValue(themeAtom);
+    const [showPassword, setShowPassword] = React.useState(false)
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword)
+    };
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
     function validateForm() {
-        return (email.length > 0 && password.length > 0)
-    }
-
-    function validatePassword() {
-        if (email.length > 0 && password.length > 0) {
-            setErrorText('Incorrect password.')
-            return true
-        } else {
+        if (fullName === '') {
             return false
         }
+        if (email.length < 3) {
+            return false
+        }
+        if (password.length < 5) {
+            return false
+        }
+        return true
     }
-
-    const currentTheme = useRecoilValue(themeAtom);
+    function validateFormFull() {
+        if ((!email.includes('@')) || (email.length < 3)) {
+            setEmailText('Please enter a valid email')
+            return false
+        }
+        if (password.length < 8) {
+            setPasswordText('Password must be longer')
+            return false
+        }
+        return true
+    }
+    async function supaSignUpFc() {
+        let { data } = await supabase.auth.signUp({
+            email: email,
+            password: password
+        })
+        await setCurrentUser({
+            //@ts-ignore
+            recordID: data.user?.id,
+            fullName: fullName,
+            userType: 'free'
+        });
+        await supabase
+            .from('users')
+            .insert(currentUserData)
+    }
     const handleSubmit = (event: any) => {
         event.preventDefault();
-        if (validatePassword()) {
-            localStorage.setItem('currentUser', email)
+        if (validateFormFull()) {
+            supaSignUpFc()
             localStorage.setItem("auth", 'true')
             setAuth('true')
             navigate("/budget", {replace: true});
             setSnackSev('success')
-            setSnackText('Login Successful')
+            setSnackText('Signup Successful')
             setSnackOpen(true)
         }
     }
@@ -63,13 +108,6 @@ export default function SignUpPage() {
             setTheme(themes.lightTheme)
         }
     }, [currentTheme]);
-    const [showPassword, setShowPassword] = React.useState(false)
-    const handleClickShowPassword = () => {
-        setShowPassword(!showPassword)
-    };
-    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-    };
     return (
         <>
             <ThemeProvider theme={actTheme}>
@@ -80,7 +118,8 @@ export default function SignUpPage() {
                     backgroundColor: 'primary.light',
                 }}>
                 </Box>
-                <Dialog open={true}>
+                <Dialog open={true}
+                        PaperProps={dialogPaperStyles}>
                     <Box component='form'
                          onSubmit={handleSubmit}
                          sx={{
@@ -120,7 +159,9 @@ export default function SignUpPage() {
                                     fullWidth
                                     name="email"
                                     type="email"
+                                    helperText={emailText}
                                     autoFocus
+                                    error={emailText.length > 0}
                                     label="Email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -132,6 +173,8 @@ export default function SignUpPage() {
                                     name="password"
                                     type={showPassword ? 'text' : 'password'}
                                     label="Password"
+                                    helperText={passwordText}
+                                    error={passwordText.length > 0}
                                     value={password}
                                     InputProps={{
                                         endAdornment: <InputAdornment position="end">

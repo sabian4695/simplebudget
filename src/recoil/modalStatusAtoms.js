@@ -19,3 +19,8 @@ export const addTransaction = atom({
     key: "addTransaction",
     default: false,
 });
+
+export const selectBudget = atom({
+    key: "selectBudget",
+    default: false,
+});

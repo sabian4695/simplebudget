@@ -5,16 +5,12 @@ let budgetArray = [
     {
         recordID: '1',
         creatorID: '123',
-        sharedToID: [''],
-        year: 2022,
-        month: 'December',
+        budgetName: 'Main Budget'
     },
     {
-        recordID: '1',
+        recordID: '2',
         creatorID: '123',
-        sharedToID: [''],
-        year: 2022,
-        month: 'November',
+        budgetName: 'Secondary Budget'
     },
 ];
 
@@ -24,12 +20,16 @@ let sectionsArray = [
         budgetID: '1',
         sectionName: 'Income',
         sectionType: 'income',
+        sectionYear: 2022,
+        sectionMonth: 'December'
     },
     {
         recordID: '2',
         budgetID: '1',
         sectionName: 'Giving',
         sectionType: 'expense',
+        sectionYear: 2022,
+        sectionMonth: 'December'
     }
 ];
 
@@ -68,7 +68,8 @@ let transactionArray = [
         amount: 1400,
         title: 'N1',
         transactionDate: dayjs('11/22/22').valueOf(),
-        transactionType: 'income'
+        transactionType: 'income',
+        creatorID: '123',
     },
     {
         recordID: '2',
@@ -77,7 +78,8 @@ let transactionArray = [
         amount: 140,
         title: 'N1 Tithe',
         transactionDate: dayjs('11/26/22').valueOf(),
-        transactionType: 'expense'
+        transactionType: 'expense',
+        creatorID: '123',
     },
     {
         recordID: '3',
@@ -86,7 +88,8 @@ let transactionArray = [
         amount: 20,
         title: 'Giving Away Money',
         transactionDate: dayjs('11/28/22').valueOf(),
-        transactionType: 'expense'
+        transactionType: 'expense',
+        creatorID: '123',
     },
     {
         recordID: '4',
@@ -95,7 +98,8 @@ let transactionArray = [
         amount: 1200,
         title: 'Counseling Income',
         transactionDate: dayjs('11/28/22').valueOf(),
-        transactionType: 'income'
+        transactionType: 'income',
+        creatorID: '123',
     },
     {
         recordID: '5',
@@ -104,18 +108,32 @@ let transactionArray = [
         amount: 49.23,
         title: 'Giving Away Money',
         transactionDate: dayjs('11/28/22').valueOf(),
-        transactionType: 'expense'
+        transactionType: 'expense',
+        creatorID: '123',
     },
 ];
 
-export const budgetDetails = atom({
-    key: 'budgetDetails',
+export const shared = atom({
+    key: 'shared',
+    default: {
+        recordID: '1',
+        budgetID: '1',
+        sharedToID: '',
+    },
+})
+
+export const budgets = atom({
+    key: 'budgets',
     default: budgetArray,
 });
 
-export const currentBudget = atom({
+export const currentBudgetAndMonth = atom({
     key: 'currentBudget',
-    default: '1',
+    default: {
+        budgetID: '1',
+        year: dayjs().format('YYYY'),
+        month: dayjs().format('MMMM'),
+    },
 });
 
 export const transactions = atom({

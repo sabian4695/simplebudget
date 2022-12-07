@@ -18,7 +18,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 export default function AddCategory() {
     const [addNewCategory,setAddNewCategory] = useRecoilState(addCategory);
     const [categoryName, setCategoryName] = React.useState('');
-    const [categoryAmount, setCategoryAmount] = React.useState(null);
+    const [categoryAmount, setCategoryAmount] = React.useState(0);
     const setCategoryArray = useSetRecoilState(categories)
     const currentSectionID = useRecoilValue(currentSection);
     const sectionsArray = useRecoilValue(sections);
@@ -45,7 +45,7 @@ export default function AddCategory() {
                 recordID: uuidv4(),
                 sectionID: currentSectionID,
                 categoryName: categoryName,
-                amount: categoryAmount !== null ? categoryAmount : 0,
+                amount: categoryAmount,
                 categoryType: '',
             };
             setCategoryArray(prevState => [...prevState, newCategory]);
@@ -56,11 +56,11 @@ export default function AddCategory() {
         }
     }
     React.useEffect(() => {
-        if (addCategory) return;
+        if (addNewCategory) return;
         setCategoryName('')
-        setCategoryAmount(null)
+        setCategoryAmount(0)
         setErrorText('')
-    }, [])
+    }, [addNewCategory])
     return (
         <>
             <Dialog open={addNewCategory}

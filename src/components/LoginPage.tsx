@@ -3,9 +3,17 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button"
 import Box from "@mui/material/Box";
-import {useSetRecoilState, useRecoilValue} from "recoil";
+import {useSetRecoilState, useRecoilValue, useRecoilState} from "recoil";
 import {useNavigate} from "react-router-dom";
-import {authAtom, snackBarOpen, snackBarSeverity, snackBarText, themeAtom, themes} from "../recoil/globalItems";
+import {
+    authAtom, currentUser,
+    dialogPaperStyles,
+    snackBarOpen,
+    snackBarSeverity,
+    snackBarText,
+    themeAtom,
+    themes
+} from "../recoil/globalItems";
 import {ThemeProvider} from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from '@mui/material/Unstable_Grid2';
@@ -14,39 +22,57 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import {createClient} from "@supabase/supabase-js";
+
+const options = {
+    db: {
+        schema: 'public',
+    },
+    auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+    },
+}
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzZG1qamN2YXhlanhrdHF3ZGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzAzMzA0ODMsImV4cCI6MTk4NTkwNjQ4M30.7Uqw2v3Ny5FvPBRBbbvtcUxJj_ReNDjRBUn6cWlal_o'
+
+const SUPABASE_URL = "https://psdmjjcvaxejxktqwdcm.supabase.co"
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, options)
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const [username, setUserName] = React.useState("");
+    const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const [currentUserData, setCurrentUser] = useRecoilState(currentUser)
+    const [errorText, setErrorText] = React.useState('')
     const setAuth = useSetRecoilState(authAtom);
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const [errorText, setErrorText] = React.useState('')
-
-    function validateForm() {
-        return (username.length > 0 && password.length > 0)
-    }
-
-    function validatePassword() {
-        if (username.length > 0 && password.length > 0) {
-            setErrorText('Incorrect password.')
-            return true
-        } else {
+    async function supaSignIn() {
+        let { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        })
+        if (error !== null) {
+            setErrorText('Error! Please check what you entered.')
             return false
         }
-    }
-
-    const currentTheme = useRecoilValue(themeAtom);
-    const handleRedirectSignIn = (event: any) => {
-        event.preventDefault();
-        navigate("/signup", {replace: true});
-    }
-    const handleSubmit = (event: any) => {
-        event.preventDefault();
-        if (validatePassword()) {
-            localStorage.setItem('currentUser', username)
+        let { data: users } = await supabase
+            .from('users')
+            .select('*')
+            .eq('recordID', data.user!.id)
+        await setCurrentUser(
+            {
+                recordID: data.user!.id,
+                //@ts-ignore
+                fullName: users.fullName,
+                //@ts-ignore
+                sharedTo: users.sharedTo,
+            }
+        )
+        if (errorText === '') {
             localStorage.setItem("auth", 'true')
             setAuth('true')
             navigate("/budget", {replace: true});
@@ -54,6 +80,20 @@ export default function LoginPage() {
             setSnackText('Login Successful')
             setSnackOpen(true)
         }
+        return
+    }
+    function validateForm() {
+        return (email.length > 0 && password.length > 0)
+    }
+    const currentTheme = useRecoilValue(themeAtom);
+    const handleRedirectSignIn = (event: any) => {
+        event.preventDefault();
+        navigate("/signup", {replace: true});
+    }
+    const handleSubmit = (event: any) => {
+        event.preventDefault();
+        setErrorText('')
+        supaSignIn()
     }
     const [actTheme, setTheme] = React.useState(themes.darkTheme)
     React.useEffect(() => {
@@ -80,7 +120,8 @@ export default function LoginPage() {
                     backgroundColor: 'primary.light',
                 }}>
                 </Box>
-                <Dialog open={true}>
+                <Dialog open={true}
+                        PaperProps={dialogPaperStyles}>
                     <Box component='form'
                          onSubmit={handleSubmit}
                          sx={{
@@ -102,17 +143,16 @@ export default function LoginPage() {
                             </Grid>
                             <Grid xs={12} sx={{mb:0, pb:1}}>
                                 <Typography variant='body2'>Sign in to continue.</Typography>
-                                <Typography color='error' variant='subtitle2'>{errorText}</Typography>
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
                                     fullWidth
-                                    name="username"
-                                    type="username"
+                                    name="email"
+                                    type="email"
                                     autoFocus
-                                    label="Username"
-                                    value-={username}
-                                    onChange={(e) => setUserName(e.target.value)}
+                                    label="Email"
+                                    value-={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </Grid>
                             <Grid xs={12}>
@@ -136,6 +176,9 @@ export default function LoginPage() {
                                     }}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
+                            </Grid>
+                            <Grid xs={12}>
+                                <Typography variant='body2' color='error'>{errorText}</Typography>
                             </Grid>
                             <Grid xs={12}>
                                 <Button fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{mt: 1}}>Log in</Button>

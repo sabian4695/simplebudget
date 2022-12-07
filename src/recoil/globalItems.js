@@ -65,7 +65,11 @@ export const authAtom = atom({
 
 export const currentUser = atom({
     key: "currentUser",
-    default: '123'
+    default: {
+        recordID: '123',
+        fullName: 'Default',
+        userType: 'free'
+    }
 });
 
 export const appName = 'simpleBudget';

@@ -41,6 +41,7 @@
       "react-app/jest"
     ]
   },
+  "homepage": "https://sabian4695.github.io/simplebudget/",
   "browserslist": {
     "production": [
       ">0.2%",

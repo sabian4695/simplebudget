@@ -12,7 +12,7 @@ import Divider from "@mui/material/Divider";
 import dayjs from "dayjs";
 import Box from '@mui/material/Box';
 import ListItemButton from '@mui/material/ListItemButton';
-import {budgetDetails} from "../recoil/tableAtoms";
+import {budgets} from "../recoil/tableAtoms";
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -21,10 +21,10 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 export default function TransactionsPage() {
     const transactionsArray = useRecoilValue(transactions)
-    const budgetArray = useRecoilValue(budgetDetails)
+    const budgetArray = useRecoilValue(budgets)
     return (
         <>
-            <Stack spacing={1} alignItems="center">
+            <Stack spacing={2} alignItems="center">
                 <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Transactions</Typography>
                 <Box sx={{width:'100%'}}>
                     <Paper elevation={5} sx={{width:'100%'}}>
@@ -34,8 +34,8 @@ export default function TransactionsPage() {
                             </ListItem>
                         {transactionsArray.map((row) => (
                             <>
-                                <Divider/>
-                                <ListItem disablePadding key={row.recordID}>
+                                <Divider key={row.recordID}/>
+                                <ListItem disablePadding >
                                     <ListItemButton>
                                         <Grid xs={12} container columnSpacing={2} alignItems='center'>
                                             <Grid xs={9}><ListItemText primary={row.title} secondary={dayjs(row.transactionDate).format('MMM DD')}/></Grid>

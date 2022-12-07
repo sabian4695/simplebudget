@@ -14,9 +14,10 @@ export default function AppToolbar() {
                     <Typography>
                         simple
                     </Typography>
-                    <Typography variant="h6" align="left" sx={{flexGrow: 1}}>
+                    <Typography variant="h6" align="left" >
                         Budget
                     </Typography>
+                    <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[alpha]</Typography>
                 </Toolbar>
             </AppBar>
         </>

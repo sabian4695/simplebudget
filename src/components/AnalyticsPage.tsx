@@ -7,7 +7,7 @@ export default function AnalyticsPage() {
 
     return (
         <>
-            <Stack spacing={1} alignItems="center">
+            <Stack spacing={2} alignItems="center">
                 <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Analytics</Typography>
                 <Paper elevation={5} sx={{width:'100%'}}>
                     Stuff to display

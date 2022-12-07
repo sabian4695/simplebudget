@@ -10,27 +10,21 @@ import {addCategory, addTransaction} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import {dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
+import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
 import {v4 as uuidv4} from "uuid";
 import dayjs, {Dayjs} from "dayjs";
-import {categories, currentBudget, transactions} from "../../recoil/tableAtoms";
+import {categories, currentBudgetAndMonth, transactions} from "../../recoil/tableAtoms";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import Autocomplete from '@mui/material/Autocomplete';
-import Checkbox from '@mui/material/Checkbox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
 
-const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-const checkedIcon = <CheckBoxIcon fontSize="small" />;
-
 export default function AddTransaction() {
     const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
-    const [transactionAmount, setTransactionAmount] = React.useState(null)
+    const [transactionAmount, setTransactionAmount] = React.useState(0)
     const [transactionTitle, setTransactionTitle] = React.useState('')
     const [transactionCategory, setTransactionCategory] = React.useState<any>(null);
     const [transactionType, setTransactionType] = React.useState('expense')
@@ -54,7 +48,8 @@ export default function AddTransaction() {
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const currentBudgetID = useRecoilValue(currentBudget)
+    const currentBudget = useRecoilValue(currentBudgetAndMonth)
+    const currentUserData = useRecoilValue(currentUser)
     const [errorText, setErrorText] = React.useState('')
     const verifyInputs = () => {
         if (transactionTitle === '') {
@@ -80,12 +75,13 @@ export default function AddTransaction() {
         if (verifyInputs()) {
             let newCategory = {
                 recordID: uuidv4(),
-                budgetID: currentBudgetID,
+                budgetID: currentBudget.budgetID,
                 categoryID: transactionCategory !== null ? transactionCategory.id : '',
-                amount: transactionAmount !== null ? transactionAmount : 0,
+                amount: transactionAmount,
                 title: transactionTitle,
                 transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : 0,
                 transactionType: transactionType,
+                creatorID: currentUserData.recordID,
             };
             setTransactionsArray(prevState => [...prevState, newCategory]);
             setAddNewTransaction(false)
@@ -95,14 +91,14 @@ export default function AddTransaction() {
         }
     }
     React.useEffect(() => {
-        if (addTransaction) return;
+        if (addNewTransaction) return;
         setTransactionTitle('')
-        setTransactionAmount(null)
+        setTransactionAmount(0)
         setTransactionType('expense')
         setTransactionCategory(null)
         setTransactionDate(dayjs())
         setErrorText('')
-    }, [])
+    }, [addNewTransaction])
     return (
         <>
             <Dialog open={addNewTransaction}
@@ -114,6 +110,19 @@ export default function AddTransaction() {
                     <DialogTitle>New Transaction</DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={1}>
+                            <Grid xs={12}>
+                                <ToggleButtonGroup
+                                    color="primary"
+                                    value={transactionType}
+                                    fullWidth
+                                    exclusive
+                                    onChange={handleTypeChange}
+                                    size='small'
+                                >
+                                    <ToggleButton value="income">Income</ToggleButton>
+                                    <ToggleButton value="expense">Expense</ToggleButton>
+                                </ToggleButtonGroup>
+                            </Grid>
                             <Grid xs={12}>
                                 <TextField
                                     autoFocus
@@ -137,18 +146,6 @@ export default function AddTransaction() {
                                     type="text"
                                     label="Title"
                                 />
-                            </Grid>
-                            <Grid xs={12}>
-                                <ToggleButtonGroup
-                                    color="primary"
-                                    value={transactionType}
-                                    fullWidth
-                                    exclusive
-                                    onChange={handleTypeChange}
-                                >
-                                    <ToggleButton value="income">Income</ToggleButton>
-                                    <ToggleButton value="expense">Expense</ToggleButton>
-                                </ToggleButtonGroup>
                             </Grid>
                             <Grid xs={12}>
                                 <Autocomplete
