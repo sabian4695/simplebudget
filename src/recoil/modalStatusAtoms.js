@@ -10,8 +10,8 @@ export const addCategory = atom({
     default: false,
 });
 
-export const currentCategory = atom({
-    key: "currentCategory",
+export const currentSection = atom({
+    key: "currentSection",
     default: '',
 });
 

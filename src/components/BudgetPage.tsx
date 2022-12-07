@@ -10,7 +10,9 @@ import {useRecoilValue, useSetRecoilState} from "recoil";
 import {addSection, addTransaction} from "../recoil/modalStatusAtoms";
 import AddSection from "./modals/AddSection";
 import AddTransaction from "./modals/AddTransaction";
-import {budgetDetails, sections} from '../recoil/tableAtoms';
+import {budgetDetails, currentBudget, sections} from '../recoil/tableAtoms';
+import Box from '@mui/material/Box';
+import AddCategory from "./modals/AddCategory";
 
 const fabStyle = {
     position: 'fixed',
@@ -26,10 +28,16 @@ export default function BudgetPage() {
     const setAddNewSection = useSetRecoilState(addSection)
     const setAddNewTransaction = useSetRecoilState(addTransaction)
     const sectionsArray = useRecoilValue(sections)
+    const currentBudgetID = useRecoilValue(currentBudget)
+    const budgetsArray = useRecoilValue(budgetDetails)
+    let currentBudgetDetails = budgetsArray.find(x => x.recordID === currentBudgetID)
     return (
         <>
-            <CustomButton size='large' sx={{mb:1}}><Typography variant='h5'>December 2022</Typography></CustomButton>
             <Stack spacing={2} alignItems="stretch">
+                <Box display='flex' flexDirection='row' alignItems='center'>
+                    <Typography sx={{alignSelf:'flex-start'}} display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
+                    <CustomButton size='small' sx={{py:0, ml:1}}><Typography variant='h6'>{currentBudgetDetails?.month + ' ' + currentBudgetDetails?.year}</Typography></CustomButton>
+                </Box>
                 {sectionsArray.map((row) => (
                     <BudgetSection sectionID={row.recordID} key={row.recordID}/>
                     )
@@ -39,6 +47,7 @@ export default function BudgetPage() {
             <Fab color="secondary" sx={fabStyle} onClick={() => setAddNewTransaction(true)}>
                 <AddIcon />
             </Fab>
+            <AddCategory/>
             <AddSection/>
             <AddTransaction/>
         </>

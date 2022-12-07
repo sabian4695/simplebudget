@@ -69,3 +69,15 @@ export const currentUser = atom({
 });
 
 export const appName = 'simpleBudget';
+
+export const dialogPaperStyles = {
+    style: {
+        bgColor: 'background.paper',
+        borderRadius: 10,
+        borderColor: '#424242',
+        borderStyle: 'solid',
+        borderWidth: 1.4,
+        borderLeftWidth: 4,
+        borderRightWidth: 4,
+    },
+}

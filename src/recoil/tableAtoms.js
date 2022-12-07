@@ -23,11 +23,13 @@ let sectionsArray = [
         recordID: '1',
         budgetID: '1',
         sectionName: 'Income',
+        sectionType: 'income',
     },
     {
         recordID: '2',
         budgetID: '1',
         sectionName: 'Giving',
+        sectionType: 'expense',
     }
 ];
 
@@ -37,28 +39,24 @@ let categoryArray = [
         sectionID: '1',
         categoryName: 'Nifco',
         amount: 4000,
-        categoryType: 'income'
     },
     {
         recordID: '2',
         sectionID: '1',
         categoryName: 'Mikayla Brown Counseling LLC',
         amount: 2000,
-        categoryType: 'income'
     },
     {
         recordID: '3',
         sectionID: '2',
         categoryName: 'Tithe',
         amount: 600,
-        categoryType: 'expense'
     },
     {
         recordID: '4',
         sectionID: '2',
         categoryName: 'Giving General',
         amount: 50,
-        categoryType: 'expense'
     },
 ];
 
@@ -69,8 +67,8 @@ let transactionArray = [
         categoryID: '1',
         amount: 1400,
         title: 'N1',
-        transactionTime: dayjs('11/22/22'),
-        expenseType: 'income'
+        transactionDate: dayjs('11/22/22').valueOf(),
+        transactionType: 'income'
     },
     {
         recordID: '2',
@@ -78,8 +76,8 @@ let transactionArray = [
         categoryID: '3',
         amount: 140,
         title: 'N1 Tithe',
-        transactionTime: dayjs('11/26/22'),
-        expenseType: 'expense'
+        transactionDate: dayjs('11/26/22').valueOf(),
+        transactionType: 'expense'
     },
     {
         recordID: '3',
@@ -87,8 +85,8 @@ let transactionArray = [
         categoryID: '4',
         amount: 20,
         title: 'Giving Away Money',
-        transactionTime: dayjs('11/28/22'),
-        expenseType: 'expense'
+        transactionDate: dayjs('11/28/22').valueOf(),
+        transactionType: 'expense'
     },
     {
         recordID: '4',
@@ -96,8 +94,8 @@ let transactionArray = [
         categoryID: '2',
         amount: 1200,
         title: 'Counseling Income',
-        transactionTime: dayjs('11/28/22'),
-        expenseType: 'income'
+        transactionDate: dayjs('11/28/22').valueOf(),
+        transactionType: 'income'
     },
     {
         recordID: '5',
@@ -105,14 +103,19 @@ let transactionArray = [
         categoryID: '4',
         amount: 49.23,
         title: 'Giving Away Money',
-        transactionTime: dayjs('11/28/22'),
-        expenseType: 'expense'
+        transactionDate: dayjs('11/28/22').valueOf(),
+        transactionType: 'expense'
     },
 ];
 
 export const budgetDetails = atom({
     key: 'budgetDetails',
     default: budgetArray,
+});
+
+export const currentBudget = atom({
+    key: 'currentBudget',
+    default: '1',
 });
 
 export const transactions = atom({

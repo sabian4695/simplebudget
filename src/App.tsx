@@ -67,11 +67,11 @@ function App() {
           <CssBaseline/>
           <Box sx={{
             display: 'flex',
-            height: window.innerHeight,
+            minHeight: window.innerHeight,
             bgcolor: (currentTheme === 'dark' ? 'grey.900' : 'grey.50') }}>
             <Box sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}><AppToolbar/></Box>
             <Box component="main"
-                 sx={{ width:'100%', p: 2, pb:10, height:'100%'}}>
+                 sx={{ width:'100%', p: 2, mb:8, height:'100%'}}>
               <Toolbar/><Outlet/>
             </Box>
             <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={5}>
@@ -90,7 +90,7 @@ function App() {
               </BottomNavigation>
             </Paper>
           </Box>
-            <Snackbar open={snackOpen} autoHideDuration={3000} onClose={snackClose} sx={{ mb: 6 }}>
+            <Snackbar open={snackOpen} autoHideDuration={2000} onClose={snackClose} sx={{ mb: 8 }}>
               {/*@ts-ignore*/}
               <Alert onClose={snackClose} severity={snackSev} sx={{width: '100%'}}>
                 {snackText}

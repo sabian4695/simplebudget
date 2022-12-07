@@ -10,7 +10,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
 import AddCategory from "../modals/AddCategory";
 import {useRecoilValue, useSetRecoilState} from "recoil";
-import {addCategory, currentCategory} from "../../recoil/modalStatusAtoms";
+import {addCategory, currentSection} from "../../recoil/modalStatusAtoms";
 import {sections, categories, transactions} from "../../recoil/tableAtoms";
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -20,7 +20,7 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 export default function BudgetSection(sectionID: any) {
     const setAddNewCategory = useSetRecoilState(addCategory)
-    const setCategory = useSetRecoilState(currentCategory)
+    const setSection = useSetRecoilState(currentSection)
     const sectionsArray = useRecoilValue(sections)
     const categoriesArray = useRecoilValue(categories)
     const transactionsArray = useRecoilValue(transactions)
@@ -34,9 +34,8 @@ export default function BudgetSection(sectionID: any) {
             }, 0)),
         }
     ))
-    console.log(categorySumArray)
-    const openAddCategory = (categoryID: string) => {
-        setCategory(categoryID)
+    const openAddCategory = () => {
+        setSection(sectionID.sectionID)
         setAddNewCategory(true)
     }
     return (
@@ -68,10 +67,9 @@ export default function BudgetSection(sectionID: any) {
                             )
                             )}
                     </List>
-                    <Button size='small' variant='text' sx={{mx:0.5, mb:0.5}} onClick={() => openAddCategory('')}>Add Category</Button>
+                    <Button size='small' variant='text' sx={{mx:0.5, mb:0.5}} onClick={openAddCategory}>Add Category</Button>
                 </Box>
             </Paper>
-            <AddCategory/>
         </>
     )
 }
