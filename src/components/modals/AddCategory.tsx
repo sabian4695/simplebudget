@@ -14,12 +14,14 @@ import {dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from ".
 import {v4 as uuidv4} from "uuid";
 import {categories, sections} from "../../recoil/tableAtoms";
 import InputAdornment from '@mui/material/InputAdornment';
+import AddIcon from "@mui/icons-material/Add";
+import {supabase} from "../LoginPage";
 
 export default function AddCategory() {
     const [addNewCategory,setAddNewCategory] = useRecoilState(addCategory);
     const [categoryName, setCategoryName] = React.useState('');
     const [categoryAmount, setCategoryAmount] = React.useState(0);
-    const setCategoryArray = useSetRecoilState(categories)
+    const [categoryArray, setCategoryArray] = useRecoilState(categories)
     const currentSectionID = useRecoilValue(currentSection);
     const sectionsArray = useRecoilValue(sections);
     const currentSectionName = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionName
@@ -38,7 +40,7 @@ export default function AddCategory() {
         }
         return true
     }
-    const handleSubmit = (event: any) => {
+    async function handleSubmit(event: any) {
         event.preventDefault();
         if (verifyInputs()) {
             let newCategory = {
@@ -46,15 +48,23 @@ export default function AddCategory() {
                 sectionID: currentSectionID,
                 categoryName: categoryName,
                 amount: categoryAmount,
-                categoryType: '',
             };
+            let {data, error} = await supabase
+                .from('categories')
+                .insert(newCategory)
             setCategoryArray(prevState => [...prevState, newCategory]);
+            localStorage.setItem('categories', JSON.stringify(categoryArray))
             setAddNewCategory(false)
             setSnackSev('success')
             setSnackText('Category Added!')
             setSnackOpen(true)
         }
     }
+    const handleFocus = (event: any) => {
+        if (event) {
+            event.target.select()
+        }
+    };
     React.useEffect(() => {
         if (addNewCategory) return;
         setCategoryName('')
@@ -87,11 +97,15 @@ export default function AddCategory() {
                                 <TextField
                                     autoFocus
                                     fullWidth
+                                    onFocus={handleFocus}
                                     value={categoryAmount}
                                     onChange={(event: any) => setCategoryAmount(event.target.value)}
                                     type="number"
                                     InputProps={{
                                         startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                    }}
+                                    inputProps={{
+                                        step: 'any'
                                     }}
                                     placeholder='Budget Amount'
                                     label="Budget Amount"
@@ -101,7 +115,7 @@ export default function AddCategory() {
                     </DialogContent>
                     <DialogActions>
                         <Typography color='error' variant="body2">{errorText}</Typography>
-                        <Button fullWidth variant='contained' type='submit'>Add Category</Button>
+                        <Button fullWidth startIcon={<AddIcon />} variant='contained' type='submit'>Add Category</Button>
                     </DialogActions>
                 </Box>
             </Dialog>

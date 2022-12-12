@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {addCategory, addTransaction} from '../../recoil/modalStatusAtoms'
+import {addTransaction} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -21,10 +21,12 @@ import Autocomplete from '@mui/material/Autocomplete';
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
+import AddIcon from "@mui/icons-material/Add";
+import {supabase} from "../LoginPage";
 
 export default function AddTransaction() {
     const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
-    const [transactionAmount, setTransactionAmount] = React.useState(0)
+    const [transactionAmount, setTransactionAmount] = React.useState(0.00)
     const [transactionTitle, setTransactionTitle] = React.useState('')
     const [transactionCategory, setTransactionCategory] = React.useState<any>(null);
     const [transactionType, setTransactionType] = React.useState('expense')
@@ -44,7 +46,7 @@ export default function AddTransaction() {
             label: row.categoryName
         }
     ))
-    const setTransactionsArray = useSetRecoilState(transactions)
+    const [transactionsArray, setTransactionsArray] = useRecoilState(transactions)
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
@@ -70,10 +72,10 @@ export default function AddTransaction() {
         }
         return true
     }
-    const handleSubmit = (event: any) => {
+    async function handleSubmit(event: any) {
         event.preventDefault();
         if (verifyInputs()) {
-            let newCategory = {
+            let newTransaction = {
                 recordID: uuidv4(),
                 budgetID: currentBudget.budgetID,
                 categoryID: transactionCategory !== null ? transactionCategory.id : '',
@@ -83,13 +85,22 @@ export default function AddTransaction() {
                 transactionType: transactionType,
                 creatorID: currentUserData.recordID,
             };
-            setTransactionsArray(prevState => [...prevState, newCategory]);
+            let {data, error} = await supabase
+                .from('transactions')
+                .insert(newTransaction)
+            setTransactionsArray(prevState => [...prevState, newTransaction]);
+            localStorage.setItem('transactions', JSON.stringify(transactionsArray))
             setAddNewTransaction(false)
             setSnackSev('success')
             setSnackText('Transaction Added!')
             setSnackOpen(true)
         }
     }
+    const handleFocus = (event: any) => {
+        if (event) {
+            event.target.select()
+        }
+    };
     React.useEffect(() => {
         if (addNewTransaction) return;
         setTransactionTitle('')
@@ -126,7 +137,9 @@ export default function AddTransaction() {
                             <Grid xs={12}>
                                 <TextField
                                     autoFocus
+                                    onFocus={handleFocus}
                                     fullWidth
+                                    margin='normal'
                                     value={transactionAmount}
                                     onChange={(event: any) => setTransactionAmount(event.target.value)}
                                     type="number"
@@ -141,6 +154,7 @@ export default function AddTransaction() {
                                 <TextField
                                     autoFocus
                                     fullWidth
+                                    margin='normal'
                                     value={transactionTitle}
                                     onChange={(event: any) => setTransactionTitle(event.target.value)}
                                     type="text"
@@ -168,7 +182,7 @@ export default function AddTransaction() {
                                         onChange={(newValue) => {
                                             setTransactionDate(newValue);
                                         }}
-                                        renderInput={(params) => <TextField {...params} margin="dense" fullWidth/>}
+                                        renderInput={(params) => <TextField {...params} margin="normal" fullWidth/>}
                                         componentsProps={{
                                             actionBar: {
                                                 actions: ['today'],
@@ -182,7 +196,7 @@ export default function AddTransaction() {
                     </DialogContent>
                     <DialogActions>
                         {<Typography color='error' variant="body2">{errorText}</Typography>}
-                        <Button fullWidth onClick={handleSubmit} variant='contained'>Add Transaction</Button>
+                        <Button fullWidth startIcon={<AddIcon />} onClick={handleSubmit} variant='contained'>Add Transaction</Button>
                     </DialogActions>
                 </Box>
             </Dialog>

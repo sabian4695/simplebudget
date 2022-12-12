@@ -8,10 +8,10 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
-import AddCategory from "../modals/AddCategory";
 import {useRecoilValue, useSetRecoilState} from "recoil";
 import {addCategory, currentSection} from "../../recoil/modalStatusAtoms";
 import {sections, categories, transactions} from "../../recoil/tableAtoms";
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -67,7 +67,7 @@ export default function BudgetSection(sectionID: any) {
                             )
                             )}
                     </List>
-                    <Button size='small' variant='text' sx={{mx:0.5, mb:0.5}} onClick={openAddCategory}>Add Category</Button>
+                    <Button size='small' variant='text' startIcon={<PlaylistAddIcon/>} sx={{mx:0.5, mb:0.5}} onClick={openAddCategory}>Add Category</Button>
                 </Box>
             </Paper>
         </>

@@ -15,9 +15,13 @@ import {currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";
 import {v4 as uuidv4} from "uuid";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import LoadingButton from '@mui/lab/LoadingButton';
+import AddIcon from '@mui/icons-material/Add';
+import {supabase} from "../LoginPage";
 
 export default function AddSection() {
     const [addNewSection,setAddNewSection] = useRecoilState(addSection);
+    const [loading, setLoading] = React.useState(false);
     const [sectionName, setSectionName] = React.useState('');
     const [sectionType, setSectionType] = React.useState('expense');
     const handleTypeChange = (
@@ -29,7 +33,7 @@ export default function AddSection() {
         }
     };
     const currentBudget = useRecoilValue(currentBudgetAndMonth)
-    const setSectionArray = useSetRecoilState(sections);
+    const [sectionsArray, setSectionArray] = useRecoilState(sections);
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
@@ -41,19 +45,25 @@ export default function AddSection() {
         }
         return true
     }
-    const handleSubmit = (event: any) => {
+    async function handleSubmit(event: any) {
         event.preventDefault();
+        setLoading(true)
         if (verifyInputs()) {
             let newSection = {
                 recordID: uuidv4(),
                 budgetID: currentBudget.budgetID,
                 sectionName: sectionName,
                 sectionType: sectionType,
-                sectionYear: 0,
-                sectionMonth: '',
+                sectionYear: currentBudget.year,
+                sectionMonth: currentBudget.month,
             };
+            let {data, error} = await supabase
+                .from('sections')
+                .insert(newSection)
             setSectionArray(prevState => [...prevState, newSection]);
+            localStorage.setItem('sections', JSON.stringify(sectionsArray))
             setAddNewSection(false)
+            setLoading(false)
             setSnackSev('success')
             setSnackText('Section Added!')
             setSnackOpen(true)
@@ -102,7 +112,16 @@ export default function AddSection() {
                     </DialogContent>
                     <DialogActions>
                         {<Typography color='error' variant="body2">{errorText}</Typography>}
-                        <Button fullWidth variant='contained' type='submit'>Add Section</Button>
+                        <LoadingButton
+                            fullWidth
+                            type='submit'
+                            startIcon={<AddIcon />}
+                            loading={loading}
+                            loadingPosition="start"
+                            variant="contained"
+                        >
+                            Add Section
+                        </LoadingButton>
                     </DialogActions>
                 </Box>
             </Dialog>

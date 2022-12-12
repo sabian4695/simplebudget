@@ -49,7 +49,7 @@ function App() {
       setTheme(themes.lightTheme)
     }
   }, [currentTheme]);
-  if (auth === 'false') {
+  if (localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token') === null) {
     return <Navigate to="/login"/>;
   }
   if (location.pathname === '/') {

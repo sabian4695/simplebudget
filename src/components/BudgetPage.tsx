@@ -10,12 +10,13 @@ import {useRecoilValue, useSetRecoilState, useRecoilState} from "recoil";
 import {addSection, addTransaction} from "../recoil/modalStatusAtoms";
 import AddSection from "./modals/AddSection";
 import AddTransaction from "./modals/AddTransaction";
-import {budgets, currentBudgetAndMonth, sections} from '../recoil/tableAtoms';
+import {currentBudgetAndMonth, sections} from '../recoil/tableAtoms';
 import Box from '@mui/material/Box';
 import AddCategory from "./modals/AddCategory";
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import dayjs from "dayjs";
+import PostAddIcon from '@mui/icons-material/PostAdd';
 
 const fabStyle = {
     position: 'fixed',
@@ -55,16 +56,14 @@ export default function BudgetPage() {
         index: number,
     ) => {
         setSelectedIndex(index);
+        setCurrentBudget(
+            {
+                budgetID: currentBudget.budgetID,
+                year: Number(options[index].split(' ')[1]),
+                month: options[index].split(' ')[0],
+            }
+        );
         setAnchorEl(null);
-        /////user needs to send request to another user to share budget. other user needs to accept
-
-        //need to check if budget exists for this creator/shared via api
-        //if it does, then go to that one
-        //if not, then create new budget with creatorID as whichever pref is saved
-        //---creator id is now kinda owner id
-
-
-        //setCurrentBudgetID()
     };
 
     const handleClose = () => {
@@ -81,7 +80,7 @@ export default function BudgetPage() {
                     <BudgetSection sectionID={row.recordID} key={row.recordID}/>
                     )
                 )}
-                <Button variant='outlined' color='secondary' onClick={() => setAddNewSection(true)}>Add Section</Button>
+                <Button variant='outlined' color='secondary' startIcon={<PostAddIcon />} onClick={() => setAddNewSection(true)}>Add Section</Button>
             </Stack>
             <Menu
                 id="lock-menu"

@@ -24,3 +24,8 @@ export const selectBudget = atom({
     key: "selectBudget",
     default: false,
 });
+
+export const addBudget = atom({
+    key: "addBudget",
+    default: false,
+});

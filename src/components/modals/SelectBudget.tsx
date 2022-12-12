@@ -12,46 +12,56 @@ import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {selectBudget} from "../../recoil/modalStatusAtoms";
+import {addBudget, selectBudget} from "../../recoil/modalStatusAtoms";
 import {budgets, currentBudgetAndMonth} from "../../recoil/tableAtoms"
 import dayjs from "dayjs";
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import {dialogPaperStyles} from "../../recoil/globalItems";
+import AddBudget from '../modals/AddBudget'
 
 export default function SelectBudget() {
     const [open, setOpen] = useRecoilState(selectBudget)
+    const [createNewBudget, setCreateNewBudget] = useRecoilState(addBudget)
     const budgetsArray = useRecoilValue(budgets)
     const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     const handleListItemClick = (newBudgetID: string) => {
-        setCurrentBudget({
-            budgetID: newBudgetID,
-            year: dayjs().format('YYYY'),
-            month: dayjs().format('MMMM'),
-        })
+        if (newBudgetID !== 'addBudget') {
+            setCurrentBudget({
+                budgetID: newBudgetID,
+                year: currentBudgetDetails.year,
+                month: currentBudgetDetails.month,
+            })
+        } else {
+            setCreateNewBudget(true)
+        }
         setOpen(false)
     }
     return (
-        <Dialog onClose={() => setOpen(false)} open={open}>
-            <DialogTitle>Select Budget</DialogTitle>
-            <List sx={{ pt: 0 }}>
-                {budgetsArray.map((row) => (
-                    <ListItem button onClick={() => handleListItemClick(row.recordID)} key={row.recordID}>
+        <>
+            <Dialog onClose={() => setOpen(false)} open={open} PaperProps={dialogPaperStyles}>
+                <DialogTitle>Select Budget</DialogTitle>
+                <List sx={{ pt: 0 }}>
+                    {budgetsArray.map((row) => (
+                        <ListItem button onClick={() => handleListItemClick(row.recordID)} key={row.recordID}>
+                            <ListItemAvatar>
+                                <Avatar sx={{ bgcolor: 'primary', color: 'primary.light' }}>
+                                    <DashboardIcon />
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText primary={row.budgetName} />
+                        </ListItem>
+                    ))}
+                    <ListItem autoFocus button onClick={() => handleListItemClick('addBudget')}>
                         <ListItemAvatar>
-                            <Avatar sx={{ bgcolor: 'primary', color: 'primary.light' }}>
-                                <DashboardIcon />
+                            <Avatar>
+                                <AddIcon />
                             </Avatar>
                         </ListItemAvatar>
-                        <ListItemText primary={row.budgetName} />
+                        <ListItemText primary="Add Budget" />
                     </ListItem>
-                ))}
-                <ListItem autoFocus button onClick={() => handleListItemClick('addAccount')}>
-                    <ListItemAvatar>
-                        <Avatar>
-                            <AddIcon />
-                        </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary="Add Budget" />
-                </ListItem>
-            </List>
-        </Dialog>
+                </List>
+            </Dialog>
+            <AddBudget/>
+        </>
     )
 }

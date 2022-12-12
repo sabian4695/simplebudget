@@ -5,13 +5,8 @@ let budgetArray = [
     {
         recordID: '1',
         creatorID: '123',
-        budgetName: 'Main Budget'
-    },
-    {
-        recordID: '2',
-        creatorID: '123',
-        budgetName: 'Secondary Budget'
-    },
+        budgetName: 'Default1'
+    }
 ];
 
 let sectionsArray = [
@@ -22,14 +17,6 @@ let sectionsArray = [
         sectionType: 'income',
         sectionYear: 2022,
         sectionMonth: 'December'
-    },
-    {
-        recordID: '2',
-        budgetID: '1',
-        sectionName: 'Giving',
-        sectionType: 'expense',
-        sectionYear: 2022,
-        sectionMonth: 'December'
     }
 ];
 
@@ -37,27 +24,9 @@ let categoryArray = [
     {
         recordID: '1',
         sectionID: '1',
-        categoryName: 'Nifco',
-        amount: 4000,
-    },
-    {
-        recordID: '2',
-        sectionID: '1',
-        categoryName: 'Mikayla Brown Counseling LLC',
-        amount: 2000,
-    },
-    {
-        recordID: '3',
-        sectionID: '2',
-        categoryName: 'Tithe',
-        amount: 600,
-    },
-    {
-        recordID: '4',
-        sectionID: '2',
-        categoryName: 'Giving General',
-        amount: 50,
-    },
+        categoryName: 'Default',
+        amount: 0,
+    }
 ];
 
 let transactionArray = [
@@ -65,61 +34,44 @@ let transactionArray = [
         recordID: '1',
         budgetID: '1',
         categoryID: '1',
-        amount: 1400,
-        title: 'N1',
+        amount: 0,
+        title: 'D1',
         transactionDate: dayjs('11/22/22').valueOf(),
         transactionType: 'income',
         creatorID: '123',
-    },
-    {
-        recordID: '2',
-        budgetID: '1',
-        categoryID: '3',
-        amount: 140,
-        title: 'N1 Tithe',
-        transactionDate: dayjs('11/26/22').valueOf(),
-        transactionType: 'expense',
-        creatorID: '123',
-    },
-    {
-        recordID: '3',
-        budgetID: '1',
-        categoryID: '4',
-        amount: 20,
-        title: 'Giving Away Money',
-        transactionDate: dayjs('11/28/22').valueOf(),
-        transactionType: 'expense',
-        creatorID: '123',
-    },
-    {
-        recordID: '4',
-        budgetID: '1',
-        categoryID: '2',
-        amount: 1200,
-        title: 'Counseling Income',
-        transactionDate: dayjs('11/28/22').valueOf(),
-        transactionType: 'income',
-        creatorID: '123',
-    },
-    {
-        recordID: '5',
-        budgetID: '1',
-        categoryID: '4',
-        amount: 49.23,
-        title: 'Giving Away Money',
-        transactionDate: dayjs('11/28/22').valueOf(),
-        transactionType: 'expense',
-        creatorID: '123',
-    },
+    }
 ];
 
-export const shared = atom({
-    key: 'shared',
-    default: {
+let sharedArray = {
         recordID: '1',
         budgetID: '1',
         sharedToID: '',
-    },
+}
+let currentBudget = {
+        budgetID: '1',
+        year: Number(dayjs().format('YYYY')),
+        month: dayjs().format('MMMM'),
+}
+
+let tables = ['budgets', 'shared', 'sections', 'categories', 'transactions', 'currentBudget']
+let defaults = [budgetArray, sharedArray, sectionsArray, categoryArray, transactionArray, currentBudget]
+
+for (let i = 0; i < tables.length; i++) {
+    if (localStorage.getItem(tables[i]) === null) {
+        localStorage.setItem(tables[i], JSON.stringify(defaults[i]))
+    }
+}
+
+budgetArray = JSON.parse(localStorage.getItem('budgets'))
+sharedArray = JSON.parse(localStorage.getItem('shared'))
+sectionsArray = JSON.parse(localStorage.getItem('sections'))
+categoryArray = JSON.parse(localStorage.getItem('categories'))
+transactionArray = JSON.parse(localStorage.getItem('transactions'))
+currentBudget = JSON.parse(localStorage.getItem('currentBudget'))
+
+export const shared = atom({
+    key: 'shared',
+    default: sharedArray
 })
 
 export const budgets = atom({
@@ -129,11 +81,7 @@ export const budgets = atom({
 
 export const currentBudgetAndMonth = atom({
     key: 'currentBudget',
-    default: {
-        budgetID: '1',
-        year: dayjs().format('YYYY'),
-        month: dayjs().format('MMMM'),
-    },
+    default: currentBudget
 });
 
 export const transactions = atom({

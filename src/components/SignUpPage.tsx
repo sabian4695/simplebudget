@@ -80,19 +80,21 @@ export default function SignUpPage() {
             fullName: fullName,
             userType: 'free'
         });
-        await supabase
+        const {error} = await supabase
             .from('users')
-            .insert(currentUserData)
+            .insert({
+                recordID: data.user?.id,
+                fullName: fullName,
+                userType: 'free'})
+        console.log(error)
     }
     const handleSubmit = (event: any) => {
         event.preventDefault();
         if (validateFormFull()) {
             supaSignUpFc()
-            localStorage.setItem("auth", 'true')
-            setAuth('true')
-            navigate("/budget", {replace: true});
+            navigate("/login", {replace: true});
             setSnackSev('success')
-            setSnackText('Signup Successful')
+            setSnackText('Signup Successful - please verify email to login')
             setSnackOpen(true)
         }
     }

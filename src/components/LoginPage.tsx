@@ -23,6 +23,12 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {createClient} from "@supabase/supabase-js";
+import {supaBudgets, supaSections, supaCategories, supaTransactions} from './extras/api_functions'
+import {budgets, currentBudgetAndMonth, sections, categories, transactions} from "../recoil/tableAtoms";
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
+import {Simulate} from "react-dom/test-utils";
+import load = Simulate.load;
 
 const options = {
     db: {
@@ -44,43 +50,102 @@ export default function LoginPage() {
     const navigate = useNavigate();
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
-    const [currentUserData, setCurrentUser] = useRecoilState(currentUser)
+    const setCurrentUser = useSetRecoilState(currentUser)
+    const [budgetsArray, setBudgetArray] = useRecoilState(budgets)
+    const setSectionArray = useSetRecoilState(sections)
+    const setCategoryArray = useSetRecoilState(categories)
+    const setTransactionArray = useSetRecoilState(transactions)
+    const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     const [errorText, setErrorText] = React.useState('')
     const setAuth = useSetRecoilState(authAtom);
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const [loadingOpen, setLoadingOpen] = React.useState(false);
+    const handleLoadingClose = () => {
+        setLoadingOpen(false);
+    };
     async function supaSignIn() {
+        setLoadingOpen(true)
         let { data, error } = await supabase.auth.signInWithPassword({
             email: email,
             password: password
         })
         if (error !== null) {
-            setErrorText('Error! Please check what you entered.')
+            setErrorText(error.message)
+            setLoadingOpen(false)
             return false
         }
         let { data: users } = await supabase
             .from('users')
-            .select('*')
+            .select('fullName,userType')
             .eq('recordID', data.user!.id)
-        await setCurrentUser(
-            {
-                recordID: data.user!.id,
-                //@ts-ignore
-                fullName: users.fullName,
-                //@ts-ignore
-                sharedTo: users.sharedTo,
+        if (users) {
+            await setCurrentUser(
+                {
+                    recordID: data.user!.id,
+                    fullName: users[0].fullName,
+                    userType: users[0].userType,
+                }
+            )
+            localStorage.setItem('fullName',users[0].fullName)
+            if (errorText === '') {
+                navigate("/budget", {replace: true});
+                setSnackSev('success')
+                setSnackText('Login Successful')
+                setSnackOpen(true)
             }
-        )
-        if (errorText === '') {
-            localStorage.setItem("auth", 'true')
-            setAuth('true')
-            navigate("/budget", {replace: true});
-            setSnackSev('success')
-            setSnackText('Login Successful')
-            setSnackOpen(true)
+            //let sharedID = await supaShared(data.user!.id)
+            //console.log(sharedID)
+            let allBudgets = await supaBudgets(data.user!.id)
+
+            if (allBudgets) {
+                await setBudgetArray(allBudgets)
+                localStorage.setItem('budgets',JSON.stringify(allBudgets))
+                await setCurrentBudget({
+                    budgetID: allBudgets[0].recordID,
+                    year: currentBudget.year,
+                    month: currentBudget.month,
+                })
+                localStorage.setItem('currentBudget', JSON.stringify({
+                    budgetID: allBudgets[0].recordID,
+                    year: currentBudget.year,
+                    month: currentBudget.month,
+                }))
+                let allSections = await supaSections(allBudgets[0].recordID, currentBudget.month, currentBudget.year)
+                if (allSections) {
+                    setSectionArray(allSections)
+                    localStorage.setItem('sections',JSON.stringify(allSections))
+                    let allCategories = await supaCategories(allSections.map(x => x.recordID))
+                    if (allCategories) {
+                        setCategoryArray(allCategories)
+                        localStorage.setItem('categories',JSON.stringify(allCategories))
+                        let allTransactions = await supaTransactions(currentBudget.budgetID)
+                        if (allTransactions) {
+                            setTransactionArray(allTransactions)
+                            localStorage.setItem('transactions',JSON.stringify(allTransactions))
+                        } else {
+                            setTransactionArray([])
+                            localStorage.setItem('transactions',JSON.stringify([]))
+                        }
+                    } else {
+                        setCategoryArray([])
+                        setTransactionArray([])
+                        localStorage.setItem('categories',JSON.stringify([]))
+                        localStorage.setItem('transactions',JSON.stringify([]))
+                    }
+                } else {
+                    setSectionArray([])
+                    setCategoryArray([])
+                    setTransactionArray([])
+                    localStorage.setItem('sections',JSON.stringify([]))
+                    localStorage.setItem('categories',JSON.stringify([]))
+                    localStorage.setItem('transactions',JSON.stringify([]))
+                }
+            }
+            setLoadingOpen(false)
+            return
         }
-        return
     }
     function validateForm() {
         return (email.length > 0 && password.length > 0)
@@ -190,6 +255,13 @@ export default function LoginPage() {
                         </Grid>
                     </Box>
                 </Dialog>
+                <Backdrop
+                    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 200 }}
+                    open={loadingOpen}
+                    onClick={handleLoadingClose}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
             </ThemeProvider>
         </>
     );

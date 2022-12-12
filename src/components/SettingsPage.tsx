@@ -6,7 +6,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import {Switch} from "@mui/material";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {snackBarOpen, snackBarSeverity, snackBarText, themeAtom} from "../recoil/globalItems";
+import {currentUser, snackBarOpen, snackBarSeverity, snackBarText, themeAtom} from "../recoil/globalItems";
 import {useNavigate} from "react-router-dom";
 import Stack from '@mui/material/Stack';
 import Divider from "@mui/material/Divider";
@@ -31,6 +31,7 @@ export default function SettingsPage() {
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const currentBudget = useRecoilValue(currentBudgetAndMonth)
+    const currentUserDetails = useRecoilValue(currentUser)
     const budgetsArray = useRecoilValue(budgets)
     const setSelectBudgetOpen = useSetRecoilState(selectBudget)
     let currentBudgetDetails = budgetsArray.find(x => x.recordID === currentBudget.budgetID)
@@ -79,8 +80,6 @@ export default function SettingsPage() {
     const navigate = useNavigate();
     const fnLogout = () => {
         supaLogOut()
-        localStorage.setItem('currentUser', 'null')
-        localStorage.setItem('auth', 'false')
         navigate("/login", {replace: true});
     }
     return (
@@ -150,7 +149,7 @@ export default function SettingsPage() {
                 <Paper elevation={5} sx={{width:'100%'}}>
                     <List>
                         <ListItem disablePadding>
-                            <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Account</Typography>
+                            <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Account: {currentUserDetails.fullName}</Typography>
                         </ListItem>
                         <Divider/>
                         <ListItem disablePadding>

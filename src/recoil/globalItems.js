@@ -14,7 +14,12 @@ export const themes = {
             secondary: {
                 main: secondaryMain
             },
-        }
+        },
+        overrides: {
+            MuiAutocomplete: {
+                popup: { zIndex: 1300 },
+            },
+        },
     }),
     lightTheme: createTheme({
         palette: {
@@ -25,7 +30,12 @@ export const themes = {
             secondary: {
                 main: secondaryMain
             },
-        }
+        },
+        overrides: {
+            MuiAutocomplete: {
+                popup: { zIndex: 1300 },
+            },
+        },
     }),
 };
 
@@ -54,19 +64,29 @@ export const snackBarOpen = atom({
     default: false,
 });
 
-if (localStorage.getItem("auth") === null) {
-    localStorage.setItem("auth", 'false')
+let user
+if (localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token') === null) {
+    user = '1'
+} else {
+    user = JSON.parse(localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token')).user
+}
+
+let auth
+if (user.aud === 'authenticated') {
+    auth = 'true'
+} else {
+    auth = 'false'
 }
 
 export const authAtom = atom({
     key: "authAtom",
-    default: localStorage.getItem("auth")
+    default: auth
 });
 
 export const currentUser = atom({
     key: "currentUser",
     default: {
-        recordID: '123',
+        recordID: user.id,
         fullName: 'Default',
         userType: 'free'
     }
