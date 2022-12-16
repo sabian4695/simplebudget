@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/simplebudget/static/css/main.1b022642.css",
-    "main.js": "/simplebudget/static/js/main.5a2cd34a.js",
+    "main.js": "/simplebudget/static/js/main.577715b7.js",
     "static/js/787.7d89f8c2.chunk.js": "/simplebudget/static/js/787.7d89f8c2.chunk.js",
     "static/media/roboto-all-500-normal.woff": "/simplebudget/static/media/roboto-all-500-normal.0ab669b7a0d19b178f57.woff",
     "static/media/roboto-all-700-normal.woff": "/simplebudget/static/media/roboto-all-700-normal.a457fde362a540fcadff.woff",
@@ -37,11 +37,11 @@
     "static/media/roboto-greek-ext-700-normal.woff2": "/simplebudget/static/media/roboto-greek-ext-700-normal.bd9854c751441ccc1a70.woff2",
     "index.html": "/simplebudget/index.html",
     "main.1b022642.css.map": "/simplebudget/static/css/main.1b022642.css.map",
-    "main.5a2cd34a.js.map": "/simplebudget/static/js/main.5a2cd34a.js.map",
+    "main.577715b7.js.map": "/simplebudget/static/js/main.577715b7.js.map",
     "787.7d89f8c2.chunk.js.map": "/simplebudget/static/js/787.7d89f8c2.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1b022642.css",
-    "static/js/main.5a2cd34a.js"
+    "static/js/main.577715b7.js"
   ]
 }
