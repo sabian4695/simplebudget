@@ -49,12 +49,12 @@ export default function TransactionsPage() {
                                             <Grid xs="auto">
                                                 <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
                                             </Grid>
-                                            <Grid xs={6} sx={{flexGrow:1}}>
+                                            <Grid xs='auto' sx={{flexGrow:1}}>
                                                 <Typography sx={{mt:0.5}} variant='body1'>{row.title}</Typography>
                                                 <Chip size='small' label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName}/>
                                             </Grid>
                                             <Grid xs="auto" sx={{textAlign:'right'}}>
-                                                <Typography variant='body1'>{ (row.transactionType === 'expense' ? '-' : '+') +  formatter.format(row.amount)}</Typography>
+                                                <Typography variant='body1'>{ (row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
                                             </Grid>
                                         </Grid>
                                     </ListItemButton>

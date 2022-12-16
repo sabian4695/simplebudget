@@ -3,7 +3,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button"
 import Box from "@mui/material/Box";
-import {useSetRecoilState, useRecoilValue, useRecoilState} from "recoil";
+import {useSetRecoilState, useRecoilValue} from "recoil";
 import {useNavigate} from "react-router-dom";
 import {
     currentUser,
@@ -23,10 +23,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {createClient} from "@supabase/supabase-js";
-import {budgets, currentBudgetAndMonth, sections, categories, transactions} from "../recoil/tableAtoms";
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
-import {addBudget} from "../recoil/modalStatusAtoms";
 
 const options = {
     db: {

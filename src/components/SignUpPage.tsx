@@ -198,7 +198,7 @@ export default function SignUpPage() {
                             </Grid>
                             <Grid xs={12}>
                                 <Typography display='inline' variant='body2'>Already have an account? </Typography>
-                                <Button size='small' onClick={handleRedirectSignUp}>Sign In</Button>
+                                <Button size='small' onClick={handleRedirectSignUp}>Sign Up</Button>
                             </Grid>
                         </Grid>
                     </Box>

@@ -1,5 +1,6 @@
 import {atom} from "recoil";
 import {createTheme} from "@mui/material/styles";
+import dayjs from "dayjs";
 
 const primaryMain = '#4c809e'
 const secondaryMain = '#d68758'
@@ -87,7 +88,7 @@ export const currentUser = atom({
     key: "currentUser",
     default: {
         recordID: user.id,
-        fullName: 'Default',
+        fullName: localStorage.getItem('fullName'),
         userType: 'free'
     }
 });

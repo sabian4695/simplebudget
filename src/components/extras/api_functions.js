@@ -12,7 +12,7 @@ export const supaBudgetsByID = async (value) => {
     let {data, error} = await supabase
         .from('budgets')
         .select()
-        .eq('recordID',value)
+        .in('recordID',value)
     return {data, error}
 }
 
@@ -34,11 +34,20 @@ export const supaSections = async (budgetID, month, year) => {
     return data
 }
 
+export const supaTransactionsFromCategories = async (categoryIDs) => {
+    let {data, error} = await supabase
+        .from('transactions')
+        .select()
+        .in('categoryID',categoryIDs)
+    return data
+}
+
 export const supaTransactions = async (budgetID) => {
     let {data, error} = await supabase
         .from('transactions')
         .select()
         .eq('budgetID',budgetID)
+        .eq('categoryID', null)
     return data
 }
 

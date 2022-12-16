@@ -21,9 +21,9 @@ import {supabase} from "./LoginPage";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import {budgets, currentBudgetAndMonth} from "../recoil/tableAtoms";
-import SelectBudget from './modals/SelectBudget'
 import {selectBudget, shareBudget} from "../recoil/modalStatusAtoms";
 import ShareBudget from "./modals/ShareBudget";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 export default function SettingsPage() {
     const [slideCheck, setSlideCheck] = React.useState(false);
@@ -83,6 +83,21 @@ export default function SettingsPage() {
     const fnLogout = () => {
         supaLogOut()
         navigate("/login", {replace: true});
+    }
+    const copyUserID = async() => {
+        //navigator.clipboard.writeText(user.recordID)
+        await navigator.clipboard
+            .writeText(currentUserDetails.recordID)
+            .then(() => {
+                setSnackSev('success')
+                setSnackText('User ID copied')
+                setSnackOpen(true)
+            })
+            .catch(() => {
+                setSnackSev('error')
+                setSnackText('Something went wrong')
+                setSnackOpen(true)
+            });
     }
     return (
         <>
@@ -152,6 +167,15 @@ export default function SettingsPage() {
                     <List>
                         <ListItem disablePadding>
                             <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Account: {currentUserDetails.fullName}</Typography>
+                        </ListItem>
+                        <Divider/>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={copyUserID}>
+                                <ListItemIcon>
+                                    <ContentCopyIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="Copy My User ID" />
+                            </ListItemButton>
                         </ListItem>
                         <Divider/>
                         <ListItem disablePadding>

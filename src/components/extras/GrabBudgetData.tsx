@@ -2,20 +2,33 @@ import {useRecoilState, useSetRecoilState} from "recoil";
 import {
     supaCategories,
     supaSections,
-    supaTransactions
+    supaTransactions, supaTransactionsFromCategories
 } from './api_functions'
 import {categories, currentBudgetAndMonth, sections, transactions} from "../../recoil/tableAtoms";
-import {mainLoading} from "../../recoil/globalItems";
+import {currentUser, mainLoading} from "../../recoil/globalItems";
+import {supabase} from "../LoginPage";
 
 export default function GrabBudgetData() {
     const setSectionArray = useSetRecoilState(sections)
     const [loadingOpen, setLoadingOpen] = useRecoilState(mainLoading)
     const setCategoryArray = useSetRecoilState(categories)
     const setTransactionArray = useSetRecoilState(transactions)
+    const [currentUserData, setCurrentUser] = useRecoilState(currentUser)
     const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
-    async function grabBudgetData(budgetID: string) {
+    async function grabBudgetData(budgetID: string, year: number, month: string) {
         setLoadingOpen(true)
-        let allSections = await supaSections(budgetID, currentBudget.month, currentBudget.year)
+        let {data, error} = await supabase
+            .from('users')
+            .select()
+            .eq('recordID',currentUserData.recordID)
+        if (data) {
+            setCurrentUser({
+                recordID: currentUserData.recordID,
+                fullName: data[0].fullName,
+                userType: data[0].userType,
+            })
+        }
+        let allSections = await supaSections(budgetID, month, year)
         if (!allSections) {
             setSectionArray([])
             setCategoryArray([])
@@ -32,7 +45,16 @@ export default function GrabBudgetData() {
             return
         }
         setCategoryArray(allCategories)
-        let allTransactions = await supaTransactions(budgetID)
+        let noCategoryTransactions = await supaTransactions(budgetID)
+        let categorizedTransactions = await supaTransactionsFromCategories(allCategories.map(x => x.recordID))
+        let allTransactions
+
+        if (categorizedTransactions) {
+            allTransactions = categorizedTransactions.concat(noCategoryTransactions)
+        } else if (noCategoryTransactions) {
+            allTransactions = noCategoryTransactions.concat(categorizedTransactions)
+        }
+
         if (allTransactions) {
             setTransactionArray(allTransactions)
         } else {

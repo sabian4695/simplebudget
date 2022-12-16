@@ -19,6 +19,8 @@ import dayjs from "dayjs";
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import EditCategory from "./modals/EditCategory";
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
+import Paper from "@mui/material/Paper";
+import GrabBudgetData from "./extras/GrabBudgetData";
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 15,
@@ -61,6 +63,7 @@ export default function BudgetPage() {
     const setAddNewSection = useSetRecoilState(addSection)
     const setAddNewTransaction = useSetRecoilState(addTransaction)
     const sectionsArray = useRecoilValue(sections)
+    const { grabBudgetData } = GrabBudgetData();
     const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const categoryArray = useRecoilValue(categories)
@@ -81,6 +84,14 @@ export default function BudgetPage() {
                 month: options[index].split(' ')[0],
             }
         );
+        localStorage.setItem('currentBudget',JSON.stringify(
+            {
+                budgetID: currentBudget.budgetID,
+                year: Number(options[index].split(' ')[1]),
+                month: options[index].split(' ')[0],
+            }
+        ))
+        grabBudgetData(currentBudget.budgetID, Number(options[index].split(' ')[1]), options[index].split(' ')[0])
         setAnchorEl(null);
     };
     let totalIncomeStart = categoryArray.reduce((accumulator, object) => {
@@ -129,12 +140,17 @@ export default function BudgetPage() {
                     <Typography sx={{alignSelf:'flex-start'}} display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
                     <CustomButton onClick={handleClickListItem} size='small' sx={{py:0, ml:1}}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
                 </Box>
-                <Box display='flex' flexDirection='column' alignItems='center' sx={{my:0, width:'100%'}}>
-                    <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
-                    <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Expenses: {formatter.format(totalExpenses)}</Typography>
-                    <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Leftover: {formatter.format(totalIncome-totalExpenses)}</Typography>
-                </Box>
-                <Box><BorderLinearProgress variant="determinate" value={(totalExpenses/totalIncome)*100}/></Box>
+
+                <Paper elevation={5}>
+                    <Box sx={{width:'100%'}}>
+                        <Box display='flex' flexDirection='column' alignItems='center' sx={{width:'100%', p:1}}>
+                            <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
+                            <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Expenses: {formatter.format(totalExpenses)}</Typography>
+                            <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Leftover: {formatter.format(totalIncome-totalExpenses)}</Typography>
+                        </Box>
+                        <Box><BorderLinearProgress variant="determinate" value={(totalExpenses/totalIncome)*100}/></Box>
+                    </Box>
+                </Paper>
                 {sectionsArray.map((row) => (
                     <BudgetSection sectionID={row.recordID} key={row.recordID}/>
                     )

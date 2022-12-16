@@ -26,6 +26,9 @@ export default function AddBudget() {
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const handleSubmit = async(event: any) => {
         event.preventDefault();
+        if (budgetName === '') {
+            return
+        }
         let newBudget = {
             recordID: uuidv4(),
             creatorID: currentUserDetails.recordID,

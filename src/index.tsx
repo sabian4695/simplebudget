@@ -20,7 +20,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
       <RecoilRoot>
-          <BrowserRouter>
+          <BrowserRouter basename="/simplebudget">
               <Routes>
                   <Route path='/' errorElement={<ErrorPage/>} element={<App/>}>
                       <Route path='budget' element={<BudgetPage/>}/>

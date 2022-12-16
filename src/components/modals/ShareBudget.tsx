@@ -51,22 +51,10 @@ export default function ShareBudget() {
             setErrorText(error.message)
             return
         }
+        setSnackSev('success')
+        setSnackText('Budget Shared Successfully')
+        setSnackOpen(true)
         setOpen(false)
-    }
-    const copyUserID = async() => {
-        //navigator.clipboard.writeText(user.recordID)
-        await navigator.clipboard
-            .writeText(user.recordID)
-            .then(() => {
-                setSnackSev('success')
-                setSnackText('User ID copied')
-                setSnackOpen(true)
-            })
-            .catch(() => {
-                setSnackSev('error')
-                setSnackText('Something went wrong')
-                setSnackOpen(true)
-            });
     }
     return (
         <>
@@ -80,11 +68,8 @@ export default function ShareBudget() {
                             </Grid>
                             <Grid xs={12}>
                                 <Alert severity='info'>
-                                    To share a budget, you need the user ID of the person to share with. To get that, they must go to this page on their account to copy it.
-                                    <br/>
-                                    <Typography display='inline'>Your user ID:</Typography>
-                                    <Typography display='inline'>{user.recordID}</Typography>
-                                    <IconButton onClick={copyUserID}><ContentCopyIcon/></IconButton>
+                                    To share a budget, you need the user ID of the person to share with.
+                                    They go to account settings to copy their user ID.
                                 </Alert>
                             </Grid>
                             <Grid xs={12}>

@@ -1,5 +1,4 @@
 import React from 'react';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -7,27 +6,54 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
-import PersonIcon from '@mui/icons-material/Person';
 import AddIcon from '@mui/icons-material/Add';
-import Typography from '@mui/material/Typography';
-import { blue } from '@mui/material/colors';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {addBudget, selectBudget} from "../../recoil/modalStatusAtoms";
 import {budgets, currentBudgetAndMonth} from "../../recoil/tableAtoms"
-import dayjs from "dayjs";
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import {dialogPaperStyles} from "../../recoil/globalItems";
-import AddBudget from '../modals/AddBudget'
+import {currentUser, dialogPaperStyles} from "../../recoil/globalItems";
 import Box from "@mui/material/Box";
 import ListItemButton from '@mui/material/ListItemButton';
 import GrabBudgetData from "../extras/GrabBudgetData";
+import {supabase} from "../LoginPage";
 
 export default function SelectBudget() {
     const { grabBudgetData } = GrabBudgetData();
     const [open, setOpen] = useRecoilState(selectBudget)
     const [createNewBudget, setCreateNewBudget] = useRecoilState(addBudget)
+    const userData = useRecoilValue(currentUser)
     const budgetsArray = useRecoilValue(budgets)
+    const [userNamesArray, setUserNamesArray] = React.useState([{
+        recordID: '',
+        fullName: '',
+        userType: ''
+    }])
     const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
+    React.useEffect(() => {
+        findUserNames()
+        }, [])
+    async function findUserNames() {
+        let userIDarray = budgetsArray.map(x => x.creatorID)
+        let {data, error} = await supabase
+            .from('users')
+            .select()
+            .eq('recordID',userIDarray)
+        if (data) {
+            setUserNamesArray(data)
+        }
+    }
+    function grabUserName(creatorID: string) {
+        let output
+        if (creatorID === userData.recordID) {
+            output = 'Me'
+        } else {
+            output = userNamesArray.find(x => x.recordID === creatorID)?.fullName
+        }
+        if (output === undefined) {
+            output = 'Not Found'
+        }
+        return output
+    }
     const handleListItemClick = async(newBudgetID: string) => {
         if (newBudgetID !== 'addBudget') {
             setCurrentBudget({
@@ -40,7 +66,7 @@ export default function SelectBudget() {
                 year: currentBudgetDetails.year,
                 month: currentBudgetDetails.month,
             }))
-            await grabBudgetData(newBudgetID)
+            await grabBudgetData(newBudgetID, currentBudgetDetails.year, currentBudgetDetails.month)
         } else {
             setCreateNewBudget(true)
         }
@@ -60,7 +86,7 @@ export default function SelectBudget() {
                                             <DashboardIcon />
                                         </Avatar>
                                     </ListItemAvatar>
-                                    <ListItemText primary={row.budgetName} />
+                                    <ListItemText primary={row.budgetName} secondary={grabUserName(row.creatorID)}/>
                                 </ListItemButton>
                             </ListItem>
                         ))}

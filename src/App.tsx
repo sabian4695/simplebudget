@@ -37,9 +37,7 @@ import AddBudget from "./components/modals/AddBudget";
 import {
   supaBudgetsByCreator,
   supaBudgetsByID,
-  supaCategories,
-  supaSections,
-  supaShared, supaTransactions
+  supaShared,
 } from "./components/extras/api_functions";
 import {budgets, categories, currentBudgetAndMonth, sections, transactions} from "./recoil/tableAtoms";
 import {addBudget, selectBudget} from "./recoil/modalStatusAtoms";
@@ -98,11 +96,14 @@ export default function App() {
 
   async function supaRefresh() {
     setLoadingOpen(true)
-    let sharedBudgetIDs = await supaShared(currentUserInfo.recordID) //grab budgetIDs shared with me
     let myBudgets = await supaBudgetsByCreator(currentUserInfo.recordID) //grab MY budgets
-    // @ts-ignore
-    let sharedBudgets = await supaBudgetsByID(sharedBudgetIDs[0].budgetID) //grab budget info of ones shared with me
-    let allBudgets = myBudgets?.concat(sharedBudgets.data) //combine array of budgets into one
+    let allBudgets = myBudgets
+    let sharedBudgetIDs = await supaShared(currentUserInfo.recordID) //grab budgetIDs shared with me
+    if (sharedBudgetIDs && sharedBudgetIDs.length > 0) {
+      let sharedBudgets = await supaBudgetsByID(sharedBudgetIDs.map(x => x.budgetID)) //grab budget info of ones shared with me
+      //@ts-ignore
+      allBudgets = myBudgets.concat(sharedBudgets.data) //combine array of budgets into one
+    }
     if (allBudgets && allBudgets.length > 0) {
       await setBudgetArray(allBudgets)
       if (allBudgets.length === 1) { //if there's one budget, set it as current
@@ -125,7 +126,7 @@ export default function App() {
         }
       }
 
-      await grabBudgetData(currentBudget.budgetID)
+      await grabBudgetData(currentBudget.budgetID, currentBudget.year, currentBudget.month)
     } else {
       setBudgetArray([])
       setSectionArray([])

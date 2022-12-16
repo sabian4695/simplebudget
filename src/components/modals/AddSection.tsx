@@ -8,7 +8,6 @@ import Grid from '@mui/material/Unstable_Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {addSection} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import {snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles} from "../../recoil/globalItems";
 import {currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";

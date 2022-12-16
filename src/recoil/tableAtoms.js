@@ -53,8 +53,13 @@ let currentBudget = {
         month: dayjs().format('MMMM'),
 }
 
-if (JSON.parse(localStorage.getItem('currentBudget'))) {
+if (localStorage.getItem('currentBudget')) {
     currentBudget = JSON.parse(localStorage.getItem('currentBudget'))
+    if (currentBudget.year === undefined) {
+        currentBudget.year = Number(dayjs().format('YYYY'))
+        currentBudget.month = dayjs().format('MMMM')
+        localStorage.setItem('currentBudget',JSON.stringify(currentBudget))
+    }
 }
 
 export const shared = atom({

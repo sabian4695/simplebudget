@@ -1,7 +1,6 @@
 import React from 'react';
 import Paper from "@mui/material/Paper";
 import Grid from '@mui/material/Unstable_Grid2';
-import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
