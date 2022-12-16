@@ -53,21 +53,9 @@ let currentBudget = {
         month: dayjs().format('MMMM'),
 }
 
-let tables = ['budgets', 'shared', 'sections', 'categories', 'transactions', 'currentBudget']
-let defaults = [budgetArray, sharedArray, sectionsArray, categoryArray, transactionArray, currentBudget]
-
-for (let i = 0; i < tables.length; i++) {
-    if (localStorage.getItem(tables[i]) === null) {
-        localStorage.setItem(tables[i], JSON.stringify(defaults[i]))
-    }
+if (JSON.parse(localStorage.getItem('currentBudget'))) {
+    currentBudget = JSON.parse(localStorage.getItem('currentBudget'))
 }
-
-budgetArray = JSON.parse(localStorage.getItem('budgets'))
-sharedArray = JSON.parse(localStorage.getItem('shared'))
-sectionsArray = JSON.parse(localStorage.getItem('sections'))
-categoryArray = JSON.parse(localStorage.getItem('categories'))
-transactionArray = JSON.parse(localStorage.getItem('transactions'))
-currentBudget = JSON.parse(localStorage.getItem('currentBudget'))
 
 export const shared = atom({
     key: 'shared',

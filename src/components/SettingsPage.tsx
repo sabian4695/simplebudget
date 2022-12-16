@@ -22,10 +22,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import {budgets, currentBudgetAndMonth} from "../recoil/tableAtoms";
 import SelectBudget from './modals/SelectBudget'
-import {selectBudget} from "../recoil/modalStatusAtoms";
+import {selectBudget, shareBudget} from "../recoil/modalStatusAtoms";
+import ShareBudget from "./modals/ShareBudget";
 
 export default function SettingsPage() {
     const [slideCheck, setSlideCheck] = React.useState(false);
+    const setShareBudgetOpen = useSetRecoilState(shareBudget)
     const [currentTheme, setTheme] = useRecoilState(themeAtom);
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
@@ -128,11 +130,11 @@ export default function SettingsPage() {
                         </ListItem>
                         <Divider/>
                         <ListItem disablePadding>
-                            <ListItemButton >
+                            <ListItemButton onClick={() => setShareBudgetOpen(true)}>
                                 <ListItemIcon>
                                     <ShareIcon />
                                 </ListItemIcon>
-                                <ListItemText primary="Share Budget - soon" />
+                                <ListItemText primary="Share Budget" />
                             </ListItemButton>
                         </ListItem>
                         <Divider/>
@@ -172,7 +174,7 @@ export default function SettingsPage() {
                     </List>
                 </Paper>
             </Stack>
-            <SelectBudget/>
+            <ShareBudget/>
         </>
     )
 }

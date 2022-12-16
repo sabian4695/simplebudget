@@ -10,13 +10,27 @@ import {useRecoilValue, useSetRecoilState, useRecoilState} from "recoil";
 import {addSection, addTransaction} from "../recoil/modalStatusAtoms";
 import AddSection from "./modals/AddSection";
 import AddTransaction from "./modals/AddTransaction";
-import {currentBudgetAndMonth, sections} from '../recoil/tableAtoms';
+import {categories, currentBudgetAndMonth, sections} from '../recoil/tableAtoms';
 import Box from '@mui/material/Box';
 import AddCategory from "./modals/AddCategory";
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import dayjs from "dayjs";
 import PostAddIcon from '@mui/icons-material/PostAdd';
+import EditCategory from "./modals/EditCategory";
+import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
+
+const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+    height: 15,
+    borderRadius: 5,
+    [`&.${linearProgressClasses.colorPrimary}`]: {
+        backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 300 : 700],
+    },
+    [`& .${linearProgressClasses.bar}`]: {
+        borderRadius: 5,
+        backgroundColor: theme.palette.mode === 'light' ? 'primary.light' : 'primary.dark',
+    },
+}));
 
 const fabStyle = {
     position: 'fixed',
@@ -38,7 +52,10 @@ for (i=0; i>-14; i--) {
     options.push(monthName[d.getMonth()] + ' ' + d.getFullYear());
     d.setMonth(d.getMonth() - 1);
 }
-
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+});
 
 export default function BudgetPage() {
     const setAddNewSection = useSetRecoilState(addSection)
@@ -46,6 +63,7 @@ export default function BudgetPage() {
     const sectionsArray = useRecoilValue(sections)
     const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const categoryArray = useRecoilValue(categories)
     const [selectedIndex, setSelectedIndex] = React.useState(options.indexOf(currentBudget.month + ' ' + currentBudget.year));
     const open = Boolean(anchorEl);
     const handleClickListItem = (event: React.MouseEvent<HTMLElement>) => {
@@ -65,7 +83,42 @@ export default function BudgetPage() {
         );
         setAnchorEl(null);
     };
-
+    let totalIncomeStart = categoryArray.reduce((accumulator, object) => {
+        let section = sectionsArray.find(x => x.recordID === object.sectionID)
+        if (section?.sectionType === 'income') {
+            return accumulator + object.amount;
+        }
+        return accumulator
+    }, 0)
+    let totalExpensesStart = categoryArray.reduce((accumulator, object) => {
+        let section = sectionsArray.find(x => x.recordID === object.sectionID)
+        if (section?.sectionType === 'expense') {
+            return accumulator + object.amount;
+        }
+        return accumulator
+    }, 0)
+    const [totalIncome, setTotalIncome] = React.useState(totalIncomeStart)
+    const [totalExpenses, setTotalExpenses] = React.useState(totalExpensesStart)
+    React.useEffect(() => {
+        setTotalIncome(
+            categoryArray.reduce((accumulator, object) => {
+                let section = sectionsArray.find(x => x.recordID === object.sectionID)
+                if (section?.sectionType === 'income') {
+                    return accumulator + object.amount;
+                }
+                return accumulator
+            }, 0)
+        )
+        setTotalExpenses(
+            categoryArray.reduce((accumulator, object) => {
+                let section = sectionsArray.find(x => x.recordID === object.sectionID)
+                if (section?.sectionType === 'expense') {
+                    return accumulator + object.amount;
+                }
+                return accumulator
+            }, 0)
+        )
+    }, [categoryArray, sectionsArray])
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -76,6 +129,12 @@ export default function BudgetPage() {
                     <Typography sx={{alignSelf:'flex-start'}} display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
                     <CustomButton onClick={handleClickListItem} size='small' sx={{py:0, ml:1}}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
                 </Box>
+                <Box display='flex' flexDirection='column' alignItems='center' sx={{my:0, width:'100%'}}>
+                    <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
+                    <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Expenses: {formatter.format(totalExpenses)}</Typography>
+                    <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Leftover: {formatter.format(totalIncome-totalExpenses)}</Typography>
+                </Box>
+                <Box><BorderLinearProgress variant="determinate" value={(totalExpenses/totalIncome)*100}/></Box>
                 {sectionsArray.map((row) => (
                     <BudgetSection sectionID={row.recordID} key={row.recordID}/>
                     )
@@ -93,7 +152,7 @@ export default function BudgetPage() {
                 }}
                 PaperProps={{
                     style: {
-                        maxHeight: 200
+                        maxHeight: 400
                     },
                 }}
             >
@@ -113,6 +172,7 @@ export default function BudgetPage() {
             <AddCategory/>
             <AddSection/>
             <AddTransaction/>
+            <EditCategory/>
         </>
     )
 }

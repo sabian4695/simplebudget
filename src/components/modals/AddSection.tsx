@@ -60,8 +60,8 @@ export default function AddSection() {
             let {data, error} = await supabase
                 .from('sections')
                 .insert(newSection)
+            console.log(error)
             setSectionArray(prevState => [...prevState, newSection]);
-            localStorage.setItem('sections', JSON.stringify(sectionsArray))
             setAddNewSection(false)
             setLoading(false)
             setSnackSev('success')

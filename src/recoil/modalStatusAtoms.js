@@ -15,6 +15,26 @@ export const currentSection = atom({
     default: '',
 });
 
+export const currentCategory = atom({
+    key: "currentCategory",
+    default: '',
+});
+
+export const editCategory = atom({
+    key: "editCategory",
+    default: false,
+});
+
+export const editTransaction = atom({
+    key: "editTransaction",
+    default: false,
+});
+
+export const currentTransaction = atom({
+    key: "currentTransaction",
+    default: '',
+});
+
 export const addTransaction = atom({
     key: "addTransaction",
     default: false,
@@ -27,5 +47,10 @@ export const selectBudget = atom({
 
 export const addBudget = atom({
     key: "addBudget",
+    default: false,
+});
+
+export const shareBudget = atom({
+    key: "shareBudget",
     default: false,
 });

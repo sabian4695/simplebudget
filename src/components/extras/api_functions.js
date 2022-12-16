@@ -1,11 +1,19 @@
 import {supabase} from "../LoginPage";
 
-export const supaBudgets = async (userID) => {
+export const supaBudgetsByCreator = async (userID) => {
     let {data, error} = await supabase
         .from('budgets')
         .select()
         .eq('creatorID',userID)
     return data
+}
+
+export const supaBudgetsByID = async (value) => {
+    let {data, error} = await supabase
+        .from('budgets')
+        .select()
+        .eq('recordID',value)
+    return {data, error}
 }
 
 export const supaCategories = async (sectionIDs) => {

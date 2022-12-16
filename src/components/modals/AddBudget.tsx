@@ -24,21 +24,24 @@ export default function AddBudget() {
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const handleSubmit = (event: any) => {
+    const handleSubmit = async(event: any) => {
         event.preventDefault();
         let newBudget = {
             recordID: uuidv4(),
             creatorID: currentUserDetails.recordID,
             budgetName: budgetName,
         }
-        supaNewBudget(newBudget)
+        await supaNewBudget(newBudget)
         setBudgetArray(prevState => [...prevState, newBudget]);
-        localStorage.setItem('budgets', JSON.stringify(budgetArray))
-        setCurrentBudget({
+        console.log(newBudget)
+        console.log(budgetArray)
+        let currentBudget = {
             budgetID: newBudget.recordID,
             year: currentBudgetDetails.year,
             month: currentBudgetDetails.month,
-        })
+        }
+        localStorage.setItem('currentBudget', JSON.stringify(currentBudget))
+        setCurrentBudget(currentBudget)
         setAddNewBudget(false)
         setSnackSev('success')
         setSnackText('Budget Added!')

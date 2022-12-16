@@ -2,17 +2,19 @@ import React from 'react';
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
-import {useRecoilValue} from "recoil";
-import {transactions} from "../recoil/tableAtoms";
+import {useSetRecoilState, useRecoilValue} from "recoil";
+import {categories, transactions} from "../recoil/tableAtoms";
 import ListItem from "@mui/material/ListItem";
 import Grid from "@mui/material/Unstable_Grid2";
 import List from '@mui/material/List';
-import ListItemText from '@mui/material/ListItemText';
 import Divider from "@mui/material/Divider";
 import dayjs from "dayjs";
 import Box from '@mui/material/Box';
 import ListItemButton from '@mui/material/ListItemButton';
-import {budgets} from "../recoil/tableAtoms";
+import Chip from '@mui/material/Chip';
+import Avatar from '@mui/material/Avatar';
+import EditTransaction from "./modals/EditTransaction";
+import {currentTransaction, editTransaction} from "../recoil/modalStatusAtoms";
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -21,7 +23,13 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 export default function TransactionsPage() {
     const transactionsArray = useRecoilValue(transactions)
-    const budgetArray = useRecoilValue(budgets)
+    const categoryArray = useRecoilValue(categories)
+    const setCurrentTransaction = useSetRecoilState(currentTransaction)
+    const setOpenEditTransaction = useSetRecoilState(editTransaction)
+    const openTransaction = (trsID: string) => {
+        setCurrentTransaction(trsID)
+        setOpenEditTransaction(true)
+    }
     return (
         <>
             <Stack spacing={2} alignItems="center">
@@ -36,10 +44,18 @@ export default function TransactionsPage() {
                             <>
                                 <Divider key={row.recordID}/>
                                 <ListItem disablePadding >
-                                    <ListItemButton>
+                                    <ListItemButton onClick={() => openTransaction(row.recordID)}>
                                         <Grid xs={12} container columnSpacing={2} alignItems='center'>
-                                            <Grid xs={9}><ListItemText primary={row.title} secondary={dayjs(row.transactionDate).format('MMM DD')}/></Grid>
-                                            <Grid xs={3} sx={{textAlign:'right'}}><Typography variant='body2'>{ (row.transactionType === 'expense' ? '-' : '+') +  formatter.format(row.amount)}</Typography></Grid>
+                                            <Grid xs="auto">
+                                                <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
+                                            </Grid>
+                                            <Grid xs={6} sx={{flexGrow:1}}>
+                                                <Typography sx={{mt:0.5}} variant='body1'>{row.title}</Typography>
+                                                <Chip size='small' label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName}/>
+                                            </Grid>
+                                            <Grid xs="auto" sx={{textAlign:'right'}}>
+                                                <Typography variant='body1'>{ (row.transactionType === 'expense' ? '-' : '+') +  formatter.format(row.amount)}</Typography>
+                                            </Grid>
                                         </Grid>
                                     </ListItemButton>
                                 </ListItem>
@@ -49,6 +65,7 @@ export default function TransactionsPage() {
                     </Paper>
                 </Box>
             </Stack>
+            <EditTransaction/>
         </>
     )
 }

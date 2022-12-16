@@ -7,8 +7,16 @@ import '@fontsource/roboto/700.css';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import {ThemeProvider} from '@mui/material/styles';
-import {useRecoilState, useRecoilValue} from "recoil";
-import {themeAtom, themes, snackBarOpen, snackBarText, snackBarSeverity, authAtom} from "./recoil/globalItems";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import {
+  themeAtom,
+  themes,
+  snackBarOpen,
+  snackBarText,
+  snackBarSeverity,
+  currentUser,
+  mainLoading
+} from "./recoil/globalItems";
 import AppToolbar from './components/subcomponents/AppToolbar'
 import Toolbar from '@mui/material/Toolbar';
 import {Navigate, Outlet} from "react-router-dom";
@@ -25,6 +33,20 @@ import { redirect, useLocation } from "react-router-dom";
 import {
   Link as RouterLink,
 } from 'react-router-dom';
+import AddBudget from "./components/modals/AddBudget";
+import {
+  supaBudgetsByCreator,
+  supaBudgetsByID,
+  supaCategories,
+  supaSections,
+  supaShared, supaTransactions
+} from "./components/extras/api_functions";
+import {budgets, categories, currentBudgetAndMonth, sections, transactions} from "./recoil/tableAtoms";
+import {addBudget, selectBudget} from "./recoil/modalStatusAtoms";
+import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
+import GrabBudgetData from "./components/extras/GrabBudgetData";
+import SelectBudget from "./components/modals/SelectBudget";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -33,22 +55,34 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-function App() {
+export default function App() {
   let location = useLocation();
   const currentTheme = useRecoilValue(themeAtom);
-  const auth = useRecoilValue(authAtom);
+  const { grabBudgetData } = GrabBudgetData();
   const snackText = useRecoilValue(snackBarText);
   const snackSev = useRecoilValue(snackBarSeverity);
   const [snackOpen, setSnackOpen] = useRecoilState(snackBarOpen);
   const [actTheme, setTheme] = React.useState(themes.darkTheme);
   const [tabValue, setTabValue] = React.useState(location.pathname);
+  const [budgetsArray, setBudgetArray] = useRecoilState(budgets)
+  const setSelectBudget = useSetRecoilState(selectBudget)
+  const setSectionArray = useSetRecoilState(sections)
+  const setCategoryArray = useSetRecoilState(categories)
+  const setTransactionArray = useSetRecoilState(transactions)
+  const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
+  const setCreateNewBudget = useSetRecoilState(addBudget);
+  const currentUserInfo = useRecoilValue(currentUser)
+  const [loadingOpen, setLoadingOpen] = useRecoilState(mainLoading)
+  React.useEffect(() => {
+    supaRefresh()
+  }, [])
   React.useEffect(() => {
     if (currentTheme === 'dark') {
       setTheme(themes.darkTheme)
     } else if (currentTheme === 'light') {
       setTheme(themes.lightTheme)
     }
-  }, [currentTheme]);
+  }, [currentTheme])
   if (localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token') === null) {
     return <Navigate to="/login"/>;
   }
@@ -61,6 +95,49 @@ function App() {
     }
     setSnackOpen(false);
   };
+
+  async function supaRefresh() {
+    setLoadingOpen(true)
+    let sharedBudgetIDs = await supaShared(currentUserInfo.recordID) //grab budgetIDs shared with me
+    let myBudgets = await supaBudgetsByCreator(currentUserInfo.recordID) //grab MY budgets
+    // @ts-ignore
+    let sharedBudgets = await supaBudgetsByID(sharedBudgetIDs[0].budgetID) //grab budget info of ones shared with me
+    let allBudgets = myBudgets?.concat(sharedBudgets.data) //combine array of budgets into one
+    if (allBudgets && allBudgets.length > 0) {
+      await setBudgetArray(allBudgets)
+      if (allBudgets.length === 1) { //if there's one budget, set it as current
+        await setCurrentBudget({
+          budgetID: allBudgets[0].recordID,
+          year: currentBudget.year,
+          month: currentBudget.month,
+        })
+        localStorage.setItem('currentBudget', JSON.stringify({
+          budgetID: allBudgets[0].recordID,
+          year: currentBudget.year,
+          month: currentBudget.month,
+        }))
+      } else { //if there's multiple, check if localStorage has one. If not, have user select budget
+        if (localStorage.getItem('currentBudget') !== null) {
+          // @ts-ignore
+          setCurrentBudget(JSON.parse(localStorage.getItem('currentBudget')))
+        } else {
+          setSelectBudget(true)
+        }
+      }
+
+      await grabBudgetData(currentBudget.budgetID)
+    } else {
+      setBudgetArray([])
+      setSectionArray([])
+      setCategoryArray([])
+      setTransactionArray([])
+      //@ts-ignore
+      setCurrentBudget({})
+      setCreateNewBudget(true)
+      localStorage.removeItem('currentBudget')
+    }
+    setLoadingOpen(false)
+  }
   return (
       <>
         <ThemeProvider theme={actTheme}>
@@ -96,9 +173,15 @@ function App() {
                 {snackText}
               </Alert>
             </Snackbar>
+          <AddBudget/>
+          <Backdrop
+              sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 200 }}
+              open={loadingOpen}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
+          <SelectBudget/>
         </ThemeProvider>
       </>
   );
 }
-
-export default App;

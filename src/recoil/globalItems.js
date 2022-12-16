@@ -17,7 +17,7 @@ export const themes = {
         },
         overrides: {
             MuiAutocomplete: {
-                popup: { zIndex: 1300 },
+                popup: { zIndex: 1500 },
             },
         },
     }),
@@ -33,7 +33,7 @@ export const themes = {
         },
         overrides: {
             MuiAutocomplete: {
-                popup: { zIndex: 1300 },
+                popup: { zIndex: 1500 },
             },
         },
     }),
@@ -90,6 +90,11 @@ export const currentUser = atom({
         fullName: 'Default',
         userType: 'free'
     }
+});
+
+export const mainLoading = atom( {
+    key: "mainLoading",
+    default: false,
 });
 
 export const appName = 'simpleBudget';

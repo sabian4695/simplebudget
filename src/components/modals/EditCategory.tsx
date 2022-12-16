@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {addCategory, currentSection} from '../../recoil/modalStatusAtoms'
+import {currentCategory, currentSection, editCategory} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -14,14 +14,16 @@ import {dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from ".
 import {v4 as uuidv4} from "uuid";
 import {categories, sections} from "../../recoil/tableAtoms";
 import InputAdornment from '@mui/material/InputAdornment';
-import AddIcon from "@mui/icons-material/Add";
+import SaveIcon from '@mui/icons-material/Save';
 import {supabase} from "../LoginPage";
 
-export default function AddCategory() {
-    const [addNewCategory,setAddNewCategory] = useRecoilState(addCategory);
+export default function EditCategory() {
+    const [openEditCategory, setOpenEditCategory] = useRecoilState(editCategory);
     const [categoryName, setCategoryName] = React.useState('');
     const [categoryAmount, setCategoryAmount] = React.useState(0);
     const [categoryArray, setCategoryArray] = useRecoilState(categories)
+    const currentCategoryID = useRecoilValue(currentCategory);
+    let currentCategoryDetails = categoryArray.find(x => x.recordID === currentCategoryID)
     const currentSectionID = useRecoilValue(currentSection);
     const sectionsArray = useRecoilValue(sections);
     const currentSectionName = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionName
@@ -43,19 +45,26 @@ export default function AddCategory() {
     async function handleSubmit(event: any) {
         event.preventDefault();
         if (verifyInputs()) {
-            let newCategory = {
-                recordID: uuidv4(),
-                sectionID: currentSectionID,
-                categoryName: categoryName,
-                amount: categoryAmount,
-            };
-            let {data, error} = await supabase
+            let { error } = await supabase
                 .from('categories')
-                .insert(newCategory)
-            setCategoryArray(prevState => [...prevState, newCategory]);
-            setAddNewCategory(false)
+                .update({
+                    categoryName: categoryName,
+                    amount: categoryAmount
+                })
+                .eq('recordID', currentCategoryID)
+            console.log(error)
+            let newArr = categoryArray.map(obj => {
+                if (obj.recordID === currentCategoryID) {
+                    return {...obj,
+                        categoryName: categoryName,
+                        amount: categoryAmount};
+                }
+                return obj;
+            });
+            setCategoryArray(newArr);
+            setOpenEditCategory(false)
             setSnackSev('success')
-            setSnackText('Category Added!')
+            setSnackText('Category updated!')
             setSnackOpen(true)
         }
     }
@@ -65,27 +74,30 @@ export default function AddCategory() {
         }
     };
     React.useEffect(() => {
-        if (addNewCategory) return;
-        setCategoryName('')
-        setCategoryAmount(0)
+        if (!openEditCategory) return;
+            if (currentCategoryDetails) {
+                setCategoryName(currentCategoryDetails.categoryName)
+                setCategoryAmount(currentCategoryDetails.amount)
+            }
         setErrorText('')
-    }, [addNewCategory])
+    }, [openEditCategory])
     return (
         <>
-            <Dialog open={addNewCategory}
-                    onClose={() => setAddNewCategory(false)}
+            <Dialog open={openEditCategory}
+                    onClose={() => setOpenEditCategory(false)}
                     scroll='paper'
                     PaperProps={dialogPaperStyles}
             >
                 <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle>New Category</DialogTitle>
+                    <DialogTitle>Edit Category</DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
-                            <Typography>Adding to: {currentSectionName}</Typography>
+                            <Typography>Section: {currentSectionName}</Typography>
                             <Grid xs={12}>
                                 <TextField
                                     autoFocus
                                     fullWidth
+                                    onFocus={handleFocus}
                                     value={categoryName}
                                     onChange={(event: any) => setCategoryName(event.target.value)}
                                     type="text"
@@ -114,7 +126,7 @@ export default function AddCategory() {
                     </DialogContent>
                     <DialogActions>
                         <Typography color='error' variant="body2">{errorText}</Typography>
-                        <Button fullWidth startIcon={<AddIcon />} variant='contained' type='submit'>Add Category</Button>
+                        <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>Save Changes</Button>
                     </DialogActions>
                 </Box>
             </Dialog>
