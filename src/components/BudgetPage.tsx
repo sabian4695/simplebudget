@@ -2,14 +2,11 @@ import React from 'react';
 import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack";
 import BudgetSection from "./subcomponents/BudgetSection";
-import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import {useRecoilValue, useSetRecoilState, useRecoilState} from "recoil";
 import {addSection, addTransaction} from "../recoil/modalStatusAtoms";
 import AddSection from "./modals/AddSection";
-import AddTransaction from "./modals/AddTransaction";
 import {categories, currentBudgetAndMonth, sections} from '../recoil/tableAtoms';
 import Box from '@mui/material/Box';
 import AddCategory from "./modals/AddCategory";
@@ -21,6 +18,8 @@ import EditCategory from "./modals/EditCategory";
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import Paper from "@mui/material/Paper";
 import GrabBudgetData from "./extras/GrabBudgetData";
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 15,
@@ -33,12 +32,6 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
         backgroundColor: theme.palette.mode === 'light' ? 'primary.light' : 'primary.dark',
     },
 }));
-
-const fabStyle = {
-    position: 'fixed',
-    bottom: 75,
-    right: 16,
-};
 
 const CustomButton = styled(Button)({
     textTransform: 'none',
@@ -60,6 +53,8 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 export default function BudgetPage() {
+    const theme = useTheme();
+    const matches = useMediaQuery(theme.breakpoints.up('sm'));
     const setAddNewSection = useSetRecoilState(addSection)
     const setAddNewTransaction = useSetRecoilState(addTransaction)
     const sectionsArray = useRecoilValue(sections)
@@ -113,9 +108,11 @@ export default function BudgetPage() {
     React.useEffect(() => {
         setTotalIncome(
             categoryArray.reduce((accumulator, object) => {
-                let section = sectionsArray.find(x => x.recordID === object.sectionID)
-                if (section?.sectionType === 'income') {
-                    return accumulator + object.amount;
+                if (sectionsArray.length > 0) {
+                    //@ts-ignore
+                    if (sectionsArray.find(x => x.recordID === object.sectionID).sectionType === 'income') {
+                        return accumulator + object.amount;
+                    }
                 }
                 return accumulator
             }, 0)
@@ -168,7 +165,7 @@ export default function BudgetPage() {
                 }}
                 PaperProps={{
                     style: {
-                        maxHeight: 400
+                        maxHeight: 300
                     },
                 }}
             >
@@ -182,12 +179,8 @@ export default function BudgetPage() {
                     </MenuItem>
                 ))}
             </Menu>
-            <Fab color="secondary" sx={fabStyle} onClick={() => setAddNewTransaction(true)}>
-                <AddIcon />
-            </Fab>
             <AddCategory/>
             <AddSection/>
-            <AddTransaction/>
             <EditCategory/>
         </>
     )

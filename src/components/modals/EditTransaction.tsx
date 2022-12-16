@@ -20,9 +20,10 @@ import Autocomplete from '@mui/material/Autocomplete';
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
-import AddIcon from "@mui/icons-material/Add";
 import {supabase} from "../LoginPage";
 import SaveIcon from "@mui/icons-material/Save";
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from "@mui/material/IconButton";
 
 export default function EditTransaction() {
     const [openEditTransaction, setOpenEditTransaction] = useRecoilState(editTransaction);
@@ -31,8 +32,6 @@ export default function EditTransaction() {
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const currentBudget = useRecoilValue(currentBudgetAndMonth)
-    const currentUserData = useRecoilValue(currentUser)
     const [errorText, setErrorText] = React.useState('')
     const currentTransactionDetails = transactionsArray.find(x => x.recordID === currentTransactionID)
     const [transactionAmount, setTransactionAmount] = React.useState(0.00)
@@ -56,16 +55,8 @@ export default function EditTransaction() {
         }
     ))
     const verifyInputs = () => {
-        if (transactionTitle === '') {
+        if (transactionTitle === '' || transactionTitle === null) {
             setErrorText('Please enter a title')
-            return false
-        }
-        if (transactionAmount === null) {
-            setErrorText('Please enter an amount')
-            return false
-        }
-        if (transactionCategory === '') {
-            setErrorText('Please enter a category')
             return false
         }
         if (transactionDate === null) {
@@ -76,23 +67,30 @@ export default function EditTransaction() {
     }
     async function handleSubmit(event: any) {
         event.preventDefault();
+        setErrorText('')
+        console.log(transactionCategory)
         if (verifyInputs()) {
             let { error } = await supabase
                 .from('transactions')
                 .update({
-                    categoryID: transactionCategory !== null ? transactionCategory.id : '',
-                    amount: transactionAmount,
+                    categoryID: transactionCategory === null ? null : transactionCategory.id,
+                    //@ts-ignore
+                    amount: transactionAmount === '' ? 0 : transactionAmount,
                     title: transactionTitle,
                     transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
                     transactionType: transactionType,
                 })
                 .eq('recordID', currentTransactionID)
-            console.log(error)
+            if (error) {
+                setErrorText(error.message)
+                return
+            }
             let newArr = transactionsArray.map(obj => {
                 if (obj.recordID === currentTransactionID) {
                     return {...obj,
-                        categoryID: transactionCategory !== null ? transactionCategory.id : '',
-                        amount: transactionAmount,
+                        categoryID: transactionCategory === null ? null : transactionCategory.id,
+                        //@ts-ignore
+                        amount: transactionAmount === '' ? 0 : transactionAmount,
                         title: transactionTitle,
                         transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : 0,
                         transactionType: transactionType,
@@ -131,7 +129,9 @@ export default function EditTransaction() {
                     PaperProps={dialogPaperStyles}
             >
                 <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle>Edit Transaction</DialogTitle>
+                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                        Edit Transaction<IconButton onClick={() => setOpenEditTransaction(false)}><CloseIcon/></IconButton>
+                    </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={1}>
                             <Grid xs={12}>
@@ -147,6 +147,17 @@ export default function EditTransaction() {
                                     <ToggleButton value="income">Income</ToggleButton>
                                     <ToggleButton value="expense">Expense</ToggleButton>
                                 </ToggleButtonGroup>
+                            </Grid>
+                            <Grid xs={12}>
+                                <TextField
+                                    fullWidth
+                                    onFocus={handleFocus}
+                                    margin='normal'
+                                    value={transactionTitle}
+                                    onChange={(event: any) => setTransactionTitle(event.target.value)}
+                                    type="text"
+                                    label="Title"
+                                />
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
@@ -166,18 +177,6 @@ export default function EditTransaction() {
                                 />
                             </Grid>
                             <Grid xs={12}>
-                                <TextField
-                                    autoFocus
-                                    fullWidth
-                                    onFocus={handleFocus}
-                                    margin='normal'
-                                    value={transactionTitle}
-                                    onChange={(event: any) => setTransactionTitle(event.target.value)}
-                                    type="text"
-                                    label="Title"
-                                />
-                            </Grid>
-                            <Grid xs={12}>
                                 <Autocomplete
                                     disablePortal={false}
                                     options={categoryArray}
@@ -193,6 +192,7 @@ export default function EditTransaction() {
                             <Grid xs={12}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
+                                        closeOnSelect
                                         label="Date"
                                         value={transactionDate}
                                         onChange={(newValue) => {
@@ -210,8 +210,8 @@ export default function EditTransaction() {
 
                         </Grid>
                     </DialogContent>
+                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
-                        {<Typography color='error' variant="body2">{errorText}</Typography>}
                         <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>Save Changes</Button>
                     </DialogActions>
                 </Box>

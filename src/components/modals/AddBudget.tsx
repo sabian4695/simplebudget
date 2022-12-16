@@ -14,19 +14,25 @@ import {budgets, currentBudgetAndMonth} from "../../recoil/tableAtoms";
 import {v4 as uuidv4} from "uuid";
 import {supabase} from "../LoginPage";
 import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
 
 export default function AddBudget() {
     const [addNewBudget, setAddNewBudget] = useRecoilState(addBudget);
     const [budgetName, setBudgetName] = React.useState('');
+    const [errorText, setErrorText] = React.useState('');
     const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
-    const [budgetArray, setBudgetArray] = useRecoilState(budgets)
+    const setBudgetArray = useSetRecoilState(budgets)
     const currentUserDetails = useRecoilValue(currentUser)
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const handleSubmit = async(event: any) => {
         event.preventDefault();
-        if (budgetName === '') {
+        setErrorText('')
+        if (budgetName === '' || budgetName === null) {
+            setErrorText('Please enter a name')
             return
         }
         let newBudget = {
@@ -34,10 +40,14 @@ export default function AddBudget() {
             creatorID: currentUserDetails.recordID,
             budgetName: budgetName,
         }
-        await supaNewBudget(newBudget)
+        const {error} = await supabase
+            .from('budgets')
+            .insert(newBudget)
+        if (error) {
+            setErrorText(error.message)
+            return
+        }
         setBudgetArray(prevState => [...prevState, newBudget]);
-        console.log(newBudget)
-        console.log(budgetArray)
         let currentBudget = {
             budgetID: newBudget.recordID,
             year: currentBudgetDetails.year,
@@ -50,15 +60,10 @@ export default function AddBudget() {
         setSnackText('Budget Added!')
         setSnackOpen(true)
     }
-    async function supaNewBudget(newBudgetData: any) {
-        const { data, error } = await supabase
-            .from('budgets')
-            .insert(newBudgetData)
-        console.log(error)
-    }
     React.useEffect(() => {
         if (addNewBudget) return;
         setBudgetName('')
+        setErrorText('')
     }, [addNewBudget])
     return (
         <>
@@ -68,7 +73,9 @@ export default function AddBudget() {
                     PaperProps={dialogPaperStyles}
             >
                 <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle>New Budget</DialogTitle>
+                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                        New Budget<IconButton onClick={() => setAddNewBudget(false)}><CloseIcon/></IconButton>
+                    </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
                             <Grid xs={12}>
@@ -83,6 +90,7 @@ export default function AddBudget() {
                             </Grid>
                         </Grid>
                     </DialogContent>
+                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
                         <Button fullWidth startIcon={<AddIcon />} variant='contained' type='submit'>Add Budget</Button>
                     </DialogActions>

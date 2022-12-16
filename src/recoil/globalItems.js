@@ -1,9 +1,8 @@
 import {atom} from "recoil";
 import {createTheme} from "@mui/material/styles";
-import dayjs from "dayjs";
 
-const primaryMain = '#4c809e'
-const secondaryMain = '#d68758'
+export const primaryMain = '#4c809e'
+export const secondaryMain = '#d68758'
 
 export const themes = {
     darkTheme: createTheme({

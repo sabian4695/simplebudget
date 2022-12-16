@@ -23,6 +23,8 @@ import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import AddIcon from "@mui/icons-material/Add";
 import {supabase} from "../LoginPage";
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from "@mui/material/IconButton";
 
 export default function AddTransaction() {
     const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
@@ -46,7 +48,7 @@ export default function AddTransaction() {
             label: row.categoryName
         }
     ))
-    const [transactionsArray, setTransactionsArray] = useRecoilState(transactions)
+    const setTransactionsArray = useSetRecoilState(transactions)
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
@@ -54,16 +56,8 @@ export default function AddTransaction() {
     const currentUserData = useRecoilValue(currentUser)
     const [errorText, setErrorText] = React.useState('')
     const verifyInputs = () => {
-        if (transactionTitle === '') {
+        if (transactionTitle === '' || transactionTitle === null) {
             setErrorText('Please enter a title')
-            return false
-        }
-        if (transactionAmount === null) {
-            setErrorText('Please enter an amount')
-            return false
-        }
-        if (transactionCategory === '') {
-            setErrorText('Please enter a category')
             return false
         }
         if (transactionDate === null) {
@@ -74,20 +68,30 @@ export default function AddTransaction() {
     }
     async function handleSubmit(event: any) {
         event.preventDefault();
+        if (currentBudget.budgetID === undefined) {
+            setErrorText('You need to create a budget first! Go to the settings page, click \'Select Budget\'')
+            return
+        }
+        setErrorText('')
         if (verifyInputs()) {
             let newTransaction = {
                 recordID: uuidv4(),
                 budgetID: currentBudget.budgetID,
-                categoryID: transactionCategory !== null ? transactionCategory.id : '',
-                amount: transactionAmount,
+                categoryID: transactionCategory === null ? null : transactionCategory.id,
+                //@ts-ignore
+                amount: transactionAmount === '' ? 0 : transactionAmount,
                 title: transactionTitle,
                 transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
                 transactionType: transactionType,
                 creatorID: currentUserData.recordID,
             };
-            let {data, error} = await supabase
+            let {error} = await supabase
                 .from('transactions')
                 .insert(newTransaction)
+            if (error) {
+                setErrorText(error.message)
+                return
+            }
             setTransactionsArray(prevState => [...prevState, newTransaction]);
             setAddNewTransaction(false)
             setSnackSev('success')
@@ -117,7 +121,9 @@ export default function AddTransaction() {
                     PaperProps={dialogPaperStyles}
             >
                 <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle>New Transaction</DialogTitle>
+                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                        New Transaction <IconButton onClick={() => setAddNewTransaction(false)}><CloseIcon/></IconButton>
+                    </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={1}>
                             <Grid xs={12}>
@@ -132,6 +138,17 @@ export default function AddTransaction() {
                                     <ToggleButton value="income">Income</ToggleButton>
                                     <ToggleButton value="expense">Expense</ToggleButton>
                                 </ToggleButtonGroup>
+                            </Grid>
+                            <Grid xs={12}>
+                                <TextField
+                                    fullWidth
+                                    onFocus={handleFocus}
+                                    margin='normal'
+                                    value={transactionTitle}
+                                    onChange={(event: any) => setTransactionTitle(event.target.value)}
+                                    type="text"
+                                    label="Title"
+                                />
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
@@ -151,17 +168,6 @@ export default function AddTransaction() {
                                 />
                             </Grid>
                             <Grid xs={12}>
-                                <TextField
-                                    fullWidth
-                                    onFocus={handleFocus}
-                                    margin='normal'
-                                    value={transactionTitle}
-                                    onChange={(event: any) => setTransactionTitle(event.target.value)}
-                                    type="text"
-                                    label="Title"
-                                />
-                            </Grid>
-                            <Grid xs={12}>
                                 <Autocomplete
                                     disablePortal={false}
                                     options={categoryArray}
@@ -177,6 +183,7 @@ export default function AddTransaction() {
                             <Grid xs={12}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
+                                        closeOnSelect
                                         label="Date"
                                         value={transactionDate}
                                         onChange={(newValue) => {
@@ -194,8 +201,8 @@ export default function AddTransaction() {
 
                         </Grid>
                     </DialogContent>
+                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
-                        {<Typography color='error' variant="body2">{errorText}</Typography>}
                         <Button fullWidth startIcon={<AddIcon />} type='submit' variant='contained'>Add Transaction</Button>
                     </DialogActions>
                 </Box>

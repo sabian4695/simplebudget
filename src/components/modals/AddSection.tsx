@@ -14,13 +14,14 @@ import {currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";
 import {v4 as uuidv4} from "uuid";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import LoadingButton from '@mui/lab/LoadingButton';
 import AddIcon from '@mui/icons-material/Add';
 import {supabase} from "../LoginPage";
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
 
 export default function AddSection() {
     const [addNewSection,setAddNewSection] = useRecoilState(addSection);
-    const [loading, setLoading] = React.useState(false);
     const [sectionName, setSectionName] = React.useState('');
     const [sectionType, setSectionType] = React.useState('expense');
     const handleTypeChange = (
@@ -38,7 +39,7 @@ export default function AddSection() {
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const [errorText, setErrorText] = React.useState('')
     const verifyInputs = () => {
-        if (sectionName === 'null') {
+        if (sectionName === '' || sectionName === null) {
             setErrorText('Please enter section name.')
             return false
         }
@@ -46,7 +47,11 @@ export default function AddSection() {
     }
     async function handleSubmit(event: any) {
         event.preventDefault();
-        setLoading(true)
+        if (currentBudget.budgetID === undefined) {
+            setErrorText('You need to create a budget first! Go to the settings page, click \'Select Budget\'')
+            return
+        }
+        setErrorText('')
         if (verifyInputs()) {
             let newSection = {
                 recordID: uuidv4(),
@@ -56,13 +61,15 @@ export default function AddSection() {
                 sectionYear: currentBudget.year,
                 sectionMonth: currentBudget.month,
             };
-            let {data, error} = await supabase
+            let {error} = await supabase
                 .from('sections')
                 .insert(newSection)
-            console.log(error)
+            if (error) {
+                setErrorText(error.message)
+                return
+            }
             setSectionArray(prevState => [...prevState, newSection]);
             setAddNewSection(false)
-            setLoading(false)
             setSnackSev('success')
             setSnackText('Section Added!')
             setSnackOpen(true)
@@ -82,7 +89,9 @@ export default function AddSection() {
                     PaperProps={dialogPaperStyles}
             >
                 <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle>New Section</DialogTitle>
+                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                        New Section <IconButton onClick={() => setAddNewSection(false)}><CloseIcon/></IconButton>
+                    </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
                             <Grid xs={12}>
@@ -109,18 +118,9 @@ export default function AddSection() {
                             </Grid>
                         </Grid>
                     </DialogContent>
+                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
-                        {<Typography color='error' variant="body2">{errorText}</Typography>}
-                        <LoadingButton
-                            fullWidth
-                            type='submit'
-                            startIcon={<AddIcon />}
-                            loading={loading}
-                            loadingPosition="start"
-                            variant="contained"
-                        >
-                            Add Section
-                        </LoadingButton>
+                        <Button fullWidth startIcon={<AddIcon />} type='submit' variant='contained'>Add Section</Button>
                     </DialogActions>
                 </Box>
             </Dialog>

@@ -16,6 +16,9 @@ import Box from "@mui/material/Box";
 import ListItemButton from '@mui/material/ListItemButton';
 import GrabBudgetData from "../extras/GrabBudgetData";
 import {supabase} from "../LoginPage";
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from "@mui/material/IconButton";
+import dayjs from "dayjs";
 
 export default function SelectBudget() {
     const { grabBudgetData } = GrabBudgetData();
@@ -30,14 +33,19 @@ export default function SelectBudget() {
     }])
     const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     React.useEffect(() => {
-        findUserNames()
-        }, [])
+        if (open) {
+            findUserNames()
+        }
+        }, [open])
     async function findUserNames() {
         let userIDarray = budgetsArray.map(x => x.creatorID)
         let {data, error} = await supabase
             .from('users')
             .select()
-            .eq('recordID',userIDarray)
+            .in('recordID',userIDarray)
+        if (error) {
+            console.log(error.message)
+        }
         if (data) {
             setUserNamesArray(data)
         }
@@ -58,13 +66,13 @@ export default function SelectBudget() {
         if (newBudgetID !== 'addBudget') {
             setCurrentBudget({
                 budgetID: newBudgetID,
-                year: currentBudgetDetails.year,
-                month: currentBudgetDetails.month,
+                year: currentBudgetDetails.year !== null ? currentBudgetDetails.year : Number(dayjs().format('YYYY')),
+                month: currentBudgetDetails.month !== null ? currentBudgetDetails.month : dayjs().format('MMMM')
             })
             localStorage.setItem('currentBudget', JSON.stringify({
                 budgetID: newBudgetID,
-                year: currentBudgetDetails.year,
-                month: currentBudgetDetails.month,
+                year: currentBudgetDetails.year !== null ? currentBudgetDetails.year : Number(dayjs().format('YYYY')),
+                month: currentBudgetDetails.month !== null ? currentBudgetDetails.month : dayjs().format('MMMM')
             }))
             await grabBudgetData(newBudgetID, currentBudgetDetails.year, currentBudgetDetails.month)
         } else {
@@ -76,11 +84,13 @@ export default function SelectBudget() {
         <>
             <Dialog onClose={() => setOpen(false)} open={open} PaperProps={dialogPaperStyles}>
                 <Box sx={{bgcolor: 'background.paper', minWidth: 250}}>
-                    <DialogTitle>Select Budget</DialogTitle>
+                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                        Select Budget<IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
+                    </DialogTitle>
                     <List sx={{ pt: 0 }}>
                         {budgetsArray.map((row) => (
-                            <ListItem disablePadding>
-                                <ListItemButton onClick={() => handleListItemClick(row.recordID)} key={row.recordID}>
+                            <ListItem disablePadding key={row.recordID}>
+                                <ListItemButton onClick={() => handleListItemClick(row.recordID)}>
                                     <ListItemAvatar>
                                         <Avatar sx={{ bgcolor: 'primary', color: 'primary.light' }}>
                                             <DashboardIcon />
@@ -90,7 +100,7 @@ export default function SelectBudget() {
                                 </ListItemButton>
                             </ListItem>
                         ))}
-                        <ListItem disablePadding>
+                        <ListItem disablePadding key={1}>
                             <ListItemButton onClick={() => handleListItemClick('addBudget')}>
                                 <ListItemAvatar>
                                     <Avatar>

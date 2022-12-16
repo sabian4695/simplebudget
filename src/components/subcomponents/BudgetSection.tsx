@@ -37,7 +37,7 @@ export default function BudgetSection(sectionID: any) {
     const setAddNewCategory = useSetRecoilState(addCategory)
     const setSection = useSetRecoilState(currentSection)
     const setCategory = useSetRecoilState(currentCategory)
-    const [openEditCategory, setOpenEditCategory] = useRecoilState(editCategory);
+    const setOpenEditCategory = useSetRecoilState(editCategory);
     const sectionsArray = useRecoilValue(sections)
     const categoriesArray = useRecoilValue(categories)
     const transactionsArray = useRecoilValue(transactions)
@@ -65,7 +65,7 @@ export default function BudgetSection(sectionID: any) {
             <Paper elevation={5}>
                 <Box sx={{width:'100%'}}>
                     <List sx={{width:'100%',pb:0.5}}>
-                        <ListItem disablePadding>
+                        <ListItem disablePadding key={1}>
                             <Grid xs={12} container sx={{px:1, pb:0, mb:0}} columnSpacing={2}>
                                 <Grid xs={5.5}><Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>{section?.sectionName}</Typography></Grid>
                                 <Grid xs={3.25} sx={{textAlign:'right',pt:2}}><Typography color='text.disabled' variant="subtitle2">Planned</Typography></Grid>
@@ -73,27 +73,25 @@ export default function BudgetSection(sectionID: any) {
                             </Grid>
                         </ListItem>
                         {categoryArray.map((row) => (
-                            <>
-                                <ListItem disablePadding key={row.recordID}>
-                                    <ListItemButton onClick={() => openCategory(row.recordID)}>
-                                        <Grid xs={12} container columnSpacing={2}>
-                                            <Grid xs={5.5}>
-                                                <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} display='inline' variant='body1'>{row.categoryName}</Typography>
-                                            </Grid>
-                                            <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount)}</Typography></Grid>
-                                            {/*@ts-ignore*/}
-                                            <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(categorySumArray.find(x => x.categoryID === row.recordID).categorySum)}</Typography></Grid>
-                                            <Grid xs={12}>
-                                                <BorderLinearProgress
-                                                    variant='determinate'
-                                                    //@ts-ignore
-                                                    value={row.amount === 0 ? 0 : (100-(categorySumArray.find(x => x.categoryID === row.recordID).categorySum/row.amount)*100)}
-                                                />
-                                            </Grid>
+                            <ListItem disablePadding key={row.recordID}>
+                                <ListItemButton onClick={() => openCategory(row.recordID)}>
+                                    <Grid xs={12} container columnSpacing={2}>
+                                        <Grid xs={5.5}>
+                                            <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} display='inline' variant='body1'>{row.categoryName}</Typography>
                                         </Grid>
-                                    </ListItemButton>
-                                </ListItem>
-                            </>
+                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount)}</Typography></Grid>
+                                        {/*@ts-ignore*/}
+                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(categorySumArray.find(x => x.categoryID === row.recordID).categorySum)}</Typography></Grid>
+                                        <Grid xs={12}>
+                                            <BorderLinearProgress
+                                                variant='determinate'
+                                                //@ts-ignore
+                                                value={row.amount === 0 ? 0 : (100-(categorySumArray.find(x => x.categoryID === row.recordID).categorySum/row.amount)*100)}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </ListItemButton>
+                            </ListItem>
                             )
                             )}
                     </List>

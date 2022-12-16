@@ -5,6 +5,9 @@ export const supaBudgetsByCreator = async (userID) => {
         .from('budgets')
         .select()
         .eq('creatorID',userID)
+    if (error) {
+        console.log(error.message)
+    }
     return data
 }
 
@@ -13,6 +16,9 @@ export const supaBudgetsByID = async (value) => {
         .from('budgets')
         .select()
         .in('recordID',value)
+    if (error) {
+        console.log(error.message)
+    }
     return {data, error}
 }
 
@@ -21,6 +27,9 @@ export const supaCategories = async (sectionIDs) => {
         .from('categories')
         .select()
         .in('sectionID',sectionIDs)
+    if (error) {
+        console.log(error.message)
+    }
     return data
 }
 
@@ -31,6 +40,9 @@ export const supaSections = async (budgetID, month, year) => {
         .eq('budgetID',budgetID)
         .eq('sectionMonth',month)
         .eq('sectionYear',year)
+    if (error) {
+        console.log(error.message)
+    }
     return data
 }
 
@@ -39,6 +51,9 @@ export const supaTransactionsFromCategories = async (categoryIDs) => {
         .from('transactions')
         .select()
         .in('categoryID',categoryIDs)
+    if (error) {
+        console.log(error.message)
+    }
     return data
 }
 
@@ -47,7 +62,10 @@ export const supaTransactions = async (budgetID) => {
         .from('transactions')
         .select()
         .eq('budgetID',budgetID)
-        .eq('categoryID', null)
+        .is('categoryID', null)
+    if (error) {
+        console.log(error.message)
+    }
     return data
 }
 
@@ -56,6 +74,9 @@ export const supaShared = async (value) => {
         .from('shared')
         .select('budgetID')
         .eq('sharedToID',value)
+    if (error) {
+        console.log(error.message)
+    }
     return data
 }
 
@@ -63,5 +84,8 @@ export const supaUsers = async () => {
     let {data, error} = await supabase
         .from('users')
         .select()
+    if (error) {
+        console.log(error.message)
+    }
     return data
 }

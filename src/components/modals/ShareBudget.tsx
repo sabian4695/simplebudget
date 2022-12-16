@@ -14,8 +14,8 @@ import TextField from "@mui/material/TextField";
 import DialogActions from "@mui/material/DialogActions";
 import ShareIcon from '@mui/icons-material/Share';
 import Alert from '@mui/material/Alert';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from "@mui/material/IconButton";
 import {supabase} from "../LoginPage";
 import {v4 as uuidv4} from "uuid";
 
@@ -31,6 +31,7 @@ export default function ShareBudget() {
     const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     const handleSubmit = async(event: any) => {
         event.preventDefault();
+        setErrorText('')
         if (shareToID === user.recordID) {
             setErrorText('you can\'t share a budget with yourself')
             return
@@ -44,7 +45,7 @@ export default function ShareBudget() {
             budgetID: currentBudgetDetails.budgetID,
             sharedToID: shareToID
         }
-        let {data, error} = await supabase
+        let {error} = await supabase
             .from('shared')
             .insert(newShare)
         if (error) {
@@ -60,7 +61,9 @@ export default function ShareBudget() {
         <>
             <Dialog onClose={() => setOpen(false)} open={open} PaperProps={dialogPaperStyles}>
                 <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle>New Section</DialogTitle>
+                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                        Share Budget<IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
+                    </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
                             <Grid xs={12}>
@@ -84,8 +87,8 @@ export default function ShareBudget() {
                             </Grid>
                         </Grid>
                     </DialogContent>
+                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
-                        {<Typography color='error' variant="body2">{errorText}</Typography>}
                         <Button fullWidth startIcon={<ShareIcon />} type='submit' variant='contained'>Share My Budget</Button>
                     </DialogActions>
                 </Box>

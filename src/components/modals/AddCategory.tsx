@@ -16,12 +16,14 @@ import {categories, sections} from "../../recoil/tableAtoms";
 import InputAdornment from '@mui/material/InputAdornment';
 import AddIcon from "@mui/icons-material/Add";
 import {supabase} from "../LoginPage";
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from "@mui/material/IconButton";
 
 export default function AddCategory() {
     const [addNewCategory,setAddNewCategory] = useRecoilState(addCategory);
     const [categoryName, setCategoryName] = React.useState('');
     const [categoryAmount, setCategoryAmount] = React.useState(0);
-    const [categoryArray, setCategoryArray] = useRecoilState(categories)
+    const setCategoryArray = useSetRecoilState(categories)
     const currentSectionID = useRecoilValue(currentSection);
     const sectionsArray = useRecoilValue(sections);
     const currentSectionName = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionName
@@ -30,28 +32,34 @@ export default function AddCategory() {
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const [errorText, setErrorText] = React.useState('')
     const verifyInputs = () => {
-        if (categoryName === '') {
+        if (categoryName === '' || categoryName === null) {
             setErrorText('Please enter a category name')
             return false
         }
-        if (categoryAmount === null) {
-            setErrorText('You gotta budget some amount!')
-            return false
+        //@ts-ignore
+        if (categoryAmount === null || categoryAmount === '') {
+            setCategoryAmount(0)
         }
         return true
     }
     async function handleSubmit(event: any) {
         event.preventDefault();
+        setErrorText('')
         if (verifyInputs()) {
             let newCategory = {
                 recordID: uuidv4(),
                 sectionID: currentSectionID,
                 categoryName: categoryName,
-                amount: categoryAmount,
+                //@ts-ignore
+                amount: categoryAmount === '' ? 0 : Number(categoryAmount)
             };
-            let {data, error} = await supabase
+            let {error} = await supabase
                 .from('categories')
                 .insert(newCategory)
+            if (error) {
+                setErrorText(error.message)
+                return
+            }
             setCategoryArray(prevState => [...prevState, newCategory]);
             setAddNewCategory(false)
             setSnackSev('success')
@@ -78,7 +86,9 @@ export default function AddCategory() {
                     PaperProps={dialogPaperStyles}
             >
                 <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle>New Category</DialogTitle>
+                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                        New Category <IconButton onClick={() => setAddNewCategory(false)}><CloseIcon/></IconButton>
+                    </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
                             <Typography>Adding to: {currentSectionName}</Typography>
@@ -94,7 +104,6 @@ export default function AddCategory() {
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
-                                    autoFocus
                                     fullWidth
                                     onFocus={handleFocus}
                                     value={categoryAmount}
@@ -112,8 +121,8 @@ export default function AddCategory() {
                             </Grid>
                         </Grid>
                     </DialogContent>
+                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
-                        <Typography color='error' variant="body2">{errorText}</Typography>
                         <Button fullWidth startIcon={<AddIcon />} variant='contained' type='submit'>Add Category</Button>
                     </DialogActions>
                 </Box>

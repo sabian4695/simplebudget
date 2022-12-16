@@ -11,11 +11,12 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import {dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
-import {v4 as uuidv4} from "uuid";
 import {categories, sections} from "../../recoil/tableAtoms";
 import InputAdornment from '@mui/material/InputAdornment';
 import SaveIcon from '@mui/icons-material/Save';
 import {supabase} from "../LoginPage";
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from "@mui/material/IconButton";
 
 export default function EditCategory() {
     const [openEditCategory, setOpenEditCategory] = useRecoilState(editCategory);
@@ -32,32 +33,37 @@ export default function EditCategory() {
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const [errorText, setErrorText] = React.useState('')
     const verifyInputs = () => {
-        if (categoryName === '') {
+        if (categoryName === '' || categoryName === null) {
             setErrorText('Please enter a category name')
             return false
         }
-        if (categoryAmount === null) {
-            setErrorText('You gotta budget some amount!')
-            return false
+        //@ts-ignore
+        if (categoryAmount === null || categoryAmount === '') {
+            setCategoryAmount(0)
         }
         return true
     }
     async function handleSubmit(event: any) {
         event.preventDefault();
+        setErrorText('')
         if (verifyInputs()) {
             let { error } = await supabase
                 .from('categories')
                 .update({
                     categoryName: categoryName,
-                    amount: categoryAmount
+                    //@ts-ignore
+                    amount: categoryAmount === '' ? 0 : categoryAmount
                 })
                 .eq('recordID', currentCategoryID)
-            console.log(error)
+            if (error) {
+                setErrorText(error.message)
+                return
+            }
             let newArr = categoryArray.map(obj => {
                 if (obj.recordID === currentCategoryID) {
                     return {...obj,
                         categoryName: categoryName,
-                        amount: categoryAmount};
+                        amount: Number(categoryAmount)}
                 }
                 return obj;
             });
@@ -89,7 +95,9 @@ export default function EditCategory() {
                     PaperProps={dialogPaperStyles}
             >
                 <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle>Edit Category</DialogTitle>
+                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                        Edit Category<IconButton onClick={() => setOpenEditCategory(false)}><CloseIcon/></IconButton>
+                    </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
                             <Typography>Section: {currentSectionName}</Typography>
@@ -106,7 +114,6 @@ export default function EditCategory() {
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
-                                    autoFocus
                                     fullWidth
                                     onFocus={handleFocus}
                                     value={categoryAmount}
@@ -124,8 +131,8 @@ export default function EditCategory() {
                             </Grid>
                         </Grid>
                     </DialogContent>
+                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
-                        <Typography color='error' variant="body2">{errorText}</Typography>
                         <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>Save Changes</Button>
                     </DialogActions>
                 </Box>

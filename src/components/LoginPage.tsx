@@ -185,7 +185,7 @@ export default function LoginPage() {
                                 <Typography variant='body2' color='error'>{errorText}</Typography>
                             </Grid>
                             <Grid xs={12}>
-                                <Button fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{mt: 1}}>Log in</Button>
+                                <Button fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{mt: 1}}>Sign in</Button>
                             </Grid>
                             <Grid xs={12}>
                                 <Typography display='inline' variant='body2'>Don't have an account? </Typography>

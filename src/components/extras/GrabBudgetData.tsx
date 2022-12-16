@@ -10,17 +10,19 @@ import {supabase} from "../LoginPage";
 
 export default function GrabBudgetData() {
     const setSectionArray = useSetRecoilState(sections)
-    const [loadingOpen, setLoadingOpen] = useRecoilState(mainLoading)
+    const setLoadingOpen = useSetRecoilState(mainLoading)
     const setCategoryArray = useSetRecoilState(categories)
     const setTransactionArray = useSetRecoilState(transactions)
     const [currentUserData, setCurrentUser] = useRecoilState(currentUser)
-    const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     async function grabBudgetData(budgetID: string, year: number, month: string) {
         setLoadingOpen(true)
         let {data, error} = await supabase
             .from('users')
             .select()
             .eq('recordID',currentUserData.recordID)
+        if (error) {
+            console.log(error.message)
+        }
         if (data) {
             setCurrentUser({
                 recordID: currentUserData.recordID,
