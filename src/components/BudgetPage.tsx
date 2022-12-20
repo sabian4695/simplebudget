@@ -108,11 +108,9 @@ export default function BudgetPage() {
     React.useEffect(() => {
         setTotalIncome(
             categoryArray.reduce((accumulator, object) => {
-                if (sectionsArray.length > 0) {
-                    //@ts-ignore
-                    if (sectionsArray.find(x => x.recordID === object.sectionID).sectionType === 'income') {
-                        return accumulator + object.amount;
-                    }
+                let section = sectionsArray.find(x => x.recordID === object.sectionID)
+                if (section?.sectionType === 'income') {
+                    return accumulator + object.amount;
                 }
                 return accumulator
             }, 0)

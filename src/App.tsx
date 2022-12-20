@@ -138,12 +138,12 @@ export default function App() {
           if (allBudgets.find(x => x.recordID === JSON.parse(localStorage.getItem('currentBudget')).budgetID) !== null) {
             // @ts-ignore
             setCurrentBudget(JSON.parse(localStorage.getItem('currentBudget')))
-          } else {
-            setSelectBudget(true)
           }
         }
+        else {
+          setSelectBudget(true)
+        }
       }
-
       await grabBudgetData(currentBudget.budgetID, currentBudget.year, currentBudget.month)
     } else {
       setBudgetArray([])
