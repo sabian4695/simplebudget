@@ -177,8 +177,7 @@ export default function App() {
                   onChange={(event, newValue: string) => {
                     setTabValue(newValue);
                     redirect("/" + newValue)
-                  }}
-              >
+                  }}>
                 <BottomNavigationAction label="Budget" value='/budget' component={RouterLink} to="budget" icon={<DashboardIcon />} />
                 <BottomNavigationAction label="Transactions" value='/transactions' component={RouterLink} to="transactions" icon={<Badge badgeContent={unCategorized} color="secondary"><PaidIcon /></Badge>} />
                 {matches ? null : <Fab color='secondary' sx={{alignSelf:'center', position: 'absolute', mb:9}} size='large'
