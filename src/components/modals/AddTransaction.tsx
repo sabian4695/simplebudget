@@ -142,6 +142,7 @@ export default function AddTransaction() {
                             <Grid xs={12}>
                                 <TextField
                                     fullWidth
+                                    autoFocus
                                     onFocus={handleFocus}
                                     margin='normal'
                                     value={transactionTitle}
@@ -152,7 +153,6 @@ export default function AddTransaction() {
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
-                                    autoFocus
                                     onFocus={handleFocus}
                                     fullWidth
                                     margin='normal'

@@ -55,7 +55,6 @@ export default function TransactionsPage() {
             <Stack spacing={2} alignItems="center">
                 <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Transactions</Typography>
                 <TextField
-                    autoFocus
                     fullWidth
                     size='small'
                     variant='filled'
@@ -89,7 +88,7 @@ export default function TransactionsPage() {
                                                 </Grid>
                                                 <Grid xs='auto' sx={{flexGrow:1}}>
                                                     <Typography sx={{mt:0.5}} variant='body1'>{row.title}</Typography>
-                                                    <Chip size='small' label='Uncategorized'/>
+                                                    <Chip size='small' label='Uncategorized' color='warning' />
                                                 </Grid>
                                                 <Grid xs="auto" sx={{textAlign:'right'}}>
                                                     <Typography variant='body1'>{ (row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
@@ -120,7 +119,7 @@ export default function TransactionsPage() {
                                             </Grid>
                                             <Grid xs='auto' sx={{flexGrow:1}}>
                                                 <Typography sx={{mt:0.5}} variant='body1'>{row.title}</Typography>
-                                                <Chip size='small' label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName}/>
+                                                <Chip size='small' label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName} color='success' />
                                             </Grid>
                                             <Grid xs="auto" sx={{textAlign:'right'}}>
                                                 <Typography variant='body1'>{ (row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
