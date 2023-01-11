@@ -12,6 +12,7 @@ import ErrorPage from "./components/ErrorPage"
 import LoginPage from "./components/LoginPage";
 import SettingsPage from "./components/SettingsPage";
 import SignUpPage from "./components/SignUpPage";
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 
 const root = ReactDOM.createRoot(
@@ -36,4 +37,5 @@ root.render(
   </React.StrictMode>
 );
 
+serviceWorkerRegistration.register();
 reportWebVitals();
