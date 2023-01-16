@@ -97,6 +97,21 @@ export const mainLoading = atom( {
     default: false,
 });
 
+export const areYouSureTitle = atom({
+    key: "areYouSureTitle",
+    default: 'Title',
+});
+
+export const areYouSureDetails = atom({
+    key: "areYouSureDetails",
+    default: 'Details',
+});
+
+export const areYouSureAccept = atom({
+    key: "areYouSureAccept",
+    default: false,
+});
+
 export const appName = 'simpleBudget';
 
 export const dialogPaperStyles = {

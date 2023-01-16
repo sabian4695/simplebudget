@@ -30,6 +30,11 @@ export const editTransaction = atom({
     default: false,
 });
 
+export const editSection = atom({
+    key: "editSection",
+    default: false,
+});
+
 export const currentTransaction = atom({
     key: "currentTransaction",
     default: '',
@@ -52,5 +57,15 @@ export const addBudget = atom({
 
 export const shareBudget = atom({
     key: "shareBudget",
+    default: false,
+});
+
+export const areYouSure = atom({
+    key: "areYouSure",
+    default: false,
+});
+
+export const openViewCategory = atom({
+    key: "openViewCategory",
     default: false,
 });

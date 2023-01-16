@@ -51,6 +51,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import AddTransaction from "./components/modals/AddTransaction";
 import Badge from '@mui/material/Badge';
+import AreYouSure from "./components/subcomponents/AreYouSure";
 
 const fabStyle = {
   position: 'fixed',
@@ -91,9 +92,11 @@ export default function App() {
   React.useEffect(() => {
     setUncategorized(transactionArray.filter(x => x.categoryID === null).length)
   }, [transactionArray])
+
   React.useEffect(() => {
     supaRefresh()
   }, [])
+
   React.useEffect(() => {
     if (currentTheme === 'dark') {
       setTheme(themes.darkTheme)
@@ -103,58 +106,64 @@ export default function App() {
   }, [currentTheme])
 
   if (localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token') === null) {return <Navigate to="/login"/>}
+
   if (location.pathname === '/') {return <Navigate to="/budget"/>}
   const snackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {return}
     setSnackOpen(false);
   };
 
-  async function supaRefresh() {
-    setLoadingOpen(true)
+  async function grabAllBudgets() {
     let myBudgets = await supaBudgetsByCreator(currentUserInfo.recordID)
-    let allBudgets = myBudgets
+    let foundBudgets = myBudgets
     let sharedBudgetIDs = await supaShared(currentUserInfo.recordID)
     if (sharedBudgetIDs && sharedBudgetIDs.length > 0) {
       let sharedBudgets = await supaBudgetsByID(sharedBudgetIDs.map(x => x.budgetID))
       //@ts-ignore
-      allBudgets = myBudgets.concat(sharedBudgets.data)
+      foundBudgets = myBudgets.concat(sharedBudgets.data)
     }
-    if (allBudgets && allBudgets.length > 0) {
-      await setBudgetArray(allBudgets)
-      if (allBudgets.length === 1) {
-        await setCurrentBudget({
-          budgetID: allBudgets[0].recordID,
-          year: currentBudget.year,
-          month: currentBudget.month,
-        })
-        localStorage.setItem('currentBudget', JSON.stringify({
-          budgetID: allBudgets[0].recordID,
-          year: currentBudget.year,
-          month: currentBudget.month,
-        }))
-      } else { //if there's multiple, check if localStorage budget exists in the array
-        if (localStorage.getItem('currentBudget')) {
-          //@ts-ignore
-          if (allBudgets.find(x => x.recordID === JSON.parse(localStorage.getItem('currentBudget')).budgetID) !== null) {
-            // @ts-ignore
-            setCurrentBudget(JSON.parse(localStorage.getItem('currentBudget')))
+    return foundBudgets
+  }
+
+  async function setBudget(allBudgets: any[] | null) {
+    if (allBudgets) {
+      if (allBudgets.length > 0) {
+        await setBudgetArray(allBudgets)
+        if (allBudgets.length === 1) {
+          let setBudget = {
+            budgetID: allBudgets[0].recordID,
+            year: currentBudget.year,
+            month: currentBudget.month,
+          }
+          await setCurrentBudget(setBudget)
+          localStorage.setItem('currentBudget', JSON.stringify(setBudget))
+        } else { //if there's multiple, check if localStorage budget exists in the array
+          let posCurrent = localStorage.getItem('currentBudget')
+          if (allBudgets.find(x => x.recordID === JSON.parse(posCurrent || '{}').budgetID) !== null) {
+            setCurrentBudget(JSON.parse(localStorage.getItem('currentBudget') || '{}'))
+          }
+          else {
+            setSelectBudget(true)
           }
         }
-        else {
-          setSelectBudget(true)
-        }
+        await grabBudgetData(currentBudget.budgetID, currentBudget.year, currentBudget.month)
+      } else if(allBudgets.length === 0) {
+        setBudgetArray([])
+        setSectionArray([])
+        setCategoryArray([])
+        setTransactionArray([])
+        //@ts-ignore
+        setCurrentBudget({})
+        setCreateNewBudget(true)
+        localStorage.removeItem('currentBudget')
       }
-      await grabBudgetData(currentBudget.budgetID, currentBudget.year, currentBudget.month)
-    } else {
-      setBudgetArray([])
-      setSectionArray([])
-      setCategoryArray([])
-      setTransactionArray([])
-      //@ts-ignore
-      setCurrentBudget({})
-      setCreateNewBudget(true)
-      localStorage.removeItem('currentBudget')
     }
+  }
+
+  async function supaRefresh() {
+    setLoadingOpen(true)
+    let allBudgets = await grabAllBudgets()
+    let curBudget = await setBudget(allBudgets)
     setLoadingOpen(false)
   }
   return (
@@ -180,7 +189,7 @@ export default function App() {
                   }}>
                 <BottomNavigationAction label="Budget" value='/budget' component={RouterLink} to="budget" icon={<DashboardIcon />} />
                 <BottomNavigationAction label="Transactions" value='/transactions' component={RouterLink} to="transactions" icon={<Badge badgeContent={unCategorized} color="secondary"><PaidIcon /></Badge>} />
-                {matches ? null : <Fab color='secondary' sx={{alignSelf:'center', position: 'absolute', mb:9}} size='large'
+                {matches ? null : <Fab color='secondary' sx={{alignSelf:'center', position: 'absolute', mb:9}} size="medium"
                                        onClick={() => setAddNewTransaction(true)}><AddIcon/></Fab>}
                 <BottomNavigationAction label="Analytics" value='/analytics' component={RouterLink} to="analytics" icon={<AssessmentIcon />} />
                 <BottomNavigationAction label="Settings" value='/settings' component={RouterLink} to="settings" icon={<SettingsIcon />} />
@@ -205,6 +214,7 @@ export default function App() {
             <CircularProgress color="inherit" />
           </Backdrop>
           <SelectBudget/>
+          <AreYouSure/>
         </ThemeProvider>
       </>
   );

@@ -7,18 +7,22 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {addCategory, currentSection, currentCategory, editCategory} from "../../recoil/modalStatusAtoms";
+import {useRecoilValue, useSetRecoilState} from "recoil";
+import {addCategory, currentSection, currentCategory, editCategory, editSection, openViewCategory} from "../../recoil/modalStatusAtoms";
 import {sections, categories, transactions} from "../../recoil/tableAtoms";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import IconButton from "@mui/material/IconButton";
-import ExpandMoreSharpIcon from '@mui/icons-material/ExpandMoreSharp';
 import LinearProgress, {linearProgressClasses} from "@mui/material/LinearProgress";
 import {styled} from "@mui/material/styles";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
+});
+
+const CustomButton = styled(Button)({
+    textTransform: 'none',
 });
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
@@ -38,11 +42,13 @@ export default function BudgetSection(sectionID: any) {
     const setSection = useSetRecoilState(currentSection)
     const setCategory = useSetRecoilState(currentCategory)
     const setOpenEditCategory = useSetRecoilState(editCategory);
+    const setOpenEditSection = useSetRecoilState(editSection);
     const sectionsArray = useRecoilValue(sections)
     const categoriesArray = useRecoilValue(categories)
     const transactionsArray = useRecoilValue(transactions)
     let section = sectionsArray.find(x => x.recordID === sectionID.sectionID)
     let categoryArray = categoriesArray.filter(x => x.sectionID === sectionID.sectionID)
+
     let categorySumArray = categoryArray.map((row) => (
         {
             categoryID: row.recordID,
@@ -51,6 +57,18 @@ export default function BudgetSection(sectionID: any) {
             }, 0)),
         }
     ))
+
+    React.useEffect(() => {
+        categorySumArray = categoryArray.map((row) => (
+            {
+                categoryID: row.recordID,
+                categorySum: row.amount - (transactionsArray.filter(x => x.categoryID === row.recordID).reduce((accumulator, object) => {
+                    return accumulator + object.amount;
+                }, 0)),
+            }
+        ))
+    }, [transactionsArray, categoriesArray, categoryArray])
+
     const openAddCategory = () => {
         setSection(sectionID.sectionID)
         setAddNewCategory(true)
@@ -60,6 +78,10 @@ export default function BudgetSection(sectionID: any) {
         setCategory(categoryID)
         setOpenEditCategory(true)
     }
+    const openSection = () => {
+        setSection(sectionID.sectionID)
+        setOpenEditSection(true)
+    }
     return (
         <>
             <Paper elevation={5}>
@@ -67,7 +89,11 @@ export default function BudgetSection(sectionID: any) {
                     <List sx={{width:'100%',pb:0.5}}>
                         <ListItem disablePadding key={1}>
                             <Grid xs={12} container sx={{px:1, pb:0, mb:0}} columnSpacing={2}>
-                                <Grid xs={5.5}><Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>{section?.sectionName}</Typography></Grid>
+                                <Grid xs={5.5}>
+                                    <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>
+                                        {section?.sectionName}
+                                    </Typography>
+                                </Grid>
                                 <Grid xs={3.25} sx={{textAlign:'right',pt:2}}><Typography color='text.disabled' variant="subtitle2">Planned</Typography></Grid>
                                 <Grid xs={3.25} sx={{textAlign:'right',pt:2}}><Typography color='text.disabled' variant="subtitle2">Remaining</Typography></Grid>
                             </Grid>
@@ -97,7 +123,7 @@ export default function BudgetSection(sectionID: any) {
                     </List>
                     <Box display='flex' justifyContent='space-between' sx={{mx:0.5, mb:0.5}}>
                         <Button size='small' variant='text' startIcon={<PlaylistAddIcon/>} onClick={openAddCategory}>Add Category</Button>
-                        <IconButton size='small'><ExpandMoreSharpIcon /></IconButton>
+                        <IconButton onClick={openSection} size='small'><MoreHorizIcon /></IconButton>
                     </Box>
                 </Box>
             </Paper>

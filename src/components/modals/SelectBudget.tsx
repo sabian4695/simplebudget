@@ -19,6 +19,8 @@ import {supabase} from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import dayjs from "dayjs";
+import {useTheme} from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function SelectBudget() {
     const { grabBudgetData } = GrabBudgetData();
@@ -32,6 +34,8 @@ export default function SelectBudget() {
         userType: ''
     }])
     const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
+    const theme = useTheme();
+    const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     React.useEffect(() => {
         if (open) {
             findUserNames()
@@ -82,8 +86,12 @@ export default function SelectBudget() {
     }
     return (
         <>
-            <Dialog onClose={() => setOpen(false)} open={open} PaperProps={dialogPaperStyles}>
-                <Box sx={{bgcolor: 'background.paper', minWidth: 250}}>
+            <Dialog
+                onClose={() => setOpen(false)}
+                open={open}
+                PaperProps={bigger ? dialogPaperStyles : undefined}
+            >
+                <Box sx={{bgcolor: 'background.paper', height:'100%', minWidth: 250}}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
                         Select Budget<IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
                     </DialogTitle>

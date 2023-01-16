@@ -2,6 +2,7 @@ import * as React from 'react';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import AppBar from '@mui/material/AppBar';
+import logo from '../../logo.png'
 
 export default function AppToolbar() {
     return (
@@ -11,9 +12,14 @@ export default function AppToolbar() {
                         width: '100%'
                     }}>
                 <Toolbar>
-                    <Typography>
-                        simple
-                    </Typography>
+                    <img
+                        height='30'
+                        src={logo}
+                        srcSet={`${logo}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                        alt='logo'
+                        loading="lazy"
+                    />
+                    <Typography sx={{ml:1}}>simple</Typography>
                     <Typography variant="h6" align="left" >
                         Budget
                     </Typography>

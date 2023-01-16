@@ -6,11 +6,20 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {currentTransaction, editTransaction} from '../../recoil/modalStatusAtoms'
+import {areYouSure, currentTransaction, editTransaction} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
+import {
+    areYouSureAccept,
+    areYouSureDetails,
+    areYouSureTitle,
+    currentUser,
+    dialogPaperStyles,
+    snackBarOpen,
+    snackBarSeverity,
+    snackBarText
+} from "../../recoil/globalItems";
 import dayjs, {Dayjs} from "dayjs";
 import {categories, currentBudgetAndMonth, transactions} from "../../recoil/tableAtoms";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
@@ -24,6 +33,13 @@ import {supabase} from "../LoginPage";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
+import {useTheme} from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Stack from "@mui/material/Stack";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import MenuItem from "@mui/material/MenuItem";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Menu from "@mui/material/Menu";
 
 export default function EditTransaction() {
     const [openEditTransaction, setOpenEditTransaction] = useRecoilState(editTransaction);
@@ -39,6 +55,12 @@ export default function EditTransaction() {
     const [transactionCategory, setTransactionCategory] = React.useState<any>(null);
     const [transactionType, setTransactionType] = React.useState('expense')
     const [transactionDate, setTransactionDate] = React.useState<Dayjs | null>(dayjs())
+    const [areYouSureOpen, setAreYouSureOpen] = useRecoilState(areYouSure);
+    const setCheckTitle = useSetRecoilState(areYouSureTitle);
+    const setCheckDetails = useSetRecoilState(areYouSureDetails);
+    const [checkAccept, setCheckAccept] = useRecoilState(areYouSureAccept);
+    const theme = useTheme();
+    const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const handleTypeChange = (
         event: React.MouseEvent<HTMLElement>,
         newType: string,
@@ -54,6 +76,52 @@ export default function EditTransaction() {
             label: row.categoryName
         }
     ))
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const moreOpen = Boolean(anchorEl);
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    async function handleDoubleCheck() {
+        setAnchorEl(null);
+        let transDetails = 'Title: '
+        if(currentTransactionDetails !== undefined) {
+            transDetails = transDetails + currentTransactionDetails.title
+        }
+        setCheckTitle('Are you sure you want to delete this transaction?')
+        setCheckDetails(transDetails)
+        setAreYouSureOpen(true)
+    }
+
+    React.useEffect(() => {
+        if(!areYouSureOpen) {
+            if(checkAccept) {
+                handleDelete()
+            }
+        }
+    }, [areYouSureOpen])
+
+    async function handleDelete() {
+        setErrorText('')
+        let { error } = await supabase
+            .from('transactions')
+            .delete()
+            .eq('recordID', currentTransactionID)
+        if (error) {
+            setErrorText(error.message)
+            return
+        }
+        let newArr = transactionsArray.filter(function(el) { return el.recordID !== currentTransactionID; });
+        setTransactionsArray(newArr);
+        setOpenEditTransaction(false)
+        setSnackSev('success')
+        setSnackText('Transaction deleted')
+        setSnackOpen(true)
+        setCheckAccept(false)
+    }
     const verifyInputs = () => {
         if (transactionTitle === '' || transactionTitle === null) {
             setErrorText('Please enter a title')
@@ -112,13 +180,13 @@ export default function EditTransaction() {
     };
     React.useEffect(() => {
         if (!openEditTransaction) return;
-            if (currentTransactionDetails) {
-                setTransactionTitle(currentTransactionDetails.title)
-                setTransactionAmount(currentTransactionDetails.amount)
-                setTransactionType(currentTransactionDetails.transactionType)
-                setTransactionCategory(categoryArray.find(x => x.id === currentTransactionDetails.categoryID))
-                setTransactionDate(dayjs(currentTransactionDetails.transactionDate))
-            }
+        if (currentTransactionDetails) {
+            setTransactionTitle(currentTransactionDetails.title)
+            setTransactionAmount(currentTransactionDetails.amount)
+            setTransactionType(currentTransactionDetails.transactionType)
+            setTransactionCategory(categoryArray.find(x => x.id === currentTransactionDetails.categoryID))
+            setTransactionDate(dayjs(currentTransactionDetails.transactionDate))
+        }
         setErrorText('')
     }, [openEditTransaction])
     return (
@@ -126,17 +194,31 @@ export default function EditTransaction() {
             <Dialog open={openEditTransaction}
                     onClose={() => setOpenEditTransaction(false)}
                     scroll='paper'
-                    PaperProps={dialogPaperStyles}
+                    fullScreen={!bigger}
+                    PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
+                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
-                        Edit Transaction<IconButton onClick={() => setOpenEditTransaction(false)}><CloseIcon/></IconButton>
+                        <Stack direction='row' alignItems='center' spacing={1}>
+                            <IconButton
+                                size='small'
+                                aria-label="more"
+                                aria-controls={moreOpen ? 'long-menu' : undefined}
+                                aria-expanded={moreOpen ? 'true' : undefined}
+                                aria-haspopup="true"
+                                onClick={handleClick}
+                            >
+                                <MoreVertIcon/>
+                            </IconButton>
+                            <div>Edit Transaction</div>
+                        </Stack>
+                        <IconButton onClick={() => setOpenEditTransaction(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
-                        <Grid container spacing={1}>
+                        <Grid container spacing={0}>
                             <Grid xs={12}>
                                 <ToggleButtonGroup
-                                    color="primary"
+                                    color="standard"
                                     value={transactionType}
                                     fullWidth
                                     onFocus={handleFocus}
@@ -216,6 +298,20 @@ export default function EditTransaction() {
                     </DialogActions>
                 </Box>
             </Dialog>
+            <Menu
+                id="long-menu"
+                MenuListProps={{
+                    'aria-labelledby': 'long-button',
+                }}
+                anchorEl={anchorEl}
+                open={moreOpen}
+                onClose={handleClose}
+            >
+                <MenuItem onClick={handleDoubleCheck}>
+                    <DeleteIcon/>
+                    Delete
+                </MenuItem>
+            </Menu>
         </>
     )
 }

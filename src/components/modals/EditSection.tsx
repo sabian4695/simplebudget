@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {currentCategory, currentSection, editCategory, areYouSure} from '../../recoil/modalStatusAtoms'
+import {currentSection, areYouSure, editSection} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -20,7 +20,6 @@ import {
     snackBarText
 } from "../../recoil/globalItems";
 import {categories, sections, transactions} from "../../recoil/tableAtoms";
-import InputAdornment from '@mui/material/InputAdornment';
 import SaveIcon from '@mui/icons-material/Save';
 import {supabase} from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
@@ -32,18 +31,27 @@ import Stack from "@mui/material/Stack";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import ToggleButton from "@mui/material/ToggleButton";
 
-export default function EditCategory() {
-    const [openEditCategory, setOpenEditCategory] = useRecoilState(editCategory);
-    const [categoryName, setCategoryName] = React.useState('');
-    const [categoryAmount, setCategoryAmount] = React.useState(0);
-    const [categoryArray, setCategoryArray] = useRecoilState(categories)
+export default function EditSection() {
+    const [openEditSection, setOpenEditSection] = useRecoilState(editSection);
     const [transactionsArray, setTransactionsArray] = useRecoilState(transactions)
-    const currentCategoryID = useRecoilValue(currentCategory);
-    let currentCategoryDetails = categoryArray.find(x => x.recordID === currentCategoryID)
+    const [categoryArray, setCategoryArray] = useRecoilState(categories)
+    const [sectionsArray, setSectionsArray] = useRecoilState(sections);
     const currentSectionID = useRecoilValue(currentSection);
-    const sectionsArray = useRecoilValue(sections);
-    const currentSectionName = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionName
+    let currentSectionDetails = sectionsArray.find(x => x.recordID === currentSectionID)
+    const [sectionName, setSectionName] = React.useState('');
+    const [sectionType, setSectionType] = React.useState('expense');
+    const handleTypeChange = (
+        event: React.MouseEvent<HTMLElement>,
+        newType: string,
+    ) => {
+        if (newType !== null) {
+            setSectionType(newType);
+        }
+    };
+
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
@@ -65,8 +73,8 @@ export default function EditCategory() {
 
     async function handleDoubleCheck() {
         setAnchorEl(null);
-        setCheckTitle('Are you sure you want to delete this category?')
-        setCheckDetails('WARNING: This will delete all transactions assigned to this category as well.')
+        setCheckTitle('Are you sure you want to delete this section?')
+        setCheckDetails('WARNING: This will delete all categories and transactions assigned to this section as well.')
         setAreYouSureOpen(true)
     }
 
@@ -78,40 +86,51 @@ export default function EditCategory() {
         }
     }, [areYouSureOpen])
 
+    async function deleteTransactions(catArray: string | any[]) {
+        for (let i = 0; i < catArray.length; i++) {
+            let {error} = await supabase
+                .from('transactions')
+                .delete()
+                .eq('categoryID', catArray[i].recordID)
+            let newTrans = transactionsArray.filter(function(el) { return el.categoryID !== catArray[i].recordID; });
+            setTransactionsArray(newTrans)
+        }
+    }
+
     async function handleDelete() {
         setErrorText('')
+
+        let catDelete = categoryArray.filter(x => x.sectionID === currentSectionID)
+        await deleteTransactions(catDelete)
+
         let { data } = await supabase
-            .from('transactions')
-            .delete()
-            .eq('categoryID', currentCategoryID)
-        let { error } = await supabase
             .from('categories')
             .delete()
-            .eq('recordID', currentCategoryID)
+            .eq('sectionID', currentSectionID)
+
+        let { error } = await supabase
+            .from('sections')
+            .delete()
+            .eq('recordID', currentSectionID)
         if (error) {
             setErrorText(error.message)
             return
         }
-        let newCat = categoryArray.filter(function(el) { return el.recordID !== currentCategoryID; });
-        setCategoryArray(newCat);
+        let newSec = sectionsArray.filter(function(el) { return el.recordID !== currentSectionID; });
+        let newCat = categoryArray.filter(function(el) { return el.sectionID !== currentSectionID; });
+        setSectionsArray(newSec)
+        setCategoryArray(newCat)
 
-        let newTrans = transactionsArray.filter(function(el) { return el.categoryID !== currentCategoryID; });
-        setTransactionsArray(newTrans);
-
-        setOpenEditCategory(false)
+        setOpenEditSection(false)
         setSnackSev('success')
-        setSnackText('Category deleted')
+        setSnackText('Section deleted')
         setSnackOpen(true)
         setCheckAccept(false)
     }
     const verifyInputs = () => {
-        if (categoryName === '' || categoryName === null) {
-            setErrorText('Please enter a category name')
+        if (sectionName === '' || sectionName === null) {
+            setErrorText('Please enter section name.')
             return false
-        }
-        //@ts-ignore
-        if (categoryAmount === null || categoryAmount === '') {
-            setCategoryAmount(0)
         }
         return true
     }
@@ -120,29 +139,28 @@ export default function EditCategory() {
         setErrorText('')
         if (verifyInputs()) {
             let { error } = await supabase
-                .from('categories')
+                .from('sections')
                 .update({
-                    categoryName: categoryName,
-                    //@ts-ignore
-                    amount: categoryAmount === '' ? 0 : categoryAmount
+                    sectionName: sectionName,
+                    sectionType: sectionType,
                 })
-                .eq('recordID', currentCategoryID)
+                .eq('recordID', currentSectionID)
             if (error) {
                 setErrorText(error.message)
                 return
             }
-            let newArr = categoryArray.map(obj => {
-                if (obj.recordID === currentCategoryID) {
+            let newArr = sectionsArray.map(obj => {
+                if (obj.recordID === currentSectionID) {
                     return {...obj,
-                        categoryName: categoryName,
-                        amount: Number(categoryAmount)}
+                        sectionName: sectionName,
+                        sectionType: sectionType}
                 }
                 return obj;
             });
-            setCategoryArray(newArr);
-            setOpenEditCategory(false)
+            setSectionsArray(newArr);
+            setOpenEditSection(false)
             setSnackSev('success')
-            setSnackText('Category updated!')
+            setSnackText('Section updated!')
             setSnackOpen(true)
         }
     }
@@ -152,17 +170,17 @@ export default function EditCategory() {
         }
     };
     React.useEffect(() => {
-        if (!openEditCategory) return;
-            if (currentCategoryDetails) {
-                setCategoryName(currentCategoryDetails.categoryName)
-                setCategoryAmount(currentCategoryDetails.amount)
+        if (!openEditSection) return;
+            if (currentSectionDetails) {
+                setSectionName(currentSectionDetails.sectionName)
+                setSectionType(currentSectionDetails.sectionType)
             }
         setErrorText('')
-    }, [openEditCategory])
+    }, [openEditSection])
     return (
         <>
-            <Dialog open={openEditCategory}
-                    onClose={() => setOpenEditCategory(false)}
+            <Dialog open={openEditSection}
+                    onClose={() => setOpenEditSection(false)}
                     scroll='paper'
                     fullScreen={!bigger}
                     PaperProps={bigger ? dialogPaperStyles : undefined}
@@ -180,39 +198,32 @@ export default function EditCategory() {
                             >
                                 <MoreVertIcon/>
                             </IconButton>
-                            <div>Edit Category</div>
+                            <div>Edit Section</div>
                         </Stack>
-                        <IconButton onClick={() => setOpenEditCategory(false)}><CloseIcon/></IconButton>
+                        <IconButton onClick={() => setOpenEditSection(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
-                            <Typography>Section: {currentSectionName}</Typography>
+                            <Grid xs={12}>
+                                <ToggleButtonGroup
+                                    color="standard"
+                                    value={sectionType}
+                                    fullWidth
+                                    exclusive
+                                    onChange={handleTypeChange}
+                                >
+                                    <ToggleButton value="income">Income</ToggleButton>
+                                    <ToggleButton value="expense">Expense</ToggleButton>
+                                </ToggleButtonGroup>
+                            </Grid>
                             <Grid xs={12}>
                                 <TextField
                                     autoFocus
                                     fullWidth
-                                    onFocus={handleFocus}
-                                    value={categoryName}
-                                    onChange={(event: any) => setCategoryName(event.target.value)}
+                                    value={sectionName}
+                                    onChange={(event: any) => setSectionName(event.target.value)}
                                     type="text"
-                                    label="Category Name"
-                                />
-                            </Grid>
-                            <Grid xs={12}>
-                                <TextField
-                                    fullWidth
-                                    onFocus={handleFocus}
-                                    value={categoryAmount}
-                                    onChange={(event: any) => setCategoryAmount(event.target.value)}
-                                    type="number"
-                                    InputProps={{
-                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                    }}
-                                    inputProps={{
-                                        step: 'any'
-                                    }}
-                                    placeholder='Budget Amount'
-                                    label="Budget Amount"
+                                    label="Section Name"
                                 />
                             </Grid>
                         </Grid>

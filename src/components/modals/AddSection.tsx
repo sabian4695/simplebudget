@@ -19,6 +19,8 @@ import {supabase} from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function AddSection() {
     const [addNewSection,setAddNewSection] = useRecoilState(addSection);
@@ -38,6 +40,8 @@ export default function AddSection() {
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const [errorText, setErrorText] = React.useState('')
+    const theme = useTheme();
+    const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const verifyInputs = () => {
         if (sectionName === '' || sectionName === null) {
             setErrorText('Please enter section name.')
@@ -86,14 +90,27 @@ export default function AddSection() {
             <Dialog open={addNewSection}
                     onClose={() => setAddNewSection(false)}
                     scroll='paper'
-                    PaperProps={dialogPaperStyles}
+                    fullScreen={!bigger}
+                    PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
+                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
                         New Section <IconButton onClick={() => setAddNewSection(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
+                            <Grid xs={12}>
+                                <ToggleButtonGroup
+                                    color="standard"
+                                    value={sectionType}
+                                    fullWidth
+                                    exclusive
+                                    onChange={handleTypeChange}
+                                >
+                                    <ToggleButton value="income">Income</ToggleButton>
+                                    <ToggleButton value="expense">Expense</ToggleButton>
+                                </ToggleButtonGroup>
+                            </Grid>
                             <Grid xs={12}>
                                 <TextField
                                     autoFocus
@@ -103,18 +120,6 @@ export default function AddSection() {
                                     type="text"
                                     label="Section Name"
                                 />
-                            </Grid>
-                            <Grid xs={12}>
-                                <ToggleButtonGroup
-                                    color="primary"
-                                    value={sectionType}
-                                    fullWidth
-                                    exclusive
-                                    onChange={handleTypeChange}
-                                >
-                                    <ToggleButton value="income">Income</ToggleButton>
-                                    <ToggleButton value="expense">Expense</ToggleButton>
-                                </ToggleButtonGroup>
                             </Grid>
                         </Grid>
                     </DialogContent>

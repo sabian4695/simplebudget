@@ -17,6 +17,8 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
+import {useTheme} from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddBudget() {
     const [addNewBudget, setAddNewBudget] = useRecoilState(addBudget);
@@ -28,6 +30,8 @@ export default function AddBudget() {
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const theme = useTheme();
+    const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const handleSubmit = async(event: any) => {
         event.preventDefault();
         setErrorText('')
@@ -70,9 +74,10 @@ export default function AddBudget() {
             <Dialog open={addNewBudget}
                     onClose={() => setAddNewBudget(false)}
                     scroll='paper'
-                    PaperProps={dialogPaperStyles}
+                    fullScreen={!bigger}
+                    PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
+                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
                         New Budget<IconButton onClick={() => setAddNewBudget(false)}><CloseIcon/></IconButton>
                     </DialogTitle>

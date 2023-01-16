@@ -20,6 +20,7 @@ import Paper from "@mui/material/Paper";
 import GrabBudgetData from "./extras/GrabBudgetData";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import EditSection from "./modals/EditSection";
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 15,
@@ -180,6 +181,7 @@ export default function BudgetPage() {
             <AddCategory/>
             <AddSection/>
             <EditCategory/>
+            <EditSection/>
         </>
     )
 }

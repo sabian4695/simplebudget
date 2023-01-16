@@ -25,6 +25,8 @@ import AddIcon from "@mui/icons-material/Add";
 import {supabase} from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
+import {useTheme} from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddTransaction() {
     const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
@@ -55,6 +57,8 @@ export default function AddTransaction() {
     const currentBudget = useRecoilValue(currentBudgetAndMonth)
     const currentUserData = useRecoilValue(currentUser)
     const [errorText, setErrorText] = React.useState('')
+    const theme = useTheme();
+    const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const verifyInputs = () => {
         if (transactionTitle === '' || transactionTitle === null) {
             setErrorText('Please enter a title')
@@ -118,17 +122,18 @@ export default function AddTransaction() {
             <Dialog open={addNewTransaction}
                     onClose={() => setAddNewTransaction(false)}
                     scroll='paper'
-                    PaperProps={dialogPaperStyles}
+                    fullScreen={!bigger}
+                    PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
+                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
                         New Transaction <IconButton onClick={() => setAddNewTransaction(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
-                        <Grid container spacing={1}>
+                        <Grid container spacing={0}>
                             <Grid xs={12}>
                                 <ToggleButtonGroup
-                                    color="primary"
+                                    color="standard"
                                     value={transactionType}
                                     fullWidth
                                     exclusive

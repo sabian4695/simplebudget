@@ -18,6 +18,8 @@ import AddIcon from "@mui/icons-material/Add";
 import {supabase} from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
+import {useTheme} from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddCategory() {
     const [addNewCategory,setAddNewCategory] = useRecoilState(addCategory);
@@ -31,6 +33,8 @@ export default function AddCategory() {
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const [errorText, setErrorText] = React.useState('')
+    const theme = useTheme();
+    const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const verifyInputs = () => {
         if (categoryName === '' || categoryName === null) {
             setErrorText('Please enter a category name')
@@ -83,9 +87,10 @@ export default function AddCategory() {
             <Dialog open={addNewCategory}
                     onClose={() => setAddNewCategory(false)}
                     scroll='paper'
-                    PaperProps={dialogPaperStyles}
+                    fullScreen={!bigger}
+                    PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
+                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
                         New Category <IconButton onClick={() => setAddNewCategory(false)}><CloseIcon/></IconButton>
                     </DialogTitle>

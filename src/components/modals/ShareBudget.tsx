@@ -18,6 +18,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import {supabase} from "../LoginPage";
 import {v4 as uuidv4} from "uuid";
+import {useTheme} from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function ShareBudget() {
     const [open, setOpen] = useRecoilState(shareBudget)
@@ -29,6 +31,8 @@ export default function ShareBudget() {
     const user = useRecoilValue(currentUser)
     const budgetsArray = useRecoilValue(budgets)
     const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
+    const theme = useTheme();
+    const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const handleSubmit = async(event: any) => {
         event.preventDefault();
         setErrorText('')
@@ -59,8 +63,13 @@ export default function ShareBudget() {
     }
     return (
         <>
-            <Dialog onClose={() => setOpen(false)} open={open} PaperProps={dialogPaperStyles}>
-                <Box sx={{bgcolor: 'background.paper'}} component='form' onSubmit={handleSubmit}>
+            <Dialog
+                onClose={() => setOpen(false)}
+                open={open}
+                fullScreen={!bigger}
+                PaperProps={bigger ? dialogPaperStyles : undefined}
+            >
+                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
                         Share Budget<IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
