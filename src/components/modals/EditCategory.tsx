@@ -56,6 +56,7 @@ export default function EditCategory() {
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const moreOpen = Boolean(anchorEl);
+    const [categoryDelete, setCategoryDelete] = React.useState(false)
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -64,6 +65,7 @@ export default function EditCategory() {
     };
 
     async function handleDoubleCheck() {
+        setCategoryDelete(true)
         setAnchorEl(null);
         setCheckTitle('Are you sure you want to delete this category?')
         setCheckDetails('WARNING: This will delete all transactions assigned to this category as well.')
@@ -75,11 +77,15 @@ export default function EditCategory() {
             if(checkAccept) {
                 handleDelete()
             }
+            setCategoryDelete(false)
         }
     }, [areYouSureOpen])
 
     async function handleDelete() {
         setErrorText('')
+        if (!categoryDelete) {
+            return
+        }
         let { data } = await supabase
             .from('transactions')
             .delete()
@@ -103,6 +109,7 @@ export default function EditCategory() {
         setSnackText('Category deleted')
         setSnackOpen(true)
         setCheckAccept(false)
+        setCategoryDelete(false)
     }
     const verifyInputs = () => {
         if (categoryName === '' || categoryName === null) {

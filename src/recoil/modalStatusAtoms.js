@@ -50,6 +50,11 @@ export const selectBudget = atom({
     default: false,
 });
 
+export const copyBudget = atom({
+    key: "copyBudget",
+    default: false,
+});
+
 export const addBudget = atom({
     key: "addBudget",
     default: false,

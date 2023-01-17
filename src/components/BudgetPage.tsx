@@ -5,7 +5,7 @@ import BudgetSection from "./subcomponents/BudgetSection";
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import {useRecoilValue, useSetRecoilState, useRecoilState} from "recoil";
-import {addSection, addTransaction} from "../recoil/modalStatusAtoms";
+import {addSection, addTransaction, copyBudget} from "../recoil/modalStatusAtoms";
 import AddSection from "./modals/AddSection";
 import {categories, currentBudgetAndMonth, sections} from '../recoil/tableAtoms';
 import Box from '@mui/material/Box';
@@ -21,6 +21,10 @@ import GrabBudgetData from "./extras/GrabBudgetData";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import EditSection from "./modals/EditSection";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import IconButton from '@mui/material/IconButton';
+import CopyAllIcon from '@mui/icons-material/CopyAll';
+import CopyBudget from "./modals/CopyBudget";
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 15,
@@ -59,12 +63,15 @@ export default function BudgetPage() {
     const setAddNewSection = useSetRecoilState(addSection)
     const setAddNewTransaction = useSetRecoilState(addTransaction)
     const sectionsArray = useRecoilValue(sections)
+    const [openCopyBudget, setOpenCopyBudget] = useRecoilState(copyBudget)
     const { grabBudgetData } = GrabBudgetData();
     const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [anchorEl1, setAnchorEl1] = React.useState<null | HTMLElement>(null);
     const categoryArray = useRecoilValue(categories)
     const [selectedIndex, setSelectedIndex] = React.useState(options.indexOf(currentBudget.month + ' ' + currentBudget.year));
     const open = Boolean(anchorEl);
+    const moreOpen = Boolean(anchorEl1);
     const handleClickListItem = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -129,15 +136,33 @@ export default function BudgetPage() {
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const handleOpenOptions = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl1(event.currentTarget);
+    };
+    const closeOptions = () => {
+        setAnchorEl1(null);
+    };
+    function copyBudgetClick() {
+        setAnchorEl1(null);
+        setOpenCopyBudget(true)
+    }
     return (
         <>
             <Stack spacing={2} alignItems="stretch">
                 <Box display='flex' flexDirection='row' alignItems='center'>
-                    <Typography sx={{alignSelf:'flex-start'}} display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
+                    <IconButton
+                        size='small'
+                        aria-label="more"
+                        aria-controls={moreOpen ? 'long-menu' : undefined}
+                        aria-expanded={moreOpen ? 'true' : undefined}
+                        aria-haspopup="true"
+                        onClick={handleOpenOptions}
+                    ><MoreVertIcon/></IconButton>
+                    <Typography display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
                     <CustomButton onClick={handleClickListItem} size='small' sx={{py:0, ml:1}}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
                 </Box>
 
-                <Paper elevation={5}>
+                <Paper elevation={5} sx={{borderRadius:3}}>
                     <Box sx={{width:'100%'}}>
                         <Box display='flex' flexDirection='column' alignItems='center' sx={{width:'100%', p:1}}>
                             <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
@@ -178,10 +203,24 @@ export default function BudgetPage() {
                     </MenuItem>
                 ))}
             </Menu>
+            <Menu
+                MenuListProps={{
+                    'aria-labelledby': 'long-button',
+                }}
+                anchorEl={anchorEl1}
+                open={moreOpen}
+                onClose={closeOptions}
+            >
+                <MenuItem onClick={copyBudgetClick}>
+                    <CopyAllIcon sx={{mr:1}}/>
+                    Copy budget
+                </MenuItem>
+            </Menu>
             <AddCategory/>
             <AddSection/>
             <EditCategory/>
             <EditSection/>
+            <CopyBudget/>
         </>
     )
 }

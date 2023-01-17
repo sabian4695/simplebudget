@@ -43,7 +43,7 @@ export default function AnalyticsPage() {
         <>
             <Stack spacing={2} alignItems="center">
                 <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Analytics</Typography>
-                <Paper elevation={5} sx={{width:'100%', height:300}}>
+                <Paper elevation={5} sx={{width:'100%', height:300, borderRadius: 3}}>
                     <List dense>
                         <ListItem disablePadding key={1}>
                             <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Budget Allocation</Typography>

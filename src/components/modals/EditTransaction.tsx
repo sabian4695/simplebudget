@@ -59,6 +59,7 @@ export default function EditTransaction() {
     const setCheckTitle = useSetRecoilState(areYouSureTitle);
     const setCheckDetails = useSetRecoilState(areYouSureDetails);
     const [checkAccept, setCheckAccept] = useRecoilState(areYouSureAccept);
+    const [deleteTrans, setDeleteTrans] = React.useState(false)
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const handleTypeChange = (
@@ -86,6 +87,7 @@ export default function EditTransaction() {
     };
 
     async function handleDoubleCheck() {
+        setDeleteTrans(true)
         setAnchorEl(null);
         let transDetails = 'Title: '
         if(currentTransactionDetails !== undefined) {
@@ -101,11 +103,15 @@ export default function EditTransaction() {
             if(checkAccept) {
                 handleDelete()
             }
+            setDeleteTrans(false)
         }
     }, [areYouSureOpen])
 
     async function handleDelete() {
         setErrorText('')
+        if(!deleteTrans) {
+            return
+        }
         let { error } = await supabase
             .from('transactions')
             .delete()
@@ -121,6 +127,7 @@ export default function EditTransaction() {
         setSnackText('Transaction deleted')
         setSnackOpen(true)
         setCheckAccept(false)
+        setDeleteTrans(false)
     }
     const verifyInputs = () => {
         if (transactionTitle === '' || transactionTitle === null) {

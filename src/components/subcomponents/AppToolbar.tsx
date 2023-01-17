@@ -3,15 +3,18 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import AppBar from '@mui/material/AppBar';
 import logo from '../../logo.png'
+import {useRecoilValue} from "recoil";
+import {themeAtom} from "../../recoil/globalItems";
 
 export default function AppToolbar() {
+    const currentTheme = useRecoilValue(themeAtom);
     return (
         <>
             <AppBar position="fixed"
                     sx={{
                         width: '100%'
                     }}>
-                <Toolbar>
+                <Toolbar sx={currentTheme === 'dark' ? null : {backgroundColor:'background.paper', color:'primary.main'}}>
                     <img
                         height='30'
                         src={logo}
@@ -23,7 +26,7 @@ export default function AppToolbar() {
                     <Typography variant="h6" align="left" >
                         Budget
                     </Typography>
-                    <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[alpha]</Typography>
+                    <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[beta]</Typography>
                 </Toolbar>
             </AppBar>
         </>

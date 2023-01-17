@@ -51,7 +51,6 @@ export default function EditSection() {
             setSectionType(newType);
         }
     };
-
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
@@ -63,6 +62,7 @@ export default function EditSection() {
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [deleteSection, setDeleteSection] = React.useState(false)
     const moreOpen = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -72,6 +72,7 @@ export default function EditSection() {
     };
 
     async function handleDoubleCheck() {
+        setDeleteSection(true)
         setAnchorEl(null);
         setCheckTitle('Are you sure you want to delete this section?')
         setCheckDetails('WARNING: This will delete all categories and transactions assigned to this section as well.')
@@ -83,6 +84,7 @@ export default function EditSection() {
             if(checkAccept) {
                 handleDelete()
             }
+            setDeleteSection(false)
         }
     }, [areYouSureOpen])
 
@@ -99,7 +101,9 @@ export default function EditSection() {
 
     async function handleDelete() {
         setErrorText('')
-
+        if (!deleteSection) {
+            return
+        }
         let catDelete = categoryArray.filter(x => x.sectionID === currentSectionID)
         await deleteTransactions(catDelete)
 
@@ -126,6 +130,7 @@ export default function EditSection() {
         setSnackText('Section deleted')
         setSnackOpen(true)
         setCheckAccept(false)
+        setDeleteSection(false)
     }
     const verifyInputs = () => {
         if (sectionName === '' || sectionName === null) {
@@ -220,6 +225,7 @@ export default function EditSection() {
                                 <TextField
                                     autoFocus
                                     fullWidth
+                                    onFocus={handleFocus}
                                     value={sectionName}
                                     onChange={(event: any) => setSectionName(event.target.value)}
                                     type="text"

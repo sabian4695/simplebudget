@@ -117,11 +117,11 @@ export const appName = 'simpleBudget';
 export const dialogPaperStyles = {
     style: {
         bgColor: 'background.paper',
-        borderRadius: 10,
+        borderRadius: 15,
         borderColor: '#424242',
         borderStyle: 'solid',
         borderWidth: 1.4,
-        borderLeftWidth: 4,
-        borderRightWidth: 4,
+        borderLeftWidth: 5,
+        borderRightWidth: 5,
     },
 }

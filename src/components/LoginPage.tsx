@@ -25,6 +25,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {createClient} from "@supabase/supabase-js";
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+import logo from "../logo.png";
+import Stack from "@mui/material/Stack";
 
 const options = {
     db: {
@@ -138,12 +140,20 @@ export default function LoginPage() {
                     >
                         <Grid container rowSpacing={2}>
                             <Grid xs={12} sx={{my: 5}}>
-                                <Typography variant='body1' display='inline' color='text.secondary'>
-                                    simple
-                                </Typography>
-                                <Typography variant="h5" display='inline' color='text.secondary'>
-                                    Budget
-                                </Typography>
+                                <Stack direction='row' alignItems='center'>
+                                    <img
+                                        height='50'
+                                        src={logo}
+                                        srcSet={`${logo}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                        alt='logo'
+                                        loading="lazy"
+                                    />
+                                    <Typography sx={{ml:1}}>simple</Typography>
+                                    <Typography variant="h6" align="left" >
+                                        Budget
+                                    </Typography>
+                                    <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[beta]</Typography>
+                                </Stack>
                             </Grid>
                             <Grid xs={12} sx={{mb:0, pb:1}}>
                                 <Typography variant='body2'>Sign in to continue.</Typography>

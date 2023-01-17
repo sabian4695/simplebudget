@@ -50,6 +50,79 @@ export default function TransactionsPage() {
         setCurrentTransaction(trsID)
         setOpenEditTransaction(true)
     }
+
+    const uncategorized = filteredTransactions.filter(x => x.categoryID === null).length > 0 ?
+        <Box sx={{width: '100%'}}>
+            <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
+                <List dense>
+                    <ListItem disablePadding key={1}>
+                        <Typography color='text.secondary' variant='h6'
+                                    sx={{fontWeight: '600', ml: 1}}>Uncategorized</Typography>
+                    </ListItem>
+                    {filteredTransactions.filter(x => x.categoryID === null).map((row) => (
+                        <>
+                            <Divider/>
+                            <ListItem disablePadding key={row.recordID}>
+                                <ListItemButton onClick={() => openTransaction(row.recordID)}>
+                                    <Grid xs={12} container columnSpacing={2} alignItems='center'>
+                                        <Grid xs="auto">
+                                            <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
+                                        </Grid>
+                                        <Grid xs='auto' sx={{flexGrow: 1}}>
+                                            <Typography sx={{mt: 0.5}}
+                                                        variant='body1'>{row.title}</Typography>
+                                            <Chip size='small' label='Uncategorized' color='warning'/>
+                                        </Grid>
+                                        <Grid xs="auto" sx={{textAlign: 'right'}}>
+                                            <Typography
+                                                variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
+                                        </Grid>
+                                    </Grid>
+                                </ListItemButton>
+                            </ListItem>
+                        </>
+                    ))}
+                </List>
+            </Paper>
+        </Box> : null
+
+    const categorized = filteredTransactions.filter(x => x.categoryID !== null).length > 0 ?
+        <Box sx={{width: '100%'}}>
+            <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
+                <List dense>
+                    <ListItem disablePadding key={2}>
+                        <Typography color='text.secondary' variant='h6'
+                                    sx={{fontWeight: '600', ml: 1}}>Categorized</Typography>
+                    </ListItem>
+                    {filteredTransactions.filter(x => x.categoryID !== null).map((row) => (
+                        <>
+                            <Divider/>
+                            <ListItem disablePadding key={row.recordID}>
+                                <ListItemButton onClick={() => openTransaction(row.recordID)}>
+                                    <Grid xs={12} container columnSpacing={2} alignItems='center'>
+                                        <Grid xs="auto">
+                                            <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
+                                        </Grid>
+                                        <Grid xs='auto' sx={{flexGrow: 1}}>
+                                            <Typography sx={{mt: 0.5}}
+                                                        variant='body1'>{row.title}</Typography>
+                                            <Chip size='small'
+                                                  label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName}
+                                                  color='success'/>
+                                        </Grid>
+                                        <Grid xs="auto" sx={{textAlign: 'right'}}>
+                                            <Typography
+                                                variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
+                                        </Grid>
+                                    </Grid>
+                                </ListItemButton>
+                            </ListItem>
+                        </>
+                    ))}
+                </List>
+            </Paper>
+        </Box> : null
+
     return (
         <>
             <Stack spacing={2} alignItems="center">
@@ -70,70 +143,9 @@ export default function TransactionsPage() {
                         ),
                     }}
                 />
-                {filteredTransactions.filter(x => x.categoryID === null).length > 0 ?
-                <Box sx={{width:'100%'}}>
-                    <Paper elevation={5} sx={{width:'100%'}}>
-                        <List dense>
-                            <ListItem disablePadding key={1}>
-                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Uncategorized</Typography>
-                            </ListItem>
-                            {filteredTransactions.filter(x => x.categoryID === null).map((row) => (
-                                <>
-                                    <Divider/>
-                                    <ListItem disablePadding key={row.recordID}>
-                                        <ListItemButton onClick={() => openTransaction(row.recordID)}>
-                                            <Grid xs={12} container columnSpacing={2} alignItems='center'>
-                                                <Grid xs="auto">
-                                                    <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
-                                                </Grid>
-                                                <Grid xs='auto' sx={{flexGrow:1}}>
-                                                    <Typography sx={{mt:0.5}} variant='body1'>{row.title}</Typography>
-                                                    <Chip size='small' label='Uncategorized' color='warning' />
-                                                </Grid>
-                                                <Grid xs="auto" sx={{textAlign:'right'}}>
-                                                    <Typography variant='body1'>{ (row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
-                                                </Grid>
-                                            </Grid>
-                                        </ListItemButton>
-                                    </ListItem>
-                                </>
-                            ))}
-                        </List>
-                    </Paper>
-                </Box> : null}
-                {filteredTransactions.filter(x => x.categoryID !== null).length > 0 ?
-                <Box sx={{width:'100%'}}>
-                    <Paper elevation={5} sx={{width:'100%'}}>
-                        <List dense>
-                            <ListItem disablePadding key={2}>
-                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Categorized</Typography>
-                            </ListItem>
-                        {filteredTransactions.filter(x => x.categoryID !== null).map((row) => (
-                            <>
-                                <Divider/>
-                                <ListItem disablePadding key={row.recordID}>
-                                    <ListItemButton onClick={() => openTransaction(row.recordID)}>
-                                        <Grid xs={12} container columnSpacing={2} alignItems='center'>
-                                            <Grid xs="auto">
-                                                <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
-                                            </Grid>
-                                            <Grid xs='auto' sx={{flexGrow:1}}>
-                                                <Typography sx={{mt:0.5}} variant='body1'>{row.title}</Typography>
-                                                <Chip size='small' label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName} color='success' />
-                                            </Grid>
-                                            <Grid xs="auto" sx={{textAlign:'right'}}>
-                                                <Typography variant='body1'>{ (row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
-                                            </Grid>
-                                        </Grid>
-                                    </ListItemButton>
-                                </ListItem>
-                            </>
-                        ))}
-                        </List>
-                    </Paper>
-                </Box> :
-                    <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '300', ml:1 }}>Nothing here yet!</Typography>
-                }
+
+                {transactionsArray.length > 0 ? [uncategorized, categorized] :
+                    <Typography color='text.secondary' variant='h6' sx={{fontWeight: '300', ml:1}}>Nothing here yet!</Typography>}
             </Stack>
             <EditTransaction/>
         </>

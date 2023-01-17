@@ -103,7 +103,7 @@ export default function SettingsPage() {
         <>
             <Stack spacing={2} alignItems="center">
                 <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Settings</Typography>
-                <Paper elevation={5} sx={{width:'100%'}}>
+                <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
                     <List>
                         <ListItem disablePadding>
                             <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>General</Typography>
@@ -120,7 +120,7 @@ export default function SettingsPage() {
                         </ListItem>
                     </List>
                 </Paper>
-                <Paper elevation={5} sx={{width:'100%'}}>
+                <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
                     <List>
                         <ListItem disablePadding>
                             <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>{'Budget: ' + currentBudgetDetails?.budgetName}</Typography>
@@ -163,7 +163,7 @@ export default function SettingsPage() {
                         </ListItem>
                     </List>
                 </Paper>
-                <Paper elevation={5} sx={{width:'100%'}}>
+                <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
                     <List>
                         <ListItem disablePadding>
                             <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Account: {currentUserDetails.fullName}</Typography>

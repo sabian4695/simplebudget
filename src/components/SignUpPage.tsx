@@ -23,6 +23,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {supabase} from "./LoginPage";
+import logo from "../logo.png";
+import Stack from "@mui/material/Stack";
 
 export default function SignUpPage() {
     const navigate = useNavigate();
@@ -149,12 +151,20 @@ export default function SignUpPage() {
                     >
                         <Grid container rowSpacing={2}>
                             <Grid xs={12} sx={{my: 5}}>
-                                <Typography variant='body1' display='inline' color='text.secondary'>
-                                    simple
-                                </Typography>
-                                <Typography variant="h5" display='inline' color='text.secondary'>
-                                    Budget
-                                </Typography>
+                                <Stack direction='row' alignItems='center'>
+                                    <img
+                                        height='50'
+                                        src={logo}
+                                        srcSet={`${logo}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                        alt='logo'
+                                        loading="lazy"
+                                    />
+                                    <Typography sx={{ml:1}}>simple</Typography>
+                                    <Typography variant="h6" align="left" >
+                                        Budget
+                                    </Typography>
+                                    <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[beta]</Typography>
+                                </Stack>
                             </Grid>
                             {signedUpBool ?
                                 <>

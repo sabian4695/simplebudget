@@ -137,11 +137,13 @@ export default function App() {
           }
           await setCurrentBudget(setBudget)
           localStorage.setItem('currentBudget', JSON.stringify(setBudget))
-        } else { //if there's multiple, check if localStorage budget exists in the array
+        } else if(allBudgets.length > 1) { //if there's multiple, check if localStorage budget exists in the array
           let posCurrent = localStorage.getItem('currentBudget')
-          if (allBudgets.find(x => x.recordID === JSON.parse(posCurrent || '{}').budgetID) !== null) {
-            setCurrentBudget(JSON.parse(localStorage.getItem('currentBudget') || '{}'))
-          }
+          if(posCurrent !== null) {
+            if(allBudgets.find(x => x.recordID === JSON.parse(posCurrent || '{}').budgetID)) {
+              setCurrentBudget(JSON.parse(localStorage.getItem('currentBudget') || '{}'))
+            }
+          } //if there's nothing in localstorage, open the selector for the user to choose
           else {
             setSelectBudget(true)
           }
@@ -173,7 +175,7 @@ export default function App() {
           <Box sx={{
             display: 'flex',
             minHeight: window.innerHeight,
-            bgcolor: (currentTheme === 'dark' ? 'grey.900' : 'grey.50') }}>
+            bgcolor: (currentTheme === 'dark' ? 'grey.900' : 'grey.100') }}>
             <Box sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}><AppToolbar/></Box>
             <Box component="main"
                  sx={{ width:'100%', p: 2, mb:8, height:'100%'}}>
