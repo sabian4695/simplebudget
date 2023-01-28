@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography";
 import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
 import {v4 as uuidv4} from "uuid";
 import dayjs, {Dayjs} from "dayjs";
-import {categories, currentBudgetAndMonth, transactions} from "../../recoil/tableAtoms";
+import {categories, currentBudgetAndMonth, sections, transactions} from "../../recoil/tableAtoms";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
@@ -27,6 +27,22 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import {useTheme} from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { styled, lighten, darken } from '@mui/system';
+
+const GroupHeader = styled('div')(({ theme }) => ({
+    position: 'sticky',
+    top: '-8px',
+    padding: '4px 10px',
+    color: theme.palette.primary.main,
+    backgroundColor:
+      theme.palette.mode === 'light'
+        ? lighten(theme.palette.primary.light, 0.85)
+        : darken(theme.palette.primary.main, 0.8),
+  }));
+
+  const GroupItems = styled('ul')({
+    padding: 0,
+  });
 
 export default function AddTransaction() {
     const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
@@ -44,12 +60,21 @@ export default function AddTransaction() {
         }
     };
     const categoriesArray = useRecoilValue(categories)
+    const sectionsArray = useRecoilValue(sections)
     const categoryArray = categoriesArray.map((row) => (
         {
             id: row.recordID,
             label: row.categoryName
         }
     ))
+    const categoryGroups = categoriesArray.map((option) => {
+        const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
+        return {
+          sectionName: sectionName === undefined ? "" : sectionName,
+          id: option.recordID,
+          label: option.categoryName
+        };
+      });
     const setTransactionsArray = useSetRecoilState(transactions)
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
@@ -175,14 +200,21 @@ export default function AddTransaction() {
                             <Grid xs={12}>
                                 <Autocomplete
                                     disablePortal={false}
-                                    options={categoryArray}
+                                    options={categoryGroups}
                                     getOptionLabel={(option) => option.label}
+                                    groupBy={(option) => option.sectionName}
                                     fullWidth
                                     value={transactionCategory}
                                     onChange={(event: any, newValue: any) => {
                                         setTransactionCategory(newValue)
                                     }}
                                     renderInput={(params) => <TextField onFocus={handleFocus} margin="dense" {...params} label="Category"/>}
+                                    renderGroup={(params) => (
+                                        <li>
+                                          <GroupHeader>{params.group}</GroupHeader>
+                                          <GroupItems>{params.children}</GroupItems>
+                                        </li>
+                                      )}
                                 />
                             </Grid>
                             <Grid xs={12}>

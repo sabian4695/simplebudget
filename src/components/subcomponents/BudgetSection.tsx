@@ -21,19 +21,11 @@ const formatter = new Intl.NumberFormat('en-US', {
     currency: 'USD',
 });
 
-const CustomButton = styled(Button)({
-    textTransform: 'none',
-});
-
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 2,
     borderRadius: 5,
     [`&.${linearProgressClasses.colorPrimary}`]: {
         backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 100 : 900],
-    },
-    [`& .${linearProgressClasses.bar}`]: {
-        borderRadius: 5,
-        backgroundColor: theme.palette.mode === 'light' ? 'primary.light' : 'primary.dark',
     },
 }));
 
@@ -82,6 +74,19 @@ export default function BudgetSection(sectionID: any) {
         setSection(sectionID.sectionID)
         setOpenEditSection(true)
     }
+    function progPercent(idVal: string, rowAmount: number) {
+        if(categorySumArray === undefined) {
+            return 0
+        }
+        if (categorySumArray.find(x => x.categoryID === idVal) === undefined) {
+            return 0
+        }
+        if(rowAmount === 0) {
+            return 0
+        }
+        //@ts-ignore
+        return (100-(categorySumArray.find(x => x.categoryID === idVal).categorySum/rowAmount)*100)
+    }
     return (
         <>
             <Paper elevation={5} sx={{borderRadius:3}}>
@@ -111,8 +116,8 @@ export default function BudgetSection(sectionID: any) {
                                         <Grid xs={12}>
                                             <BorderLinearProgress
                                                 variant='determinate'
-                                                //@ts-ignore
-                                                value={row.amount === 0 ? 0 : (100-(categorySumArray.find(x => x.categoryID === row.recordID).categorySum/row.amount)*100)}
+                                                value={progPercent(row.recordID, row.amount)}
+                                                color={progPercent(row.recordID, row.amount) > 100 ? 'error' : 'primary'}
                                             />
                                         </Grid>
                                     </Grid>

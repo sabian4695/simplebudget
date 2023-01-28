@@ -59,7 +59,11 @@ export default function TransactionsPage() {
                         <Typography color='text.secondary' variant='h6'
                                     sx={{fontWeight: '600', ml: 1}}>Uncategorized</Typography>
                     </ListItem>
-                    {filteredTransactions.filter(x => x.categoryID === null).map((row) => (
+                    {filteredTransactions.filter(x => x.categoryID === null).sort(
+                        (a, b) => {
+                            return b.transactionDate - a.transactionDate;
+                        }
+                    ).map((row) => (
                         <>
                             <Divider/>
                             <ListItem disablePadding key={row.recordID}>
@@ -94,7 +98,11 @@ export default function TransactionsPage() {
                         <Typography color='text.secondary' variant='h6'
                                     sx={{fontWeight: '600', ml: 1}}>Categorized</Typography>
                     </ListItem>
-                    {filteredTransactions.filter(x => x.categoryID !== null).map((row) => (
+                    {filteredTransactions.filter(x => x.categoryID !== null).sort(
+                        (a, b) => {
+                            return b.transactionDate - a.transactionDate;
+                        }
+                    ).map((row) => (
                         <>
                             <Divider/>
                             <ListItem disablePadding key={row.recordID}>
