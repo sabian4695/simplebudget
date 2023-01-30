@@ -38,10 +38,9 @@ export default function BudgetSection(sectionID: any) {
     const sectionsArray = useRecoilValue(sections)
     const categoriesArray = useRecoilValue(categories)
     const transactionsArray = useRecoilValue(transactions)
+    const [categoryArray, setCategoryArray] = React.useState(categoriesArray.filter(x => x.sectionID === sectionID.sectionID))
     let section = sectionsArray.find(x => x.recordID === sectionID.sectionID)
-    let categoryArray = categoriesArray.filter(x => x.sectionID === sectionID.sectionID)
-
-    let categorySumArray = categoryArray.map((row) => (
+    let categorySumArrayInitial = categoryArray.map((row) => (
         {
             categoryID: row.recordID,
             categorySum: row.amount - (transactionsArray.filter(x => x.categoryID === row.recordID).reduce((accumulator, object) => {
@@ -49,16 +48,20 @@ export default function BudgetSection(sectionID: any) {
             }, 0)),
         }
     ))
+    const [categorySumArray, setCategorySumArray] = React.useState(categorySumArrayInitial)
+    React.useEffect(() => {
+        setCategoryArray(categoriesArray.filter(x => x.sectionID === sectionID.sectionID))
+    }, [categoriesArray])
 
     React.useEffect(() => {
-        categorySumArray = categoryArray.map((row) => (
+        setCategorySumArray(categoryArray.map((row) => (
             {
                 categoryID: row.recordID,
                 categorySum: row.amount - (transactionsArray.filter(x => x.categoryID === row.recordID).reduce((accumulator, object) => {
                     return accumulator + object.amount;
                 }, 0)),
             }
-        ))
+        )))
     }, [transactionsArray, categoriesArray, categoryArray])
 
     const openAddCategory = () => {
@@ -112,7 +115,7 @@ export default function BudgetSection(sectionID: any) {
                                         </Grid>
                                         <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount)}</Typography></Grid>
                                         {/*@ts-ignore*/}
-                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(categorySumArray.find(x => x.categoryID === row.recordID).categorySum)}</Typography></Grid>
+                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(categorySumArray.find(x => x.categoryID === row.recordID)?.categorySum)}</Typography></Grid>
                                         <Grid xs={12}>
                                             <BorderLinearProgress
                                                 variant='determinate'

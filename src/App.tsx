@@ -52,6 +52,7 @@ import { useTheme } from '@mui/material/styles';
 import AddTransaction from "./components/modals/AddTransaction";
 import Badge from '@mui/material/Badge';
 import AreYouSure from "./components/subcomponents/AreYouSure";
+import EditTransaction from "./components/modals/EditTransaction";
 
 const fabStyle = {
   position: 'fixed',
@@ -209,6 +210,7 @@ export default function App() {
             </Snackbar>
           <AddBudget/>
           <AddTransaction/>
+          <EditTransaction/>
           <Backdrop
               sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 200 }}
               open={loadingOpen}

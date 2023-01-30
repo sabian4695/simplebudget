@@ -13,7 +13,6 @@ import Box from '@mui/material/Box';
 import ListItemButton from '@mui/material/ListItemButton';
 import Chip from '@mui/material/Chip';
 import Avatar from '@mui/material/Avatar';
-import EditTransaction from "./modals/EditTransaction";
 import {currentTransaction, editTransaction} from "../recoil/modalStatusAtoms";
 import TextField from "@mui/material/TextField";
 import InputAdornment from '@mui/material/InputAdornment';
@@ -155,7 +154,6 @@ export default function TransactionsPage() {
                 {transactionsArray.length > 0 ? [uncategorized, categorized] :
                     <Typography color='text.secondary' variant='h6' sx={{fontWeight: '300', ml:1}}>Nothing here yet!</Typography>}
             </Stack>
-            <EditTransaction/>
         </>
     )
 }

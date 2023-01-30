@@ -6,7 +6,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {currentCategory, currentSection, editCategory, areYouSure} from '../../recoil/modalStatusAtoms'
+import {
+    currentCategory,
+    currentSection,
+    editCategory,
+    areYouSure,
+    currentTransaction, editTransaction
+} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -32,13 +38,30 @@ import Stack from "@mui/material/Stack";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import EditIcon from '@mui/icons-material/Edit';
+import Grow from '@mui/material/Grow';
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Divider from "@mui/material/Divider";
+import ListItemButton from "@mui/material/ListItemButton";
+import Avatar from "@mui/material/Avatar";
+import dayjs from "dayjs";
+import Chip from "@mui/material/Chip";
+import Paper from "@mui/material/Paper";
+
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+});
 
 export default function EditCategory() {
     const [openEditCategory, setOpenEditCategory] = useRecoilState(editCategory);
     const [categoryName, setCategoryName] = React.useState('');
     const [categoryAmount, setCategoryAmount] = React.useState(0);
+    const [editMode, setEditMode] = React.useState(false);
     const [categoryArray, setCategoryArray] = useRecoilState(categories)
     const [transactionsArray, setTransactionsArray] = useRecoilState(transactions)
+    const [filteredTransactions, setFilteredTransactions] = React.useState(transactionsArray)
     const currentCategoryID = useRecoilValue(currentCategory);
     let currentCategoryDetails = categoryArray.find(x => x.recordID === currentCategoryID)
     const currentSectionID = useRecoilValue(currentSection);
@@ -57,6 +80,7 @@ export default function EditCategory() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const moreOpen = Boolean(anchorEl);
     const [categoryDelete, setCategoryDelete] = React.useState(false)
+    const [categorySum, setCategorySum] = React.useState(0)
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -158,11 +182,23 @@ export default function EditCategory() {
             event.target.select()
         }
     };
+    const setCurrentTransaction = useSetRecoilState(currentTransaction)
+    const setOpenEditTransaction = useSetRecoilState(editTransaction)
+    const openTransaction = (trsID: string) => {
+        setCurrentTransaction(trsID)
+        setOpenEditTransaction(true)
+    }
     React.useEffect(() => {
         if (!openEditCategory) return;
             if (currentCategoryDetails) {
                 setCategoryName(currentCategoryDetails.categoryName)
                 setCategoryAmount(currentCategoryDetails.amount)
+                setEditMode(false)
+                setFilteredTransactions(transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID))
+                let catSum = transactionsArray.filter(x => x.categoryID === currentCategoryID).reduce((accumulator, object) => {
+                    return accumulator + object.amount;
+                }, 0)
+                setCategorySum(catSum)
             }
         setErrorText('')
     }, [openEditCategory])
@@ -187,25 +223,32 @@ export default function EditCategory() {
                             >
                                 <MoreVertIcon/>
                             </IconButton>
-                            <div>Edit Category</div>
+                            <Stack spacing={-1}>
+                                <Typography variant='overline'>{currentSectionName}</Typography>
+                                {editMode ?
+                                    <Grow in={editMode}>
+                                        <TextField
+                                            fullWidth
+                                            size='small'
+                                            variant='filled'
+                                            onFocus={handleFocus}
+                                            value={categoryName}
+                                            onChange={(event: any) => setCategoryName(event.target.value)}
+                                            type="text"
+                                            label="Category Name"
+                                        />
+                                    </Grow>
+                                    :
+                                    <Typography variant='h6'>{categoryName}</Typography>
+                                }
+                            </Stack>
                         </Stack>
                         <IconButton onClick={() => setOpenEditCategory(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
-                            <Typography>Section: {currentSectionName}</Typography>
                             <Grid xs={12}>
-                                <TextField
-                                    autoFocus
-                                    fullWidth
-                                    onFocus={handleFocus}
-                                    value={categoryName}
-                                    onChange={(event: any) => setCategoryName(event.target.value)}
-                                    type="text"
-                                    label="Category Name"
-                                />
-                            </Grid>
-                            <Grid xs={12}>
+                                {editMode ?
                                 <TextField
                                     fullWidth
                                     onFocus={handleFocus}
@@ -221,13 +264,64 @@ export default function EditCategory() {
                                     placeholder='Budget Amount'
                                     label="Budget Amount"
                                 />
+                                    :
+                                    <div>
+                                        <Typography variant='subtitle2'>{"Budgeted: " + formatter.format(categoryAmount)}</Typography>
+                                        <Typography variant='subtitle2'>{"Tracked: " + formatter.format(categorySum)}</Typography>
+                                    </div>
+                                }
+                            </Grid>
+                            <Grid xs={12}>
+                                <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
+                                    <List dense>
+                                        <ListItem disablePadding key={1}>
+                                            <Typography color='text.secondary' variant='h6'
+                                                        sx={{fontWeight: '600', ml: 1}}>Transactions</Typography>
+                                        </ListItem>
+                                        {transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID).sort(
+                                            (a, b) => {
+                                                return b.transactionDate - a.transactionDate;
+                                            }
+                                        ).map((row) => (
+                                            <>
+                                                <Divider/>
+                                                <ListItem disablePadding key={row.recordID}>
+                                                    <ListItemButton onClick={() => openTransaction(row.recordID)} sx={{px:0.5}}>
+                                                        <Grid xs={12} container columnSpacing={2} alignItems='center'>
+                                                            <Grid xs="auto">
+                                                                <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
+                                                            </Grid>
+                                                            <Grid xs='auto' sx={{flexGrow: 1}}>
+                                                                <Typography sx={{mt: 0.5}}
+                                                                            variant='body1'>{row.title}</Typography>
+                                                                <Chip size='small'
+                                                                      label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName}
+                                                                      color='success'/>
+                                                            </Grid>
+                                                            <Grid xs="auto" sx={{textAlign: 'right'}}>
+                                                                <Typography
+                                                                    variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </ListItemButton>
+                                                </ListItem>
+                                            </>
+                                        ))}
+                                    </List>
+                                </Paper>
                             </Grid>
                         </Grid>
                     </DialogContent>
                     <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
-                    <DialogActions>
-                        <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>Save Changes</Button>
-                    </DialogActions>
+                    {editMode ?
+                        <Grow in={editMode}>
+                            <DialogActions>
+                                <Button fullWidth startIcon={<SaveIcon/>} variant='contained' type='submit'>Save
+                                    Changes</Button>
+                            </DialogActions>
+                        </Grow>
+                        : null
+                    }
                 </Box>
             </Dialog>
             <Menu
@@ -239,9 +333,13 @@ export default function EditCategory() {
                 open={moreOpen}
                 onClose={handleClose}
             >
+                <MenuItem onClick={() => setEditMode(!editMode)}>
+                    <EditIcon sx={{mr:1}}/>
+                    Edit Category
+                </MenuItem>
                 <MenuItem onClick={handleDoubleCheck}>
-                    <DeleteIcon/>
-                    Delete
+                    <DeleteIcon sx={{mr:1}}/>
+                    Delete Category
                 </MenuItem>
             </Menu>
         </>
