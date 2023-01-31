@@ -8,13 +8,14 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
 import {useRecoilValue, useSetRecoilState} from "recoil";
-import {addCategory, currentSection, currentCategory, editCategory, editSection, openViewCategory} from "../../recoil/modalStatusAtoms";
+import {addCategory, currentSection, currentCategory, editCategory, editSection} from "../../recoil/modalStatusAtoms";
 import {sections, categories, transactions} from "../../recoil/tableAtoms";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import IconButton from "@mui/material/IconButton";
 import LinearProgress, {linearProgressClasses} from "@mui/material/LinearProgress";
 import {styled} from "@mui/material/styles";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import GlobalJS from "../extras/GlobalJS";
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -38,31 +39,12 @@ export default function BudgetSection(sectionID: any) {
     const sectionsArray = useRecoilValue(sections)
     const categoriesArray = useRecoilValue(categories)
     const transactionsArray = useRecoilValue(transactions)
+    const { grabCategorySum } = GlobalJS();
     const [categoryArray, setCategoryArray] = React.useState(categoriesArray.filter(x => x.sectionID === sectionID.sectionID))
     let section = sectionsArray.find(x => x.recordID === sectionID.sectionID)
-    let categorySumArrayInitial = categoryArray.map((row) => (
-        {
-            categoryID: row.recordID,
-            categorySum: row.amount - (transactionsArray.filter(x => x.categoryID === row.recordID).reduce((accumulator, object) => {
-                return accumulator + object.amount;
-            }, 0)),
-        }
-    ))
-    const [categorySumArray, setCategorySumArray] = React.useState(categorySumArrayInitial)
     React.useEffect(() => {
         setCategoryArray(categoriesArray.filter(x => x.sectionID === sectionID.sectionID))
     }, [categoriesArray])
-
-    React.useEffect(() => {
-        setCategorySumArray(categoryArray.map((row) => (
-            {
-                categoryID: row.recordID,
-                categorySum: row.amount - (transactionsArray.filter(x => x.categoryID === row.recordID).reduce((accumulator, object) => {
-                    return accumulator + object.amount;
-                }, 0)),
-            }
-        )))
-    }, [transactionsArray, categoriesArray, categoryArray])
 
     const openAddCategory = () => {
         setSection(sectionID.sectionID)
@@ -78,17 +60,25 @@ export default function BudgetSection(sectionID: any) {
         setOpenEditSection(true)
     }
     function progPercent(idVal: string, rowAmount: number) {
-        if(categorySumArray === undefined) {
-            return 0
-        }
-        if (categorySumArray.find(x => x.categoryID === idVal) === undefined) {
-            return 0
-        }
         if(rowAmount === 0) {
             return 0
         }
-        //@ts-ignore
-        return (100-(categorySumArray.find(x => x.categoryID === idVal).categorySum/rowAmount)*100)
+        if(section?.sectionType === "income") {
+            return ((grabCategorySum(idVal)/rowAmount)*100)
+        }
+        if(section?.sectionType === "expense") {
+            return (-(grabCategorySum(idVal)/rowAmount)*100)
+        }
+        return 0
+    }
+    function catSumGrab(catID: string, amount: number) {
+        if(section?.sectionType === "income") {
+            return amount - grabCategorySum(catID)
+        }
+        if(section?.sectionType === "expense") {
+            return amount + grabCategorySum(catID)
+        }
+        return 0
     }
     return (
         <>
@@ -114,8 +104,7 @@ export default function BudgetSection(sectionID: any) {
                                             <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} display='inline' variant='body1'>{row.categoryName}</Typography>
                                         </Grid>
                                         <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount)}</Typography></Grid>
-                                        {/*@ts-ignore*/}
-                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(categorySumArray.find(x => x.categoryID === row.recordID)?.categorySum)}</Typography></Grid>
+                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(catSumGrab(row.recordID,row.amount))}</Typography></Grid>
                                         <Grid xs={12}>
                                             <BorderLinearProgress
                                                 variant='determinate'

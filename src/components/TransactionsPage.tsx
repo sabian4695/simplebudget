@@ -69,7 +69,9 @@ export default function TransactionsPage() {
                                 <ListItemButton onClick={() => openTransaction(row.recordID)}>
                                     <Grid xs={12} container columnSpacing={2} alignItems='center'>
                                         <Grid xs="auto">
-                                            <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
+                                            <Avatar sx={{fontSize: 15, textAlign: 'center', bgcolor: 'text.secondary'}}>
+                                                {dayjs(row.transactionDate).format('MMM DD')}
+                                            </Avatar>
                                         </Grid>
                                         <Grid xs='auto' sx={{flexGrow: 1}}>
                                             <Typography sx={{mt: 0.5}}
@@ -108,14 +110,16 @@ export default function TransactionsPage() {
                                 <ListItemButton onClick={() => openTransaction(row.recordID)}>
                                     <Grid xs={12} container columnSpacing={2} alignItems='center'>
                                         <Grid xs="auto">
-                                            <Avatar>{dayjs(row.transactionDate).format('MMM DD')}</Avatar>
+                                            <Avatar sx={{fontSize: 15, textAlign: 'center', bgcolor: 'text.secondary'}}>
+                                                {dayjs(row.transactionDate).format('MMM DD')}
+                                            </Avatar>
                                         </Grid>
                                         <Grid xs='auto' sx={{flexGrow: 1}}>
                                             <Typography sx={{mt: 0.5}}
                                                         variant='body1'>{row.title}</Typography>
                                             <Chip size='small'
                                                   label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName}
-                                                  color='success'/>
+                                                  color='primary'/>
                                         </Grid>
                                         <Grid xs="auto" sx={{textAlign: 'right'}}>
                                             <Typography

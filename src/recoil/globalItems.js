@@ -112,6 +112,11 @@ export const areYouSureAccept = atom({
     default: false,
 });
 
+export const addTransactionCategory = atom({
+    key: "addTransactionCategory",
+    default: null,
+});
+
 export const appName = 'simpleBudget';
 
 export const dialogPaperStyles = {

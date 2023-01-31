@@ -10,7 +10,7 @@ import {addTransaction} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
+import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText, addTransactionCategory} from "../../recoil/globalItems";
 import {v4 as uuidv4} from "uuid";
 import dayjs, {Dayjs} from "dayjs";
 import {categories, currentBudgetAndMonth, sections, transactions} from "../../recoil/tableAtoms";
@@ -28,6 +28,7 @@ import IconButton from "@mui/material/IconButton";
 import {useTheme} from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { styled, lighten, darken } from '@mui/system';
+
 
 const GroupHeader = styled('div')(({ theme }) => ({
     position: 'sticky',
@@ -48,7 +49,7 @@ export default function AddTransaction() {
     const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
     const [transactionAmount, setTransactionAmount] = React.useState(0.00)
     const [transactionTitle, setTransactionTitle] = React.useState('')
-    const [transactionCategory, setTransactionCategory] = React.useState<any>(null);
+    const [transactionCategory, setTransactionCategory] = useRecoilState(addTransactionCategory);
     const [transactionType, setTransactionType] = React.useState('expense')
     const [transactionDate, setTransactionDate] = React.useState<Dayjs | null>(dayjs())
     const handleTypeChange = (
@@ -61,12 +62,6 @@ export default function AddTransaction() {
     };
     const categoriesArray = useRecoilValue(categories)
     const sectionsArray = useRecoilValue(sections)
-    const categoryArray = categoriesArray.map((row) => (
-        {
-            id: row.recordID,
-            label: row.categoryName
-        }
-    ))
     const categoryGroups = categoriesArray.map((option) => {
         const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
         return {
@@ -74,7 +69,12 @@ export default function AddTransaction() {
           id: option.recordID,
           label: option.categoryName
         };
-      });
+      }).sort(function(a, b){
+        if(a.sectionName < b.sectionName) { return -1; }
+        if(a.sectionName > b.sectionName) { return 1; }
+        return 0;
+    }
+);
     const setTransactionsArray = useSetRecoilState(transactions)
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
@@ -106,6 +106,7 @@ export default function AddTransaction() {
             let newTransaction = {
                 recordID: uuidv4(),
                 budgetID: currentBudget.budgetID,
+                //@ts-ignore
                 categoryID: transactionCategory === null ? null : transactionCategory.id,
                 //@ts-ignore
                 amount: transactionAmount === '' ? 0 : transactionAmount,
