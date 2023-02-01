@@ -14,14 +14,13 @@ import {
     areYouSureAccept,
     areYouSureDetails,
     areYouSureTitle,
-    currentUser,
     dialogPaperStyles,
     snackBarOpen,
     snackBarSeverity,
     snackBarText
 } from "../../recoil/globalItems";
 import dayjs, {Dayjs} from "dayjs";
-import {categories, currentBudgetAndMonth, transactions} from "../../recoil/tableAtoms";
+import {categories, transactions, sections} from "../../recoil/tableAtoms";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
@@ -40,6 +39,22 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MenuItem from "@mui/material/MenuItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Menu from "@mui/material/Menu";
+import { styled, lighten, darken } from '@mui/system';
+
+const GroupHeader = styled('div')(({ theme }) => ({
+    position: 'sticky',
+    top: '-8px',
+    padding: '4px 10px',
+    color: theme.palette.primary.main,
+    backgroundColor:
+      theme.palette.mode === 'light'
+        ? lighten(theme.palette.primary.light, 0.85)
+        : darken(theme.palette.primary.main, 0.8),
+  }));
+
+  const GroupItems = styled('ul')({
+    padding: 0,
+  });
 
 export default function EditTransaction() {
     const [openEditTransaction, setOpenEditTransaction] = useRecoilState(editTransaction);
@@ -71,12 +86,20 @@ export default function EditTransaction() {
         }
     };
     const categoriesArray = useRecoilValue(categories)
-    const categoryArray = categoriesArray.map((row) => (
-        {
-            id: row.recordID,
-            label: row.categoryName
+    const sectionsArray = useRecoilValue(sections)
+    const categoryGroups = categoriesArray.map((option) => {
+        const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
+        return {
+          sectionName: sectionName === undefined ? "" : sectionName,
+          id: option.recordID,
+          label: option.categoryName
+        };
+      }).sort(function(a, b){
+        if(a.sectionName < b.sectionName) { return -1; }
+        if(a.sectionName > b.sectionName) { return 1; }
+        return 0;
         }
-    ))
+    );
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const moreOpen = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -191,7 +214,7 @@ export default function EditTransaction() {
             setTransactionTitle(currentTransactionDetails.title)
             setTransactionAmount(currentTransactionDetails.amount)
             setTransactionType(currentTransactionDetails.transactionType)
-            setTransactionCategory(categoryArray.find(x => x.id === currentTransactionDetails.categoryID))
+            setTransactionCategory(categoryGroups.find(x => x.id === currentTransactionDetails.categoryID))
             setTransactionDate(dayjs(currentTransactionDetails.transactionDate))
         }
         setErrorText('')
@@ -268,14 +291,21 @@ export default function EditTransaction() {
                             <Grid xs={12}>
                                 <Autocomplete
                                     disablePortal={false}
-                                    options={categoryArray}
+                                    options={categoryGroups}
                                     getOptionLabel={(option) => option.label}
+                                    groupBy={(option) => option.sectionName}
                                     fullWidth
                                     value={transactionCategory}
                                     onChange={(event: any, newValue: any) => {
                                         setTransactionCategory(newValue)
                                     }}
                                     renderInput={(params) => <TextField onFocus={handleFocus} margin="dense" {...params} label="Category"/>}
+                                    renderGroup={(params) => (
+                                        <li>
+                                          <GroupHeader>{params.group}</GroupHeader>
+                                          <GroupItems>{params.children}</GroupItems>
+                                        </li>
+                                      )}
                                 />
                             </Grid>
                             <Grid xs={12}>

@@ -78,6 +78,7 @@ export default function SelectBudget() {
                 year: currentBudgetDetails.year !== null ? currentBudgetDetails.year : Number(dayjs().format('YYYY')),
                 month: currentBudgetDetails.month !== null ? currentBudgetDetails.month : dayjs().format('MMMM')
             }))
+            setCreateNewBudget(false)
             await grabBudgetData(newBudgetID, currentBudgetDetails.year, currentBudgetDetails.month)
         } else {
             setCreateNewBudget(true)
@@ -89,7 +90,7 @@ export default function SelectBudget() {
             <Dialog
                 onClose={() => setOpen(false)}
                 open={open}
-                PaperProps={bigger ? dialogPaperStyles : undefined}
+                PaperProps={dialogPaperStyles}
             >
                 <Box sx={{bgcolor: 'background.paper', height:'100%', minWidth: 250}}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>

@@ -54,7 +54,7 @@ export default function TransactionsPage() {
         <Box sx={{width: '100%'}}>
             <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
                 <List dense>
-                    <ListItem disablePadding key={1}>
+                    <ListItem disablePadding key="1">
                         <Typography color='text.secondary' variant='h6'
                                     sx={{fontWeight: '600', ml: 1}}>Uncategorized</Typography>
                     </ListItem>
@@ -95,7 +95,7 @@ export default function TransactionsPage() {
         <Box sx={{width: '100%'}}>
             <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
                 <List dense>
-                    <ListItem disablePadding key={2}>
+                    <ListItem disablePadding key="2">
                         <Typography color='text.secondary' variant='h6'
                                     sx={{fontWeight: '600', ml: 1}}>Categorized</Typography>
                     </ListItem>

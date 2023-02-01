@@ -216,13 +216,16 @@ export default function EditCategory() {
                 setCategoryName(currentCategoryDetails.categoryName)
                 setCategoryAmount(currentCategoryDetails.amount)
                 setEditMode(false)
-                let catSum = transactionsArray.filter(x => x.categoryID === currentCategoryID).reduce((accumulator, object) => {
-                    return accumulator + object.amount;
-                }, 0)
-                setCategorySum(catSum)
+                setCategorySum(grabCategorySum(currentCategoryID))
             }
         setErrorText('')
     }, [openEditCategory])
+    React.useEffect(() => {
+        if (!openEditCategory) return;
+            if (currentCategoryDetails) {
+                setCategorySum(grabCategorySum(currentCategoryID))
+            }
+    }, [transactionsArray])
     return (
         <>
             <Dialog open={openEditCategory}
@@ -286,10 +289,17 @@ export default function EditCategory() {
                                     label="Budget Amount"
                                 />
                                     :
-                                    <div>
-                                        <Typography variant='subtitle2'>{"Budgeted: " + formatter.format(categoryAmount)}</Typography>
-                                        <Typography variant='subtitle2'>{"Tracked: " + formatter.format(grabCategorySum(currentCategoryID))}</Typography>
-                                    </div>
+                                    <Stack direction='row' justifyContent='space-between'>
+                                        <div>
+                                            <Typography variant='subtitle2'>{"Budgeted: " + formatter.format(categoryAmount)}</Typography>
+                                            <Typography variant='subtitle2'>{"Tracked: " + formatter.format(categorySum)}</Typography>
+                                        </div>
+                                        {bigger ? 
+                                            <Fab color="secondary" variant='extended' onClick={addNewTransClick}>
+                                                <AddIcon /> Add Transaction
+                                            </Fab> : null
+                                        }
+                                    </Stack>
                                 }
                             </Grid>
                             <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
@@ -309,7 +319,7 @@ export default function EditCategory() {
                                     <List dense>
                                         {transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID).length > 0 ?
                                             <>
-                                            <ListItem disablePadding key={1}>
+                                            <ListItem disablePadding key="1">
                                                 <Typography color='text.secondary' variant='h6'
                                                             sx={{fontWeight: '600', ml: 1}}>Tracked</Typography>
                                             </ListItem>
@@ -343,7 +353,7 @@ export default function EditCategory() {
                                             ))}
                                             </>
                                             :
-                                            <ListItem disablePadding key={1}>
+                                            <ListItem disablePadding key="2">
                                                 <Typography color='text.secondary' variant='h6'
                                                 sx={{fontWeight: '600', ml: 1}}>Nothing Tracking Here</Typography>
                                             </ListItem>
@@ -353,9 +363,11 @@ export default function EditCategory() {
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <Fab color="secondary" sx={fabStyle} onClick={addNewTransClick}>
-                        <AddIcon />
-                    </Fab>
+                    {bigger ? null :
+                        <Fab color="secondary" sx={fabStyle} onClick={addNewTransClick}>
+                            <AddIcon />
+                        </Fab>
+                    }
                 </Box>
             </Dialog>
             <Menu

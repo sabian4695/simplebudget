@@ -9,7 +9,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Box from '@mui/material/Box';
 import {useRecoilValue, useSetRecoilState} from "recoil";
 import {addCategory, currentSection, currentCategory, editCategory, editSection} from "../../recoil/modalStatusAtoms";
-import {sections, categories, transactions} from "../../recoil/tableAtoms";
+import {sections, categories} from "../../recoil/tableAtoms";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import IconButton from "@mui/material/IconButton";
 import LinearProgress, {linearProgressClasses} from "@mui/material/LinearProgress";
@@ -38,7 +38,6 @@ export default function BudgetSection(sectionID: any) {
     const setOpenEditSection = useSetRecoilState(editSection);
     const sectionsArray = useRecoilValue(sections)
     const categoriesArray = useRecoilValue(categories)
-    const transactionsArray = useRecoilValue(transactions)
     const { grabCategorySum } = GlobalJS();
     const [categoryArray, setCategoryArray] = React.useState(categoriesArray.filter(x => x.sectionID === sectionID.sectionID))
     let section = sectionsArray.find(x => x.recordID === sectionID.sectionID)
@@ -59,27 +58,25 @@ export default function BudgetSection(sectionID: any) {
         setSection(sectionID.sectionID)
         setOpenEditSection(true)
     }
-    function progPercent(idVal: string, rowAmount: number) {
-        if(rowAmount === 0) {
-            return 0
-        }
+    function progPercent(catID: string, amount: number) {
         if(section?.sectionType === "income") {
-            return ((grabCategorySum(idVal)/rowAmount)*100)
+            return (grabCategorySum(catID)/amount)*100
         }
         if(section?.sectionType === "expense") {
-            return (-(grabCategorySum(idVal)/rowAmount)*100)
+            return -(grabCategorySum(catID)/amount)*100
         }
         return 0
     }
-    function catSumGrab(catID: string, amount: number) {
+    function catSumGrab(catID: string) {
         if(section?.sectionType === "income") {
-            return amount - grabCategorySum(catID)
+            return grabCategorySum(catID)
         }
         if(section?.sectionType === "expense") {
-            return amount + grabCategorySum(catID)
+            return -grabCategorySum(catID)
         }
         return 0
     }
+
     return (
         <>
             <Paper elevation={5} sx={{borderRadius:3}}>
@@ -104,7 +101,7 @@ export default function BudgetSection(sectionID: any) {
                                             <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} display='inline' variant='body1'>{row.categoryName}</Typography>
                                         </Grid>
                                         <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount)}</Typography></Grid>
-                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(catSumGrab(row.recordID,row.amount))}</Typography></Grid>
+                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount - catSumGrab(row.recordID))}</Typography></Grid>
                                         <Grid xs={12}>
                                             <BorderLinearProgress
                                                 variant='determinate'

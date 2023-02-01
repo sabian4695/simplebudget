@@ -73,8 +73,8 @@ export default function AddTransaction() {
         if(a.sectionName < b.sectionName) { return -1; }
         if(a.sectionName > b.sectionName) { return 1; }
         return 0;
-    }
-);
+        }
+    );
     const setTransactionsArray = useSetRecoilState(transactions)
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
@@ -109,7 +109,7 @@ export default function AddTransaction() {
                 //@ts-ignore
                 categoryID: transactionCategory === null ? null : transactionCategory.id,
                 //@ts-ignore
-                amount: transactionAmount === '' ? 0 : transactionAmount,
+                amount: transactionAmount === '' ? 0 : Math.round((transactionAmount + Number.EPSILON) * 100) / 100,
                 title: transactionTitle,
                 transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
                 transactionType: transactionType,
