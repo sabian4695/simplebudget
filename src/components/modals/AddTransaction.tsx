@@ -109,7 +109,7 @@ export default function AddTransaction() {
                 //@ts-ignore
                 categoryID: transactionCategory === null ? null : transactionCategory.id,
                 //@ts-ignore
-                amount: transactionAmount === '' ? 0 : Math.round((transactionAmount + Number.EPSILON) * 100) / 100,
+                amount: transactionAmount === '' ? 0 : Math.round(transactionAmount * 100) / 100,
                 title: transactionTitle,
                 transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
                 transactionType: transactionType,
