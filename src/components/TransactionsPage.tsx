@@ -49,12 +49,14 @@ export default function TransactionsPage() {
         setCurrentTransaction(trsID)
         setOpenEditTransaction(true)
     }
-
+    React.useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
     const uncategorized = filteredTransactions.filter(x => x.categoryID === null).length > 0 ?
         <Box sx={{width: '100%'}}>
             <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
                 <List dense>
-                    <ListItem disablePadding key="1">
+                    <ListItem disablePadding key={"1"}>
                         <Typography color='text.secondary' variant='h6'
                                     sx={{fontWeight: '600', ml: 1}}>Uncategorized</Typography>
                     </ListItem>
@@ -95,7 +97,7 @@ export default function TransactionsPage() {
         <Box sx={{width: '100%'}}>
             <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
                 <List dense>
-                    <ListItem disablePadding key="2">
+                    <ListItem disablePadding key={"2"}>
                         <Typography color='text.secondary' variant='h6'
                                     sx={{fontWeight: '600', ml: 1}}>Categorized</Typography>
                     </ListItem>
@@ -136,28 +138,30 @@ export default function TransactionsPage() {
 
     return (
         <>
-            <Stack spacing={2} alignItems="center">
-                <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Transactions</Typography>
-                <TextField
-                    fullWidth
-                    size='small'
-                    variant='filled'
-                    value={searchText}
-                    onChange={(event: any) => setText(event)}
-                    type="search"
-                    label="Search Transactions"
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+            <Box display='flex' flexDirection='column' alignItems='center'>
+                <Stack spacing={2} alignItems="stretch" sx={{maxWidth:400, width:'100%'}}>
+                    <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Transactions</Typography>
+                    <TextField
+                        fullWidth
+                        size='small'
+                        variant='filled'
+                        value={searchText}
+                        onChange={(event: any) => setText(event)}
+                        type="search"
+                        label="Search Transactions"
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
 
-                {transactionsArray.length > 0 ? [uncategorized, categorized] :
-                    <Typography color='text.secondary' variant='h6' sx={{fontWeight: '300', ml:1}}>Nothing here yet!</Typography>}
-            </Stack>
+                    {transactionsArray.length > 0 ? [uncategorized, categorized] :
+                        <Typography color='text.secondary' variant='h6' sx={{fontWeight: '300', ml:1}}>Nothing here yet!</Typography>}
+                </Stack>
+            </Box>
         </>
     )
 }

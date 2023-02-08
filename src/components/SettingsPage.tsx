@@ -8,6 +8,7 @@ import {Switch} from "@mui/material";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {currentUser, snackBarOpen, snackBarSeverity, snackBarText, themeAtom} from "../recoil/globalItems";
 import {useNavigate} from "react-router-dom";
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Divider from "@mui/material/Divider";
 import Typography from '@mui/material/Typography';
@@ -99,105 +100,110 @@ export default function SettingsPage() {
                 setSnackOpen(true)
             });
     }
+    React.useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
     return (
         <>
-            <Stack spacing={2} alignItems="center">
-                <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Settings</Typography>
-                <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
-                    <List>
-                        <ListItem disablePadding>
-                            <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>General</Typography>
-                        </ListItem>
-                        <Divider/>
-                        <ListItem disablePadding>
-                            <ListItemButton onClick={handleListThemeClick}>
-                                <ListItemIcon>
-                                    <DarkModeIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Dark Mode" />
-                                <Switch sx={{ml: 1}} size='small' checked={slideCheck} onChange={handleThemeClick}/>
-                            </ListItemButton>
-                        </ListItem>
-                    </List>
-                </Paper>
-                <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
-                    <List>
-                        <ListItem disablePadding>
-                            <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>{'Budget: ' + currentBudgetDetails?.budgetName}</Typography>
-                        </ListItem>
-                        <Divider/>
-                        <ListItem disablePadding>
-                            <ListItemButton onClick={() => setSelectBudgetOpen(true)}>
-                                <ListItemIcon>
-                                    <ListAltIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Switch Budgets" />
-                            </ListItemButton>
-                        </ListItem>
-                        <Divider/>
-                        <ListItem disablePadding>
-                            <ListItemButton >
-                                <ListItemIcon>
-                                    <FileDownloadIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Export Data to CSV - soon" />
-                            </ListItemButton>
-                        </ListItem>
-                        <Divider/>
-                        <ListItem disablePadding>
-                            <ListItemButton onClick={() => setShareBudgetOpen(true)}>
-                                <ListItemIcon>
-                                    <ShareIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Share Budget" />
-                            </ListItemButton>
-                        </ListItem>
-                        <Divider/>
-                        <ListItem disablePadding>
-                            <ListItemButton >
-                                <ListItemIcon>
-                                    <DeleteIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Delete Budget - soon" />
-                            </ListItemButton>
-                        </ListItem>
-                    </List>
-                </Paper>
-                <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
-                    <List>
-                        <ListItem disablePadding>
-                            <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Account: {currentUserDetails.fullName}</Typography>
-                        </ListItem>
-                        <Divider/>
-                        <ListItem disablePadding>
-                            <ListItemButton onClick={copyUserID}>
-                                <ListItemIcon>
-                                    <ContentCopyIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Copy My User ID" />
-                            </ListItemButton>
-                        </ListItem>
-                        <Divider/>
-                        <ListItem disablePadding>
-                            <ListItemButton >
-                                <ListItemIcon>
-                                    <LockResetIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Change Password - soon" />
-                            </ListItemButton>
-                        </ListItem>
-                        <Divider/>
-                        <ListItem disablePadding>
-                            <ListItemButton onClick={fnLogout}>
-                                <ListItemIcon>
-                                    <LogoutIcon />
-                                </ListItemIcon>
-                                <ListItemText primary="Logout" />
-                            </ListItemButton>
-                        </ListItem>
-                    </List>
-                </Paper>
-            </Stack>
+            <Box display='flex' flexDirection='column' alignItems='center'>
+                <Stack spacing={2} alignItems="stretch" sx={{maxWidth:400, width:'100%'}}>
+                    <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Settings</Typography>
+                    <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
+                        <List>
+                            <ListItem disablePadding>
+                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>General</Typography>
+                            </ListItem>
+                            <Divider/>
+                            <ListItem disablePadding>
+                                <ListItemButton onClick={handleListThemeClick}>
+                                    <ListItemIcon>
+                                        <DarkModeIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Dark Mode" />
+                                    <Switch sx={{ml: 1}} size='small' checked={slideCheck} onChange={handleThemeClick}/>
+                                </ListItemButton>
+                            </ListItem>
+                        </List>
+                    </Paper>
+                    <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
+                        <List>
+                            <ListItem disablePadding>
+                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>{'Budget: ' + currentBudgetDetails?.budgetName}</Typography>
+                            </ListItem>
+                            <Divider/>
+                            <ListItem disablePadding>
+                                <ListItemButton onClick={() => setSelectBudgetOpen(true)}>
+                                    <ListItemIcon>
+                                        <ListAltIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Switch Budgets" />
+                                </ListItemButton>
+                            </ListItem>
+                            <Divider/>
+                            <ListItem disablePadding>
+                                <ListItemButton >
+                                    <ListItemIcon>
+                                        <FileDownloadIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Export Data to CSV - soon" />
+                                </ListItemButton>
+                            </ListItem>
+                            <Divider/>
+                            <ListItem disablePadding>
+                                <ListItemButton onClick={() => setShareBudgetOpen(true)}>
+                                    <ListItemIcon>
+                                        <ShareIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Share Budget" />
+                                </ListItemButton>
+                            </ListItem>
+                            <Divider/>
+                            <ListItem disablePadding>
+                                <ListItemButton >
+                                    <ListItemIcon>
+                                        <DeleteIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Delete Budget - soon" />
+                                </ListItemButton>
+                            </ListItem>
+                        </List>
+                    </Paper>
+                    <Paper elevation={5} sx={{width:'100%', borderRadius: 3}}>
+                        <List>
+                            <ListItem disablePadding>
+                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Account: {currentUserDetails.fullName}</Typography>
+                            </ListItem>
+                            <Divider/>
+                            <ListItem disablePadding>
+                                <ListItemButton onClick={copyUserID}>
+                                    <ListItemIcon>
+                                        <ContentCopyIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Copy My User ID" />
+                                </ListItemButton>
+                            </ListItem>
+                            <Divider/>
+                            <ListItem disablePadding>
+                                <ListItemButton >
+                                    <ListItemIcon>
+                                        <LockResetIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Change Password - soon" />
+                                </ListItemButton>
+                            </ListItem>
+                            <Divider/>
+                            <ListItem disablePadding>
+                                <ListItemButton onClick={fnLogout}>
+                                    <ListItemIcon>
+                                        <LogoutIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Logout" />
+                                </ListItemButton>
+                            </ListItem>
+                        </List>
+                    </Paper>
+                </Stack>
+            </Box>
             <ShareBudget/>
         </>
     )

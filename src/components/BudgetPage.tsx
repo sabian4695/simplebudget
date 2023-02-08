@@ -5,7 +5,7 @@ import BudgetSection from "./subcomponents/BudgetSection";
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import {useRecoilValue, useSetRecoilState, useRecoilState} from "recoil";
-import {addSection, addTransaction, copyBudget} from "../recoil/modalStatusAtoms";
+import {addSection, copyBudget} from "../recoil/modalStatusAtoms";
 import AddSection from "./modals/AddSection";
 import {categories, currentBudgetAndMonth, sections} from '../recoil/tableAtoms';
 import Box from '@mui/material/Box';
@@ -15,28 +15,14 @@ import Menu from '@mui/material/Menu';
 import dayjs from "dayjs";
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import EditCategory from "./modals/EditCategory";
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 import Paper from "@mui/material/Paper";
 import GrabBudgetData from "./extras/GrabBudgetData";
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 import EditSection from "./modals/EditSection";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import CopyAllIcon from '@mui/icons-material/CopyAll';
 import CopyBudget from "./modals/CopyBudget";
-
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-    height: 15,
-    borderRadius: 5,
-    [`&.${linearProgressClasses.colorPrimary}`]: {
-        backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 300 : 700],
-    },
-    [`& .${linearProgressClasses.bar}`]: {
-        borderRadius: 5,
-        backgroundColor: theme.palette.mode === 'light' ? 'primary.light' : 'primary.dark',
-    },
-}));
 
 const CustomButton = styled(Button)({
     textTransform: 'none',
@@ -58,12 +44,9 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 export default function BudgetPage() {
-    const theme = useTheme();
-    const matches = useMediaQuery(theme.breakpoints.up('sm'));
     const setAddNewSection = useSetRecoilState(addSection)
-    const setAddNewTransaction = useSetRecoilState(addTransaction)
     const sectionsArray = useRecoilValue(sections)
-    const [openCopyBudget, setOpenCopyBudget] = useRecoilState(copyBudget)
+    const setOpenCopyBudget = useSetRecoilState(copyBudget)
     const { grabBudgetData } = GrabBudgetData();
     const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -146,38 +129,60 @@ export default function BudgetPage() {
         setAnchorEl1(null);
         setOpenCopyBudget(true)
     }
+    React.useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
     return (
         <>
-            <Stack spacing={2} alignItems="stretch">
-                <Box display='flex' flexDirection='row' alignItems='center'>
-                    <IconButton
-                        size='small'
-                        aria-label="more"
-                        aria-controls={moreOpen ? 'long-menu' : undefined}
-                        aria-expanded={moreOpen ? 'true' : undefined}
-                        aria-haspopup="true"
-                        onClick={handleOpenOptions}
-                    ><MoreVertIcon/></IconButton>
-                    <Typography display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
-                    <CustomButton onClick={handleClickListItem} size='small' sx={{py:0, ml:1}}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
-                </Box>
-
-                <Paper elevation={5} sx={{borderRadius:3}}>
-                    <Box sx={{width:'100%'}}>
-                        <Box display='flex' flexDirection='column' alignItems='center' sx={{width:'100%', p:1}}>
-                            <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
-                            <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Expenses: {formatter.format(totalExpenses)}</Typography>
-                            <Typography sx={{alignSelf:'flex-start'}} display='block' color='text.secondary' variant='subtitle1'>Leftover: {formatter.format(totalIncome-totalExpenses)}</Typography>
-                        </Box>
-                        <Box><BorderLinearProgress variant="determinate" value={(totalExpenses/totalIncome)*100}/></Box>
+            <Box display='flex' flexDirection='column' alignItems='center'>
+                <Stack spacing={2} alignItems="stretch" sx={{maxWidth:400}}>
+                    <Box display='flex' flexDirection='row' alignSelf='flex-start'>
+                        <IconButton
+                            size='small'
+                            aria-label="more"
+                            aria-controls={moreOpen ? 'long-menu' : undefined}
+                            aria-expanded={moreOpen ? 'true' : undefined}
+                            aria-haspopup="true"
+                            onClick={handleOpenOptions}
+                        ><MoreVertIcon/></IconButton>
+                        <Typography display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
+                        <CustomButton onClick={handleClickListItem} size='small' sx={{py:0, ml:1}}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
                     </Box>
-                </Paper>
-                {sectionsArray.map((row) => (
-                    <BudgetSection sectionID={row.recordID} key={row.recordID}/>
-                    )
-                )}
-                <Button variant='outlined' color='secondary' startIcon={<PostAddIcon />} onClick={() => setAddNewSection(true)}>Add Section</Button>
-            </Stack>
+                    <Paper elevation={5} sx={{borderRadius:3}}>
+                        <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{width:'100%', p:1, textAlign:'center'}}>
+                            <Paper elevation={1}>
+                                <Typography color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
+                            </Paper>
+                            <Paper elevation={1} sx={{mx:1}}>
+                                <Typography color='text.secondary' variant='subtitle1'>Expenses: {formatter.format(totalExpenses)}</Typography>
+                            </Paper>
+                            <Paper elevation={1}>
+                                <Typography
+                                    color={totalIncome-totalExpenses < 0 ? 'error.main' : 'success.main'}
+                                    style={{fontWeight: 'bold'}}
+                                    variant='subtitle1'
+                                >
+                                    Leftover: {formatter.format(totalIncome-totalExpenses)}
+                                </Typography>
+                            </Paper>
+                        </Box>
+                        <LinearProgress
+                            sx={{height:10, borderBottomRightRadius:6, borderBottomLeftRadius: 6}}
+                            variant="determinate" color={(totalExpenses/totalIncome) > 1 ? 'error' : 'success'}
+                            value={(totalExpenses/totalIncome)*100}
+                        />
+                    </Paper>
+                    {sectionsArray.filter(x => x.sectionType === 'income').map((row) => (
+                        <BudgetSection sectionID={row.recordID} key={row.recordID}/>
+                        )
+                    )}
+                    {sectionsArray.filter(x => x.sectionType === 'expense').map((row) => (
+                            <BudgetSection sectionID={row.recordID} key={row.recordID}/>
+                        )
+                    )}
+                    <Button variant='outlined' color='secondary' startIcon={<PostAddIcon />} onClick={() => setAddNewSection(true)}>Add Section</Button>
+                </Stack>
+            </Box>
             <Menu
                 id="lock-menu"
                 anchorEl={anchorEl}
@@ -187,11 +192,7 @@ export default function BudgetPage() {
                     'aria-labelledby': 'lock-button',
                     role: 'listbox',
                 }}
-                PaperProps={{
-                    style: {
-                        maxHeight: 300
-                    },
-                }}
+                PaperProps={{style: {maxHeight: 300}}}
             >
                 {options.map((option, index) => (
                     <MenuItem

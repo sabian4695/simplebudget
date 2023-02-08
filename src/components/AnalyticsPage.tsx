@@ -5,15 +5,14 @@ import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import { categories, sections, transactions } from '../recoil/tableAtoms';
 import { useRecoilValue } from 'recoil';
+import Typography from '@mui/material/Typography';
+import Stack from "@mui/material/Stack";
+import Divider from '@mui/material/Divider';
 
-export const data = [
-    ["Task", "Hours per Day"],
-    ["Work", 11],
-    ["Eat", 2],
-    ["Commute", 2],
-    ["Watch TV", 2],
-    ["Sleep", 7],
-];
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+});
 
 export default function AnalyticsPage() {
     const categoriesArray = useRecoilValue(categories)
@@ -45,34 +44,80 @@ export default function AnalyticsPage() {
     let incomeGraphData = incomeColumns.concat(incomeArray)
     //@ts-ignore
     let expenseGraphData = expenseColumns.concat(expenseArray)
-    console.log(expenseGraphData)
 
     const options = {
-        title: "My Daily Activities",
-        backgroundColor: "rgba(0,0,0,0)"
+        backgroundColor: theme.palette.mode === 'light' ? theme.palette.background.paper : '#2A2A2A',
+        legend: "none",
     };
+    React.useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
     return (
         <>
-            <Paper elevation={5} sx={{ borderRadius: 3 }}>
-                <Box sx={{ width: '100%' }}>
-                    <Chart
-                        chartType="PieChart"
-                        data={incomeGraphData}
-                        options={options}
-                        width={"100%"}
-                        height={"400px"}
-                    />
-                </Box>
-                <Box sx={{ width: '100%' }}>
-                    <Chart
-                        chartType="PieChart"
-                        data={expenseGraphData}
-                        options={options}
-                        width={"100%"}
-                        height={"400px"}
-                    />
-                </Box>
-            </Paper>
+            <Box display='flex' flexDirection='column' alignItems='center'>
+                <Stack spacing={2} alignItems="stretch" sx={{maxWidth:400, width:'100%'}}>
+                    <Paper elevation={5} sx={{ borderRadius: 3, p:1, width:'100%' }}>
+                        <Box sx={{ width: '100%' }}>
+                            <Typography textAlign='center' color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>
+                                Income Sources
+                            </Typography>
+                            <Chart
+                                chartType="PieChart"
+                                data={incomeGraphData}
+                                options={options}
+                                width={"100%"}
+                                height={"400px"}
+                            />
+                            {incomeArray.sort(function(a, b) {
+                                //@ts-ignore
+                                return b[1] - a[1];
+                            }).map(x => (
+                                <Box display='flex' flexDirection='row' justifyContent='space-between' sx={{mx:2, my:1}}>
+                                    <Typography variant='body2' fontWeight='bold' color='text.secondary'>
+                                        {/*@ts-ignore*/}
+                                        {x[0]}
+                                    </Typography>
+                                    <Divider variant='middle' sx={{flexGrow:'1', alignSelf:'center'}}/>
+                                    <Typography variant='body2' fontWeight='bold' color='text.secondary'>
+                                        {/*@ts-ignore*/}
+                                        {formatter.format(x[1])}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Paper>
+                    <Paper elevation={5} sx={{ borderRadius: 3, p:1, width:'100%' }}>
+                        <Box sx={{ width: '100%' }}>
+                            <Typography textAlign='center' color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>
+                                Expense Distribution
+                            </Typography>
+                            <Chart
+                                chartType="PieChart"
+                                data={expenseGraphData}
+                                options={options}
+                                width={"100%"}
+                                height={"400px"}
+                            />
+                            {expenseArray.sort(function(a, b) {
+                                //@ts-ignore
+                                return b[1] - a[1];
+                            }).map(x => (
+                                <Box display='flex' flexDirection='row' justifyContent='space-between' sx={{mx:2, my:1}}>
+                                    <Typography variant='body2' fontWeight='bold' color='text.secondary'>
+                                        {/*@ts-ignore*/}
+                                        {x[0]}
+                                    </Typography>
+                                    <Divider variant='middle' sx={{flexGrow:'1', alignSelf:'center'}}/>
+                                    <Typography variant='body2' fontWeight='bold' color='text.secondary'>
+                                        {/*@ts-ignore*/}
+                                        {formatter.format(x[1])}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Paper>
+                </Stack>
+            </Box>
         </>
     )
 }
