@@ -14,7 +14,8 @@ import {
     dialogPaperStyles,
     snackBarOpen,
     snackBarSeverity,
-    snackBarText
+    snackBarText,
+    mainLoading
 } from "../../recoil/globalItems";
 import {categories, currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";
 import InputAdornment from '@mui/material/InputAdornment';
@@ -49,6 +50,7 @@ export default function CopyBudget() {
     const [errorText, setErrorText] = React.useState('')
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
+    const setLoadingOpen = useSetRecoilState(mainLoading)
 
     const verifyInputs = () => {
         if (fromMonth === null) {
@@ -75,6 +77,7 @@ export default function CopyBudget() {
     async function handleSubmit(event: any) {
         event.preventDefault();
         setErrorText('')
+        setLoadingOpen(true)
         if (verifyInputs()) {
 
             let allSections = await supaSections(currentBudget.budgetID, dayjs(fromMonth).format('MMMM'), Number(dayjs(fromMonth).format('YYYY')))
@@ -123,7 +126,7 @@ export default function CopyBudget() {
                     }
                 }
             }
-
+            setLoadingOpen(false)
             setOpenCopyBudget(false)
             setSnackSev('success')
             setSnackText('Budget data copied!')

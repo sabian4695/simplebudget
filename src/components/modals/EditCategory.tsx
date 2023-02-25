@@ -307,8 +307,8 @@ export default function EditCategory() {
                                 <Grid xs={12}>
                                     <Grow in={editMode}>
                                         <DialogActions>
-                                            <Button fullWidth startIcon={<SaveIcon/>} variant='contained' type='submit'>Save
-                                                Changes</Button>
+                                            <Button fullWidth startIcon={<SaveIcon/>} variant='contained' type='submit'>
+                                                Save Changes</Button>
                                         </DialogActions>
                                     </Grow>
                                 </Grid>
@@ -355,7 +355,7 @@ export default function EditCategory() {
                                             :
                                             <ListItem disablePadding key="2">
                                                 <Typography color='text.secondary' variant='h6'
-                                                sx={{fontWeight: '600', ml: 1}}>Nothing Tracking Here</Typography>
+                                                sx={{fontWeight: '600', ml: 1}}>Nothing Tracked Here</Typography>
                                             </ListItem>
                                         }
                                     </List>
