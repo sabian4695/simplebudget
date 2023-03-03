@@ -172,20 +172,9 @@ export default function AddTransaction() {
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
+                                    onFocus={handleFocus}
                                     fullWidth
                                     autoFocus
-                                    onFocus={handleFocus}
-                                    margin='normal'
-                                    value={transactionTitle}
-                                    onChange={(event: any) => setTransactionTitle(event.target.value)}
-                                    type="text"
-                                    label="Title"
-                                />
-                            </Grid>
-                            <Grid xs={12}>
-                                <TextField
-                                    onFocus={handleFocus}
-                                    fullWidth
                                     margin='normal'
                                     value={transactionAmount}
                                     onChange={(event: any) => setTransactionAmount(event.target.value)}
@@ -196,6 +185,17 @@ export default function AddTransaction() {
                                     inputProps={{step:'.01'}}
                                     placeholder='Amount'
                                     label="Amount"
+                                />
+                            </Grid>
+                            <Grid xs={12}>
+                                <TextField
+                                    fullWidth
+                                    onFocus={handleFocus}
+                                    margin='normal'
+                                    value={transactionTitle}
+                                    onChange={(event: any) => setTransactionTitle(event.target.value)}
+                                    type="text"
+                                    label="Title"
                                 />
                             </Grid>
                             <Grid xs={12}>

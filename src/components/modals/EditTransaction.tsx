@@ -262,17 +262,6 @@ export default function EditTransaction() {
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
-                                    fullWidth
-                                    onFocus={handleFocus}
-                                    margin='normal'
-                                    value={transactionTitle}
-                                    onChange={(event: any) => setTransactionTitle(event.target.value)}
-                                    type="text"
-                                    label="Title"
-                                />
-                            </Grid>
-                            <Grid xs={12}>
-                                <TextField
                                     autoFocus
                                     onFocus={handleFocus}
                                     fullWidth
@@ -286,6 +275,17 @@ export default function EditTransaction() {
                                     inputProps={{step:'.01'}}
                                     placeholder='Amount'
                                     label="Amount"
+                                />
+                            </Grid>
+                            <Grid xs={12}>
+                                <TextField
+                                    fullWidth
+                                    onFocus={handleFocus}
+                                    margin='normal'
+                                    value={transactionTitle}
+                                    onChange={(event: any) => setTransactionTitle(event.target.value)}
+                                    type="text"
+                                    label="Title"
                                 />
                             </Grid>
                             <Grid xs={12}>
