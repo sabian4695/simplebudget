@@ -74,3 +74,8 @@ export const openViewCategory = atom({
     key: "openViewCategory",
     default: false,
 });
+
+export const openChangePassword = atom({
+    key: "openChangePassword",
+    default: false,
+});
