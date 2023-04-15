@@ -93,7 +93,10 @@ export default function BudgetSection(sectionID: any) {
                                 <Grid xs={3.25} sx={{textAlign:'right',pt:2}}><Typography color='text.disabled' variant="subtitle2">Remaining</Typography></Grid>
                             </Grid>
                         </ListItem>
-                        {categoryArray.map((row) => (
+                        {categoryArray.sort(function(a, b) {
+                                //@ts-ignore
+                                return b.amount - a.amount;
+                            }).map((row) => (
                             <ListItem disablePadding key={row.recordID}>
                                 <ListItemButton onClick={() => openCategory(row.recordID)}>
                                     <Grid xs={12} container columnSpacing={2}>
