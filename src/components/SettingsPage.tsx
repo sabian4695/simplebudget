@@ -22,14 +22,16 @@ import {supabase} from "./LoginPage";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import {budgets, currentBudgetAndMonth} from "../recoil/tableAtoms";
-import {selectBudget, shareBudget} from "../recoil/modalStatusAtoms";
+import {openChangePassword, selectBudget, shareBudget} from "../recoil/modalStatusAtoms";
 import ShareBudget from "./modals/ShareBudget";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ChangePassword from './modals/ChangePassword'
 
 export default function SettingsPage() {
     const [slideCheck, setSlideCheck] = React.useState(false);
     const setShareBudgetOpen = useSetRecoilState(shareBudget)
     const [currentTheme, setTheme] = useRecoilState(themeAtom);
+    const setOpenChangePassword = useSetRecoilState(openChangePassword);
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
@@ -184,11 +186,11 @@ export default function SettingsPage() {
                             </ListItem>
                             <Divider/>
                             <ListItem disablePadding>
-                                <ListItemButton >
+                                <ListItemButton onClick={() => setOpenChangePassword(true)}>
                                     <ListItemIcon>
                                         <LockResetIcon />
                                     </ListItemIcon>
-                                    <ListItemText primary="Change Password - soon" />
+                                    <ListItemText primary="Change Password" />
                                 </ListItemButton>
                             </ListItem>
                             <Divider/>
@@ -205,6 +207,7 @@ export default function SettingsPage() {
                 </Stack>
             </Box>
             <ShareBudget/>
+            <ChangePassword/>
         </>
     )
 }
