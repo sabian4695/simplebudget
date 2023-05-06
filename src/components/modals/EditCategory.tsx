@@ -5,6 +5,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Unstable_Grid2';
+import BalanceIcon from '@mui/icons-material/Balance';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
     currentCategory,
@@ -109,6 +110,32 @@ export default function EditCategory() {
     function editModeClick() {
         setAnchorEl(null);
         setEditMode(!editMode)
+    }
+    async function balanceClick() {
+        setAnchorEl(null);
+        let { error } = await supabase
+            .from('categories')
+            .update({
+                //@ts-ignore
+                amount: Math.abs(categorySum) === '' ? 0 : Math.abs(categorySum)
+            })
+            .eq('recordID', currentCategoryID)
+        if (error) {
+            setErrorText(error.message)
+            return
+        }
+        let newArr = categoryArray.map(obj => {
+            if (obj.recordID === currentCategoryID) {
+                return {...obj,
+                    amount: Number(Math.abs(categorySum))}
+            }
+            return obj;
+        });
+        setCategoryArray(newArr);
+        setOpenEditCategory(false)
+        setSnackSev('success')
+        setSnackText('Category Balanced!')
+        setSnackOpen(true)
     }
     async function handleDoubleCheck() {
         setCategoryDelete(true)
@@ -382,6 +409,10 @@ export default function EditCategory() {
                 <MenuItem onClick={editModeClick}>
                     <EditIcon sx={{mr:1}}/>
                     Edit Category
+                </MenuItem>
+                <MenuItem onClick={balanceClick}>
+                    <BalanceIcon sx={{mr:1}}/>
+                    Balance Category
                 </MenuItem>
                 <MenuItem onClick={handleDoubleCheck}>
                     <DeleteIcon sx={{mr:1}}/>
