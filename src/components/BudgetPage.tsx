@@ -263,7 +263,7 @@ export default function BudgetPage() {
                             </Box>
                             <LinearProgress
                                 sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
-                                variant="determinate" color={(totalExpenses / totalIncome) > 1 ? 'error' : 'success'}
+                                variant="determinate" color={(totalActualExpenses / totalActualIncome) > 1 ? 'error' : 'success'}
                                 value={(totalActualExpenses / totalActualIncome) * 100}
                             />
                         </Paper>

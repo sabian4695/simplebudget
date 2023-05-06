@@ -86,11 +86,11 @@ export default function App() {
   const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
   const setCreateNewBudget = useSetRecoilState(addBudget);
   const currentUserInfo = useRecoilValue(currentUser)
-  const [unCategorized, setUncategorized] = React.useState(transactionArray.filter(x => x.categoryID === null).length)
+  const [unCategorized, setUncategorized] = React.useState(transactionArray.filter((x: any) => x.categoryID === null).length)
   const [loadingOpen, setLoadingOpen] = useRecoilState(mainLoading)
 
   React.useEffect(() => {
-    setUncategorized(transactionArray.filter(x => x.categoryID === null).length)
+    setUncategorized(transactionArray.filter((x: any) => x.categoryID === null).length)
   }, [transactionArray])
 
   React.useEffect(() => {
@@ -108,6 +108,7 @@ export default function App() {
   if (localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token') === null) {return <Navigate to="/login"/>}
 
   if (location.pathname === '/') {return <Navigate to="/budget"/>}
+  
   const snackClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {return}
     setSnackOpen(false);
@@ -141,7 +142,12 @@ export default function App() {
           let posCurrent = localStorage.getItem('currentBudget')
           if(posCurrent !== null) {
             if(allBudgets.find(x => x.recordID === JSON.parse(posCurrent || '{}').budgetID)) {
-              setCurrentBudget(JSON.parse(localStorage.getItem('currentBudget') || '{}'))
+              let setBudget = {
+                budgetID: JSON.parse(localStorage.getItem('currentBudget') || '{}').budgetID,
+                year: currentBudget.year,
+                month: currentBudget.month,
+              }
+              setCurrentBudget(setBudget)
             }
           } //if there's nothing in localstorage, open the selector for the user to choose
           else {
