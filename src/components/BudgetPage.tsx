@@ -36,6 +36,7 @@ function TabPanel(props: TabPanelProps) {
     const { children, value, index } = props;
 
     return (
+        //@ts-ignore
         <div
             role="tabpanel"
             hidden={value !== index}
@@ -45,6 +46,7 @@ function TabPanel(props: TabPanelProps) {
                     {children}
                 </>
             )}
+            {/*@ts-ignore*/}
         </div>
     );
 }
@@ -194,6 +196,11 @@ export default function BudgetPage() {
     React.useEffect(() => {
         window.scrollTo(0, 0)
     }, [])
+    function sumCat(idVal: string) {
+        return categoryArray.filter(x => x.sectionID === idVal).reduce((accumulator, object) => {
+            return accumulator + object.amount;
+        }, 0)
+    }
     return (
         <>
             <Box display='flex' flexDirection='column' alignItems='center'>
@@ -253,7 +260,7 @@ export default function BudgetPage() {
                                 </Paper>
                                 <Paper elevation={1} sx={{ px: 1 }}>
                                     <Typography
-                                        color={totalIncome - totalExpenses < 0 ? 'error.main' : 'success.main'}
+                                        color={totalActualIncome - totalActualExpenses < 0 ? 'error.main' : 'success.main'}
                                         style={{ fontWeight: 'bold' }}
                                         variant='subtitle1'
                                     >
@@ -274,7 +281,10 @@ export default function BudgetPage() {
                         <BudgetSection sectionID={row.recordID} key={row.recordID} />
                     )
                     )}
-                    {sectionsArray.filter(x => x.sectionType === 'expense').map((row) => (
+                    {sectionsArray.filter(x => x.sectionType === 'expense').sort(function(a, b) {
+                                //@ts-ignore
+                                return sumCat(b.recordID) - sumCat(a.recordID);
+                            }).map((row) => (
                         <BudgetSection sectionID={row.recordID} key={row.recordID} />
                     )
                     )}
@@ -296,6 +306,7 @@ export default function BudgetPage() {
                     <MenuItem
                         key={option}
                         selected={index === selectedIndex}
+                        //@ts-ignore
                         onClick={(event) => handleMenuItemClick(event, index)}
                     >
                         {option}
