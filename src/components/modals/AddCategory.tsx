@@ -10,7 +10,7 @@ import {addCategory, currentSection} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import {dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
+import {dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText, mainLoading} from "../../recoil/globalItems";
 import {v4 as uuidv4} from "uuid";
 import {categories, sections} from "../../recoil/tableAtoms";
 import InputAdornment from '@mui/material/InputAdornment';
@@ -22,6 +22,7 @@ import {useTheme} from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddCategory() {
+    const setLoadingOpen = useSetRecoilState(mainLoading)
     const [addNewCategory,setAddNewCategory] = useRecoilState(addCategory);
     const [categoryName, setCategoryName] = React.useState('');
     const [categoryAmount, setCategoryAmount] = React.useState(0);
@@ -50,6 +51,7 @@ export default function AddCategory() {
         event.preventDefault();
         setErrorText('')
         if (verifyInputs()) {
+            setLoadingOpen(true)
             let newCategory = {
                 recordID: uuidv4(),
                 sectionID: currentSectionID,
@@ -61,11 +63,13 @@ export default function AddCategory() {
                 .from('categories')
                 .insert(newCategory)
             if (error) {
+                setLoadingOpen(false)
                 setErrorText(error.message)
                 return
             }
             setCategoryArray(prevState => [...prevState, newCategory]);
             setAddNewCategory(false)
+            setLoadingOpen(false)
             setSnackSev('success')
             setSnackText('Category Added!')
             setSnackOpen(true)

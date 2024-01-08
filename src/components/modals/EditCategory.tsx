@@ -25,7 +25,8 @@ import {
     snackBarOpen,
     snackBarSeverity,
     snackBarText,
-    addTransactionCategory
+    addTransactionCategory,
+    mainLoading
 } from "../../recoil/globalItems";
 import {categories, sections, transactions} from "../../recoil/tableAtoms";
 import InputAdornment from '@mui/material/InputAdornment';
@@ -64,6 +65,7 @@ const fabStyle = {
 };
 
 export default function EditCategory() {
+    const setLoadingOpen = useSetRecoilState(mainLoading)
     const [openEditCategory, setOpenEditCategory] = useRecoilState(editCategory);
     const [categoryName, setCategoryName] = React.useState('');
     const [categoryAmount, setCategoryAmount] = React.useState(0);
@@ -113,6 +115,7 @@ export default function EditCategory() {
     }
     async function balanceClick() {
         setAnchorEl(null);
+        setLoadingOpen(true)
         let { error } = await supabase
             .from('categories')
             .update({
@@ -121,6 +124,7 @@ export default function EditCategory() {
             })
             .eq('recordID', currentCategoryID)
         if (error) {
+            setLoadingOpen(false)
             setErrorText(error.message)
             return
         }
@@ -133,6 +137,7 @@ export default function EditCategory() {
         });
         setCategoryArray(newArr);
         setOpenEditCategory(false)
+        setLoadingOpen(false)
         setSnackSev('success')
         setSnackText('Category Balanced!')
         setSnackOpen(true)
@@ -159,6 +164,7 @@ export default function EditCategory() {
         if (!categoryDelete) {
             return
         }
+        setLoadingOpen(true)
         let { data } = await supabase
             .from('transactions')
             .delete()
@@ -168,6 +174,7 @@ export default function EditCategory() {
             .delete()
             .eq('recordID', currentCategoryID)
         if (error) {
+            setLoadingOpen(false)
             setErrorText(error.message)
             return
         }
@@ -178,6 +185,7 @@ export default function EditCategory() {
         setTransactionsArray(newTrans);
 
         setOpenEditCategory(false)
+        setLoadingOpen(false)
         setSnackSev('success')
         setSnackText('Category deleted')
         setSnackOpen(true)
@@ -199,6 +207,7 @@ export default function EditCategory() {
         event.preventDefault();
         setErrorText('')
         if (verifyInputs()) {
+            setLoadingOpen(true)
             let { error } = await supabase
                 .from('categories')
                 .update({
@@ -208,6 +217,7 @@ export default function EditCategory() {
                 })
                 .eq('recordID', currentCategoryID)
             if (error) {
+                setLoadingOpen(false)
                 setErrorText(error.message)
                 return
             }
@@ -221,6 +231,7 @@ export default function EditCategory() {
             });
             setCategoryArray(newArr);
             setOpenEditCategory(false)
+            setLoadingOpen(false)
             setSnackSev('success')
             setSnackText('Category updated!')
             setSnackOpen(true)

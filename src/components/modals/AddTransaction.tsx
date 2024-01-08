@@ -10,7 +10,7 @@ import {addTransaction} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText, addTransactionCategory} from "../../recoil/globalItems";
+import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText, addTransactionCategory, mainLoading} from "../../recoil/globalItems";
 import {v4 as uuidv4} from "uuid";
 import dayjs, {Dayjs} from "dayjs";
 import {categories, currentBudgetAndMonth, sections, transactions} from "../../recoil/tableAtoms";
@@ -46,6 +46,7 @@ const GroupHeader = styled('div')(({ theme }) => ({
   });
 
 export default function AddTransaction() {
+    const setLoadingOpen = useSetRecoilState(mainLoading)
     const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
     const [transactionAmount, setTransactionAmount] = React.useState(0.00)
     const [transactionTitle, setTransactionTitle] = React.useState('')
@@ -103,6 +104,7 @@ export default function AddTransaction() {
         }
         setErrorText('')
         if (verifyInputs()) {
+            setLoadingOpen(true)
             let newTransaction = {
                 recordID: uuidv4(),
                 budgetID: currentBudget.budgetID,
@@ -120,10 +122,12 @@ export default function AddTransaction() {
                 .insert(newTransaction)
             if (error) {
                 setErrorText(error.message)
+                setLoadingOpen(false)
                 return
             }
             setTransactionsArray(prevState => [...prevState, newTransaction]);
             setAddNewTransaction(false)
+            setLoadingOpen(false)
             setSnackSev('success')
             setSnackText('Transaction Added!')
             setSnackOpen(true)

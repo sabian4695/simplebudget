@@ -9,7 +9,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {addSection} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles} from "../../recoil/globalItems";
+import {snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, mainLoading} from "../../recoil/globalItems";
 import {currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";
 import {v4 as uuidv4} from "uuid";
 import ToggleButton from "@mui/material/ToggleButton";
@@ -23,6 +23,7 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function AddSection() {
+    const setLoadingOpen = useSetRecoilState(mainLoading)
     const [addNewSection,setAddNewSection] = useRecoilState(addSection);
     const [sectionName, setSectionName] = React.useState('');
     const [sectionType, setSectionType] = React.useState('expense');
@@ -57,6 +58,7 @@ export default function AddSection() {
         }
         setErrorText('')
         if (verifyInputs()) {
+            setLoadingOpen(true)
             let newSection = {
                 recordID: uuidv4(),
                 budgetID: currentBudget.budgetID,
@@ -69,11 +71,13 @@ export default function AddSection() {
                 .from('sections')
                 .insert(newSection)
             if (error) {
+                setLoadingOpen(false)
                 setErrorText(error.message)
                 return
             }
             setSectionArray(prevState => [...prevState, newSection]);
             setAddNewSection(false)
+            setLoadingOpen(false)
             setSnackSev('success')
             setSnackText('Section Added!')
             setSnackOpen(true)

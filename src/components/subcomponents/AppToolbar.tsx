@@ -5,9 +5,16 @@ import AppBar from '@mui/material/AppBar';
 import logo from '../../logo.png'
 import {useRecoilValue} from "recoil";
 import {themeAtom} from "../../recoil/globalItems";
+import IconButton from "@mui/material/IconButton";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 export default function AppToolbar() {
     const currentTheme = useRecoilValue(themeAtom);
+
+    async function handleRefresh() {
+        window.location.reload();
+      }
+
     return (
         <>
             <AppBar position="fixed"
@@ -27,6 +34,12 @@ export default function AppToolbar() {
                         Budget
                     </Typography>
                     <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[beta]</Typography>
+                    <IconButton
+                                size='small'
+                                onClick={handleRefresh}
+                            >
+                                <RefreshIcon/>
+                            </IconButton>
                 </Toolbar>
             </AppBar>
         </>

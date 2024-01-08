@@ -9,10 +9,11 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {addBudget} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import {snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, currentUser} from "../../recoil/globalItems";
+import {snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, currentUser, mainLoading} from "../../recoil/globalItems";
 import {budgets, currentBudgetAndMonth} from "../../recoil/tableAtoms";
 import {v4 as uuidv4} from "uuid";
 import {supabase} from "../LoginPage";
+import GrabBudgetData from "../extras/GrabBudgetData";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
@@ -21,6 +22,8 @@ import {useTheme} from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddBudget() {
+    const { grabBudgetData } = GrabBudgetData();
+    const setLoadingOpen = useSetRecoilState(mainLoading)
     const [addNewBudget, setAddNewBudget] = useRecoilState(addBudget);
     const [budgetName, setBudgetName] = React.useState('');
     const [errorText, setErrorText] = React.useState('');
@@ -39,6 +42,7 @@ export default function AddBudget() {
             setErrorText('Please enter a name')
             return
         }
+        setLoadingOpen(true)
         let newBudget = {
             recordID: uuidv4(),
             creatorID: currentUserDetails.recordID,
@@ -48,6 +52,7 @@ export default function AddBudget() {
             .from('budgets')
             .insert(newBudget)
         if (error) {
+            setLoadingOpen(false)
             setErrorText(error.message)
             return
         }
@@ -59,7 +64,9 @@ export default function AddBudget() {
         }
         localStorage.setItem('currentBudget', JSON.stringify(currentBudget))
         setCurrentBudget(currentBudget)
+        await grabBudgetData(currentBudget.budgetID, currentBudgetDetails.year, currentBudgetDetails.month)
         setAddNewBudget(false)
+        setLoadingOpen(false)
         setSnackSev('success')
         setSnackText('Budget Added!')
         setSnackOpen(true)

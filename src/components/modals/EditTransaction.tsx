@@ -17,7 +17,8 @@ import {
     dialogPaperStyles,
     snackBarOpen,
     snackBarSeverity,
-    snackBarText
+    snackBarText,
+    mainLoading
 } from "../../recoil/globalItems";
 import dayjs, {Dayjs} from "dayjs";
 import {categories, transactions, sections} from "../../recoil/tableAtoms";
@@ -57,6 +58,7 @@ const GroupHeader = styled('div')(({ theme }) => ({
   });
 
 export default function EditTransaction() {
+    const setLoadingOpen = useSetRecoilState(mainLoading)
     const [openEditTransaction, setOpenEditTransaction] = useRecoilState(editTransaction);
     const currentTransactionID = useRecoilValue(currentTransaction)
     const [transactionsArray, setTransactionsArray] = useRecoilState(transactions)
@@ -135,17 +137,20 @@ export default function EditTransaction() {
         if(!deleteTrans) {
             return
         }
+        setLoadingOpen(true)
         let { error } = await supabase
             .from('transactions')
             .delete()
             .eq('recordID', currentTransactionID)
         if (error) {
+            setLoadingOpen(false)
             setErrorText(error.message)
             return
         }
         let newArr = transactionsArray.filter(function(el) { return el.recordID !== currentTransactionID; });
         setTransactionsArray(newArr);
         setOpenEditTransaction(false)
+        setLoadingOpen(false)
         setSnackSev('success')
         setSnackText('Transaction deleted')
         setSnackOpen(true)
@@ -168,6 +173,7 @@ export default function EditTransaction() {
         setErrorText('')
         console.log(transactionCategory)
         if (verifyInputs()) {
+            setLoadingOpen(true)
             let { error } = await supabase
                 .from('transactions')
                 .update({
@@ -181,6 +187,7 @@ export default function EditTransaction() {
                 .eq('recordID', currentTransactionID)
             if (error) {
                 setErrorText(error.message)
+                setLoadingOpen(false)
                 return
             }
             let newArr = transactionsArray.map(obj => {
@@ -198,6 +205,7 @@ export default function EditTransaction() {
             });
             setTransactionsArray(newArr);
             setOpenEditTransaction(false)
+            setLoadingOpen(false)
             setSnackSev('success')
             setSnackText('Transaction updated!')
             setSnackOpen(true)

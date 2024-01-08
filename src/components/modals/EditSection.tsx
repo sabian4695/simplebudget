@@ -17,7 +17,8 @@ import {
     dialogPaperStyles,
     snackBarOpen,
     snackBarSeverity,
-    snackBarText
+    snackBarText,
+    mainLoading
 } from "../../recoil/globalItems";
 import {categories, sections, transactions} from "../../recoil/tableAtoms";
 import SaveIcon from '@mui/icons-material/Save';
@@ -35,6 +36,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 
 export default function EditSection() {
+    const setLoadingOpen = useSetRecoilState(mainLoading)
     const [openEditSection, setOpenEditSection] = useRecoilState(editSection);
     const [transactionsArray, setTransactionsArray] = useRecoilState(transactions)
     const [categoryArray, setCategoryArray] = useRecoilState(categories)
@@ -104,6 +106,7 @@ export default function EditSection() {
         if (!deleteSection) {
             return
         }
+        setLoadingOpen(true)
         let catDelete = categoryArray.filter(x => x.sectionID === currentSectionID)
         await deleteTransactions(catDelete)
 
@@ -117,6 +120,7 @@ export default function EditSection() {
             .delete()
             .eq('recordID', currentSectionID)
         if (error) {
+            setLoadingOpen(false)
             setErrorText(error.message)
             return
         }
@@ -126,6 +130,7 @@ export default function EditSection() {
         setCategoryArray(newCat)
 
         setOpenEditSection(false)
+        setLoadingOpen(false)
         setSnackSev('success')
         setSnackText('Section deleted')
         setSnackOpen(true)
@@ -143,6 +148,7 @@ export default function EditSection() {
         event.preventDefault();
         setErrorText('')
         if (verifyInputs()) {
+            setLoadingOpen(true)
             let { error } = await supabase
                 .from('sections')
                 .update({
@@ -151,6 +157,7 @@ export default function EditSection() {
                 })
                 .eq('recordID', currentSectionID)
             if (error) {
+                setLoadingOpen(false)
                 setErrorText(error.message)
                 return
             }
@@ -162,6 +169,7 @@ export default function EditSection() {
                 }
                 return obj;
             });
+            setLoadingOpen(false)
             setSectionsArray(newArr);
             setOpenEditSection(false)
             setSnackSev('success')
