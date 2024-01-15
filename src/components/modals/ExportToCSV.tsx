@@ -22,7 +22,7 @@ import {supaCategories, supaSections, supaTransactionsFromCategories} from "../e
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 
 export default function AddSection() {
     const setLoadingOpen = useSetRecoilState(mainLoading)
@@ -33,8 +33,9 @@ export default function AddSection() {
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const [allSections, setAllSections] = React.useState([]);
     const [allExportData, setAllExportData] = React.useState()
+    const [grabbedSections, setGrabbedSections] = React.useState(false)
+    const [exportSections, setExportSections] = React.useState()
     const [generated, setGenerated] = React.useState(false);
     const [errorText, setErrorText] = React.useState('')
     const theme = useTheme();
@@ -54,35 +55,51 @@ export default function AddSection() {
         }
         return true
     }
-    async function getAllSections() {
+    async function addSections() {
+        setGrabbedSections(false)
+        let exportSectionsAll: any = []
         let s = dayjs(fromMonth)
-        let e = dayjs(toMonth)
-        let months = []
-        for (var m = dayjs(s); m.isBefore(e); m = m.add(1, 'month')) {
-            months.push({ year: m.format('YYYY'), month: m.format('MMMM') });
-        }
-        months.push({ year: e.format('YYYY'), month: e.format('MMMM') });
-
-        let exportSections: any = []
+            let e = dayjs(toMonth)
+            let months = []
+            for (var m = dayjs(s); m.isBefore(e); m = m.add(1, 'month')) {
+                months.push({ year: m.format('YYYY'), month: m.format('MMMM') });
+            }
+            months.push({ year: e.format('YYYY'), month: e.format('MMMM') });
         months.forEach(async(x) => {
             let newSec = await supaSections(currentBudget.budgetID, x.month, x.year)
-            exportSections.push(newSec)
+            newSec?.forEach((sections) => {
+                exportSectionsAll.push(sections)
+            })
         })
-        setAllSections(exportSections)
+        setExportSections(exportSectionsAll)
+        await sendIt()
     }
+
     async function handleSubmit(event: any) {
         event.preventDefault();
         setErrorText('')
         if (verifyInputs()) {
-            await getAllSections()
+            addSections()
+        }
+        
+    }
+    React.useEffect(() => {
+        if (exportCSV) return;
+        setGenerated(false)
+        setAllExportData(undefined)
+        setGrabbedSections(false)
+        setErrorText('')
+    }, [exportCSV])
+    async function sendIt() {
             //@ts-ignore
-            let exportCategories = await supaCategories(allSections[0].map(x => x.recordID))
+            let exportCategories = await supaCategories(exportSections.map((x: any) => x.recordID))
+            //@ts-ignore
             let exportTransactions = await supaTransactionsFromCategories(exportCategories?.map(x => x.recordID))
-            
-            let exportDataAll = exportTransactions?.map((x) => {
+            setLoadingOpen(true)
+            let exportDataAll = exportTransactions?.map((x: any) => {
                 let thisCategory = exportCategories?.find((cat) => cat.recordID === x.categoryID)
                 //@ts-ignore
-                let thisSection: any = allSections[0]?.find((sec) => sec.recordID === thisCategory.sectionID)
+                let thisSection: any = exportSections?.find((sec: any) => sec.recordID === thisCategory.sectionID)
                 return {
                     budgetYear: thisSection?.sectionYear,
                     budgetMonth: thisSection?.sectionMonth,
@@ -98,19 +115,18 @@ export default function AddSection() {
             })
             //@ts-ignore
             setAllExportData(exportDataAll)
+            console.log(exportCategories)
+            console.log(exportDataAll)
             setGenerated(true)
             setLoadingOpen(false)
             setSnackSev('success')
             setSnackText('Export generated!')
             setSnackOpen(true)
-        }
-        
     }
     React.useEffect(() => {
-        if (exportCSV) return;
-        
-        setErrorText('')
-    }, [exportCSV])
+        if (!grabbedSections) return;
+            //sendIt()
+    }, [grabbedSections])
     return (
         <>
             <Dialog open={exportCSV}
@@ -162,7 +178,7 @@ export default function AddSection() {
                                 onClick={() => {
                                     setExportCSV(false)
                                   }}
-                                className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-fullWidth css-h99ii9-MuiButtonBase-root-MuiButton-root"
+                                className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
                                 target="_blank"
                             >
                                 Download Export
