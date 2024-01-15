@@ -46,6 +46,17 @@ export const supaSections = async (budgetID, month, year) => {
     return data
 }
 
+export const supaALLsections = async (budgetID) => {
+    let {data, error} = await supabase
+        .from('sections')
+        .select()
+        .eq('budgetID',budgetID)
+    if (error) {
+        console.log(error.message)
+    }
+    return data
+}
+
 export const supaTransactionsFromCategories = async (categoryIDs) => {
     let {data, error} = await supabase
         .from('transactions')

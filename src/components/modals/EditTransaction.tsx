@@ -253,10 +253,10 @@ export default function EditTransaction() {
                         <IconButton onClick={() => setOpenEditTransaction(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
-                        <Grid container spacing={0}>
+                        <Grid container spacing={2}>
                             <Grid xs={12}>
                                 <ToggleButtonGroup
-                                    color="standard"
+                                    color="success"
                                     value={transactionType}
                                     fullWidth
                                     onFocus={handleFocus}
@@ -268,12 +268,11 @@ export default function EditTransaction() {
                                     <ToggleButton value="expense">Expense</ToggleButton>
                                 </ToggleButtonGroup>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid xs={7} md={12}>
                                 <TextField
                                     autoFocus
                                     onFocus={handleFocus}
                                     fullWidth
-                                    margin='normal'
                                     value={transactionAmount}
                                     onChange={(event: any) => setTransactionAmount(event.target.value)}
                                     type="number"
@@ -285,11 +284,28 @@ export default function EditTransaction() {
                                     label="Amount"
                                 />
                             </Grid>
+                            <Grid xs={5} md={12}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        closeOnSelect
+                                        label="Date"
+                                        value={transactionDate}
+                                        onChange={(newValue) => {
+                                            setTransactionDate(newValue);
+                                        }}
+                                        renderInput={(params) => <TextField {...params} onFocus={handleFocus} fullWidth/>}
+                                        componentsProps={{
+                                            actionBar: {
+                                                actions: ['today'],
+                                            },
+                                        }}
+                                    />
+                                </LocalizationProvider>
+                            </Grid>
                             <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     onFocus={handleFocus}
-                                    margin='normal'
                                     value={transactionTitle}
                                     onChange={(event: any) => setTransactionTitle(event.target.value)}
                                     type="text"
@@ -307,7 +323,7 @@ export default function EditTransaction() {
                                     onChange={(event: any, newValue: any) => {
                                         setTransactionCategory(newValue)
                                     }}
-                                    renderInput={(params) => <TextField onFocus={handleFocus} margin="dense" {...params} label="Category"/>}
+                                    renderInput={(params) => <TextField onFocus={handleFocus} margin="none" {...params} label="Category"/>}
                                     renderGroup={(params) => (
                                         <li>
                                           <GroupHeader>{params.group}</GroupHeader>
@@ -316,25 +332,6 @@ export default function EditTransaction() {
                                       )}
                                 />
                             </Grid>
-                            <Grid xs={12}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        closeOnSelect
-                                        label="Date"
-                                        value={transactionDate}
-                                        onChange={(newValue) => {
-                                            setTransactionDate(newValue);
-                                        }}
-                                        renderInput={(params) => <TextField {...params} onFocus={handleFocus} margin="normal" fullWidth/>}
-                                        componentsProps={{
-                                            actionBar: {
-                                                actions: ['today'],
-                                            },
-                                        }}
-                                    />
-                                </LocalizationProvider>
-                            </Grid>
-
                         </Grid>
                     </DialogContent>
                     <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>

@@ -28,7 +28,7 @@ import IconButton from "@mui/material/IconButton";
 import {useTheme} from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { styled, lighten, darken } from '@mui/system';
-
+import Divider from '@mui/material/Divider';
 
 const GroupHeader = styled('div')(({ theme }) => ({
     position: 'sticky',
@@ -39,18 +39,35 @@ const GroupHeader = styled('div')(({ theme }) => ({
       theme.palette.mode === 'light'
         ? lighten(theme.palette.primary.light, 0.85)
         : darken(theme.palette.primary.main, 0.8),
-  }));
+}));
 
-  const GroupItems = styled('ul')({
+const GroupItems = styled('ul')({
     padding: 0,
-  });
+});
+
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+});
 
 export default function AddTransaction() {
     const setLoadingOpen = useSetRecoilState(mainLoading)
+    const [splitBool, setSplitBool] = React.useState(false);
     const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
     const [transactionAmount, setTransactionAmount] = React.useState(0.00)
     const [transactionTitle, setTransactionTitle] = React.useState('')
     const [transactionCategory, setTransactionCategory] = useRecoilState(addTransactionCategory);
+
+    let splitArrDef = [
+        {
+            recId: uuidv4(),
+            cat: transactionCategory,
+            transAmount: transactionAmount,
+            transTitle: ''
+        }
+      ]
+    const [splitArr, setSplitArr] = React.useState(splitArrDef);
+
     const [transactionType, setTransactionType] = React.useState('expense')
     const [transactionDate, setTransactionDate] = React.useState<Dayjs | null>(dayjs())
     const handleTypeChange = (
@@ -103,35 +120,125 @@ export default function AddTransaction() {
             return
         }
         setErrorText('')
-        if (verifyInputs()) {
-            setLoadingOpen(true)
-            let newTransaction = {
-                recordID: uuidv4(),
-                budgetID: currentBudget.budgetID,
-                //@ts-ignore
-                categoryID: transactionCategory === null ? null : transactionCategory.id,
-                //@ts-ignore
-                amount: transactionAmount === '' ? 0 : Math.round(transactionAmount * 100) / 100,
-                title: transactionTitle,
-                transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
-                transactionType: transactionType,
-                creatorID: currentUserData.recordID,
-            };
-            let {error} = await supabase
-                .from('transactions')
-                .insert(newTransaction)
-            if (error) {
-                setErrorText(error.message)
+        if (!verifyInputs()) {
+            return
+        }
+        setLoadingOpen(true)
+        if (splitBool) {
+            if (transactionAmount - splitArr.reduce((accumulator, object) => {
+                return accumulator + object.transAmount;
+            }, 0) !== 0) {
+                setErrorText('Must allocate full amount!')
                 setLoadingOpen(false)
                 return
             }
-            setTransactionsArray(prevState => [...prevState, newTransaction]);
+            //Allocate the array to every transaction category!!!
+            
+            //first, check each amount has a value and category
+            
+
+            let addTransactions = splitArr.map((row) => {
+                return {
+                    recordID: row.recId,
+                    budgetID: currentBudget.budgetID,
+                    //@ts-ignore
+                    categoryID: row.cat.id,
+                    //@ts-ignore
+                    amount: Math.round(row.transAmount * 100) / 100,
+                    title: transactionTitle + ' ' + transactionAmount + ' split ' + row.transTitle,
+                    transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
+                    transactionType: transactionType,
+                    creatorID: currentUserData.recordID,
+                }
+            })
+
+            addTransactions.forEach(async(x) => {
+                let {error} = await supabase
+                    .from('transactions')
+                    .insert(x)
+                if (error) {
+                    setErrorText(error.message)
+                    setLoadingOpen(false)
+                    return
+                }
+                setTransactionsArray(prevState => [...prevState, x]);
+            })
+
             setAddNewTransaction(false)
             setLoadingOpen(false)
             setSnackSev('success')
-            setSnackText('Transaction Added!')
+            setSnackText('Transactions Added!')
             setSnackOpen(true)
+            return
+        } //the typical un-split transaction
+        let newTransaction = {
+            recordID: uuidv4(),
+            budgetID: currentBudget.budgetID,
+            //@ts-ignore
+            categoryID: transactionCategory === null ? null : transactionCategory.id,
+            //@ts-ignore
+            amount: transactionAmount === '' ? 0 : Math.round(transactionAmount * 100) / 100,
+            title: transactionTitle,
+            transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
+            transactionType: transactionType,
+            creatorID: currentUserData.recordID,
+        };
+        let {error} = await supabase
+            .from('transactions')
+            .insert(newTransaction)
+        if (error) {
+            setErrorText(error.message)
+            setLoadingOpen(false)
+            return
         }
+        setTransactionsArray(prevState => [...prevState, newTransaction]);
+        setAddNewTransaction(false)
+        setLoadingOpen(false)
+        setSnackSev('success')
+        setSnackText('Transaction Added!')
+        setSnackOpen(true)
+    }
+    function addSplit() {
+        let newCat = {
+            recId: uuidv4(),
+            cat: null,
+            transAmount: 0,
+            transTitle:''
+        }
+        setSplitArr(prevState => [...prevState, newCat]);
+    }
+    function deleteSplitCat(splitRecId: any) {
+        setSplitArr(splitArr.filter(function(el) { return el.recId !== splitRecId; }));
+    }
+    function changeSplitAmount(splitRecId: string, newVal: any) {
+        let newArr = splitArr.map(obj => {
+            if (obj.recId === splitRecId) {
+                return {...obj,transAmount: Number(newVal)}
+            }
+            return obj;
+        })
+        //@ts-ignore
+        setSplitArr(newArr);
+    }
+    function changeSplitTitle(splitRecId: string, newVal: any) {
+        let newArr = splitArr.map(obj => {
+            if (obj.recId === splitRecId) {
+                return {...obj,transTitle: newVal}
+            }
+            return obj;
+        })
+        //@ts-ignore
+        setSplitArr(newArr);
+    }
+    function changeSplitCat(splitRecId: string, newVal: any) {
+        let newArr = splitArr.map(obj => {
+            if (obj.recId === splitRecId) {
+                return {...obj,cat: newVal}
+            }
+            return obj;
+        })
+        //@ts-ignore
+        setSplitArr(newArr);
     }
     const handleFocus = (event: any) => {
         if (event) {
@@ -145,8 +252,18 @@ export default function AddTransaction() {
         setTransactionType('expense')
         setTransactionCategory(null)
         setTransactionDate(dayjs())
+        setSplitBool(false)
+        setSplitArr(splitArrDef)
         setErrorText('')
     }, [addNewTransaction])
+    React.useEffect(() => {
+        if (!splitBool) return;
+        setTransactionType('expense')
+        //@ts-ignore
+        setSplitArr(splitArr.map(obj => {
+            return {...obj, cat: transactionCategory}
+        }))
+    }, [splitBool])
     return (
         <>
             <Dialog open={addNewTransaction}
@@ -157,13 +274,31 @@ export default function AddTransaction() {
             >
                 <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
-                        New Transaction <IconButton onClick={() => setAddNewTransaction(false)}><CloseIcon/></IconButton>
+                        New Transaction
+                        <ToggleButton
+                            value="check"
+                            selected={splitBool}
+                            size='small'
+                            color="error"
+                            onChange={() => {
+                                setSplitBool(!splitBool);
+                            }}>
+                            Split
+                        </ToggleButton>
+                        <IconButton onClick={() => setAddNewTransaction(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
-                        <Grid container spacing={0}>
+                        <Grid container spacing={2}>
+                            {splitBool ? 
+                            <>
+                                <Grid xs={12}><Typography variant='subtitle2'>{"Left to track: " + formatter.format(transactionAmount - splitArr.reduce((accumulator, object) => {
+                                        return accumulator + object.transAmount;
+                                    }, 0))}</Typography></Grid>
+                            </>
+                            :
                             <Grid xs={12}>
                                 <ToggleButtonGroup
-                                    color="standard"
+                                    color="success"
                                     value={transactionType}
                                     fullWidth
                                     exclusive
@@ -174,12 +309,12 @@ export default function AddTransaction() {
                                     <ToggleButton value="expense">Expense</ToggleButton>
                                 </ToggleButtonGroup>
                             </Grid>
-                            <Grid xs={12}>
+                            }
+                            <Grid xs={7} md={12}>
                                 <TextField
                                     onFocus={handleFocus}
                                     fullWidth
                                     autoFocus
-                                    margin='normal'
                                     value={transactionAmount}
                                     onChange={(event: any) => setTransactionAmount(event.target.value)}
                                     type="number"
@@ -188,20 +323,41 @@ export default function AddTransaction() {
                                     }}
                                     inputProps={{step:'.01'}}
                                     placeholder='Amount'
-                                    label="Amount"
+                                    label={splitBool ? "Total Amount" : "Amount"}
                                 />
+                            </Grid>
+                            <Grid xs={5} md={12}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        closeOnSelect
+                                        label="Date"
+                                        value={transactionDate}
+                                        onChange={(newValue) => {
+                                            setTransactionDate(newValue);
+                                        }}
+                                        renderInput={(params) => <TextField onFocus={handleFocus} {...params} fullWidth/>}
+                                        componentsProps={{
+                                            actionBar: {
+                                                actions: ['today'],
+                                            },
+                                        }}
+                                    />
+                                </LocalizationProvider>
                             </Grid>
                             <Grid xs={12}>
                                 <TextField
                                     fullWidth
                                     onFocus={handleFocus}
-                                    margin='normal'
                                     value={transactionTitle}
                                     onChange={(event: any) => setTransactionTitle(event.target.value)}
                                     type="text"
-                                    label="Title"
+                                    required
+                                    label={splitBool ? "Overall Title" : "Title"}
                                 />
                             </Grid>
+                            {splitBool ? 
+                            <></>
+                            :
                             <Grid xs={12}>
                                 <Autocomplete
                                     disablePortal={false}
@@ -213,7 +369,7 @@ export default function AddTransaction() {
                                     onChange={(event: any, newValue: any) => {
                                         setTransactionCategory(newValue)
                                     }}
-                                    renderInput={(params) => <TextField onFocus={handleFocus} margin="dense" {...params} label="Category"/>}
+                                    renderInput={(params) => <TextField onFocus={handleFocus} margin="none" {...params} label="Category"/>}
                                     renderGroup={(params) => (
                                         <li>
                                           <GroupHeader>{params.group}</GroupHeader>
@@ -222,25 +378,77 @@ export default function AddTransaction() {
                                       )}
                                 />
                             </Grid>
-                            <Grid xs={12}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        closeOnSelect
-                                        label="Date"
-                                        value={transactionDate}
-                                        onChange={(newValue) => {
-                                            setTransactionDate(newValue);
-                                        }}
-                                        renderInput={(params) => <TextField onFocus={handleFocus} {...params} margin="normal" fullWidth/>}
-                                        componentsProps={{
-                                            actionBar: {
-                                                actions: ['today'],
-                                            },
-                                        }}
-                                    />
-                                </LocalizationProvider>
-                            </Grid>
-
+                            }
+                            {splitBool ? 
+                                <Grid container spacing={1}>
+                                    <Grid xs={12}><Divider variant="middle" /></Grid>
+                                    {splitArr.map((x) => (
+                                    <>
+                                        <Grid xs={3}>
+                                            <TextField
+                                                fullWidth
+                                                size='small'
+                                                onFocus={handleFocus}
+                                                value={x.transTitle}
+                                                onChange={(event: any) => changeSplitTitle(x.recId, event.target.value)}
+                                                type="text"
+                                                label="Title"
+                                                variant='filled'
+                                            />
+                                        </Grid>
+                                        <Grid xs={3} key={x.recId}>
+                                            <TextField
+                                                onFocus={handleFocus}
+                                                fullWidth
+                                                autoFocus
+                                                size='small'
+                                                value={x.transAmount}
+                                                onChange={(event: any) => changeSplitAmount(x.recId, event.target.value)}
+                                                type="number"
+                                                InputProps={{
+                                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                                }}
+                                                inputProps={{step:'.01'}}
+                                                placeholder='Amount'
+                                                label="Amount"
+                                                variant='filled'
+                                                required
+                                            />
+                                        </Grid>
+                                        <Grid xs={5}>
+                                            <Autocomplete
+                                                disablePortal={false}
+                                                options={categoryGroups}
+                                                getOptionLabel={(option) => option.label}
+                                                groupBy={(option) => option.sectionName}
+                                                fullWidth
+                                                size='small'
+                                                value={x.cat}
+                                                onChange={(event: any, newValue: any) => {
+                                                    changeSplitCat(x.recId, newValue)
+                                                }}
+                                                renderInput={(params) => <TextField variant='filled' required onFocus={handleFocus} margin="none" {...params} label="Category"/>}
+                                                renderGroup={(params) => (
+                                                    <li>
+                                                    <GroupHeader>{params.group}</GroupHeader>
+                                                    <GroupItems>{params.children}</GroupItems>
+                                                    </li>
+                                                )}
+                                            />
+                                        </Grid>
+                                        <Grid xs={1}>
+                                            <IconButton size='small' onClick={() => deleteSplitCat(x.recId)}><CloseIcon/></IconButton>
+                                        </Grid>
+                                    </>
+                                    ))}
+                                    <Grid xs={12}>
+                                        <Button fullWidth color='secondary' onClick={addSplit} startIcon={<AddIcon fontSize='small' />}>Add Category Split</Button>
+                                    </Grid>
+                                </Grid>
+                                :
+                                <></>
+                            }
+                            
                         </Grid>
                     </DialogContent>
                     <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>

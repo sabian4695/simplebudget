@@ -6,7 +6,17 @@ import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import {Switch} from "@mui/material";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {currentUser, snackBarOpen, snackBarSeverity, snackBarText, themeAtom} from "../recoil/globalItems";
+import {currentUser, 
+    snackBarOpen, 
+    snackBarSeverity, 
+    snackBarText, 
+    themeAtom,
+    areYouSureAccept,
+    areYouSureDetails,
+    areYouSureTitle,
+    mainLoading
+} from "../recoil/globalItems";
+import {supaALLsections, supaCategories} from './extras/api_functions'
 import {useNavigate} from "react-router-dom";
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -21,14 +31,21 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import {supabase} from "./LoginPage";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import {budgets, currentBudgetAndMonth} from "../recoil/tableAtoms";
-import {openChangePassword, selectBudget, shareBudget} from "../recoil/modalStatusAtoms";
+import {budgets, currentBudgetAndMonth, sections} from "../recoil/tableAtoms";
+import {openChangePassword, selectBudget, shareBudget, areYouSure} from "../recoil/modalStatusAtoms";
 import ShareBudget from "./modals/ShareBudget";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ChangePassword from './modals/ChangePassword'
 
 export default function SettingsPage() {
+    const setLoadingOpen = useSetRecoilState(mainLoading)
+    const sectionsArray = useRecoilValue(sections);
     const [slideCheck, setSlideCheck] = React.useState(false);
+    const [areYouSureOpen, setAreYouSureOpen] = useRecoilState(areYouSure);
+    const setCheckTitle = useSetRecoilState(areYouSureTitle);
+    const setCheckDetails = useSetRecoilState(areYouSureDetails);
+    const [checkAccept, setCheckAccept] = useRecoilState(areYouSureAccept);
+    const [budgetDelete, setBudgetDelete] = React.useState(false)
     const setShareBudgetOpen = useSetRecoilState(shareBudget)
     const [currentTheme, setTheme] = useRecoilState(themeAtom);
     const setOpenChangePassword = useSetRecoilState(openChangePassword);
@@ -74,6 +91,69 @@ export default function SettingsPage() {
     };
     async function supaLogOut() {
         let { error } = await supabase.auth.signOut()
+    }
+    React.useEffect(() => {
+        if(!areYouSureOpen) {
+            if(checkAccept) {
+                handleDelete()
+            }
+            setBudgetDelete(false)
+        }
+    }, [areYouSureOpen])
+    async function handleDoubleCheck() {
+        setBudgetDelete(true)
+        setCheckTitle('Are you sure you want to delete this budget?')
+        setCheckDetails('WARNING: This will delete all sections, categories, and transactions assigned to this budget. THIS CANNOT BE UNDONE')
+        setAreYouSureOpen(true)
+    }
+    async function handleDelete() {
+        if (!budgetDelete) {
+            return
+        }
+        setLoadingOpen(true)
+        await supabase
+            .from('transactions')
+            .delete()
+            .eq('budgetID', currentBudget.budgetID)
+
+        let allSections = await supaALLsections(currentBudget.budgetID)
+        
+        await supabase
+            .from('categories')
+            .delete()
+            //@ts-ignore
+            .in('sectionID', allSections?.map(x => x.recordID))
+
+        let { data } = await supabase
+            .from('sections')
+            .delete()
+            .eq('budgetID', currentBudget.budgetID)
+
+        await supabase
+            .from('shared')
+            .delete()
+            .eq('budgetID', currentBudget.budgetID)
+
+        let { error } = await supabase
+            .from('budgets')
+            .delete()
+            .eq('recordID', currentBudget.budgetID)
+
+        if (error) {
+            console.log(error)
+            setLoadingOpen(false)
+            setSnackSev('error')
+            setSnackText('Something went wrong')
+            setSnackOpen(true)
+            return
+        }
+        //window.location.reload();
+        setLoadingOpen(false)
+        setSnackSev('success')
+        setSnackText('Budget deleted')
+        setSnackOpen(true)
+        setCheckAccept(false)
+        setBudgetDelete(false)
     }
     React.useEffect(() => {
         if (currentTheme === 'dark') {
@@ -161,11 +241,11 @@ export default function SettingsPage() {
                             </ListItem>
                             <Divider/>
                             <ListItem disablePadding>
-                                <ListItemButton >
+                                <ListItemButton onClick={handleDoubleCheck}>
                                     <ListItemIcon>
                                         <DeleteIcon />
                                     </ListItemIcon>
-                                    <ListItemText primary="Delete Budget - soon" />
+                                    <ListItemText primary="Delete Budget" />
                                 </ListItemButton>
                             </ListItem>
                         </List>

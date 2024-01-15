@@ -105,7 +105,7 @@ export default function AddSection() {
                         <Grid container spacing={2}>
                             <Grid xs={12}>
                                 <ToggleButtonGroup
-                                    color="standard"
+                                    color="success"
                                     value={sectionType}
                                     fullWidth
                                     exclusive
