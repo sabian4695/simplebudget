@@ -32,13 +32,15 @@ import {supabase} from "./LoginPage";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import {budgets, currentBudgetAndMonth, sections} from "../recoil/tableAtoms";
-import {openChangePassword, selectBudget, shareBudget, areYouSure} from "../recoil/modalStatusAtoms";
+import {openChangePassword, selectBudget, shareBudget, areYouSure, exportToCSV} from "../recoil/modalStatusAtoms";
 import ShareBudget from "./modals/ShareBudget";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ChangePassword from './modals/ChangePassword'
+import ExportToCSV from './modals/ExportToCSV'
 
 export default function SettingsPage() {
     const setLoadingOpen = useSetRecoilState(mainLoading)
+    const setExportToCSV = useSetRecoilState(exportToCSV)
     const sectionsArray = useRecoilValue(sections);
     const [slideCheck, setSlideCheck] = React.useState(false);
     const [areYouSureOpen, setAreYouSureOpen] = useRecoilState(areYouSure);
@@ -223,11 +225,11 @@ export default function SettingsPage() {
                             </ListItem>
                             <Divider/>
                             <ListItem disablePadding>
-                                <ListItemButton >
+                                <ListItemButton onClick={() => setExportToCSV(true)}>
                                     <ListItemIcon>
                                         <FileDownloadIcon />
                                     </ListItemIcon>
-                                    <ListItemText primary="Export Data to CSV - soon" />
+                                    <ListItemText primary="Export Data to CSV" />
                                 </ListItemButton>
                             </ListItem>
                             <Divider/>
@@ -288,6 +290,7 @@ export default function SettingsPage() {
             </Box>
             <ShareBudget/>
             <ChangePassword/>
+            <ExportToCSV/>
         </>
     )
 }

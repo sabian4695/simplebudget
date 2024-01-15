@@ -18,32 +18,25 @@ import {
     mainLoading
 } from "../../recoil/globalItems";
 import {categories, currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";
-import InputAdornment from '@mui/material/InputAdornment';
 import SaveIcon from '@mui/icons-material/Save';
 import {supabase} from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import {useTheme} from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import DeleteIcon from '@mui/icons-material/Delete';
 import Stack from "@mui/material/Stack";
 import dayjs, { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import {supaCategories, supaSections} from "../extras/api_functions";
 import {v4 as uuidv4} from "uuid";
 
 export default function CopyBudget() {
-    const [sectionsArray, setSectionsArray] = useRecoilValue(sections);
-    const [categoriesArray, setCategoriesArray] = useRecoilValue(categories);
     const [fromMonth, setFromMonth] = React.useState<Dayjs | null>(dayjs());
     const [toMonth, setToMonth] = React.useState<Dayjs | null>(dayjs().add(1, 'month'));
     const [openCopyBudget, setOpenCopyBudget] = useRecoilState(copyBudget)
-    const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
+    const currentBudget = useRecoilValue(currentBudgetAndMonth)
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);

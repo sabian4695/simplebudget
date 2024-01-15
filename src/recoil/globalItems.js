@@ -117,6 +117,11 @@ export const addTransactionCategory = atom({
     default: null,
 });
 
+export const exportToCSV = atom({
+    key: "exportToCSV",
+    default: false,
+});
+
 export const appName = 'simpleBudget';
 
 export const dialogPaperStyles = {

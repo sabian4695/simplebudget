@@ -79,3 +79,8 @@ export const openChangePassword = atom({
     key: "openChangePassword",
     default: false,
 });
+
+export const exportToCSV = atom({
+    key: "exportToCSV",
+    default: false,
+});
