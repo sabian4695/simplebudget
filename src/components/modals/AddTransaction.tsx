@@ -63,7 +63,6 @@ export default function AddTransaction() {
             recId: uuidv4(),
             cat: transactionCategory,
             transAmount: transactionAmount,
-            transTitle: ''
         }
       ]
     const [splitArr, setSplitArr] = React.useState(splitArrDef);
@@ -131,11 +130,7 @@ export default function AddTransaction() {
                 setErrorText('Must allocate full amount!')
                 setLoadingOpen(false)
                 return
-            }
-            //Allocate the array to every transaction category!!!
-            
-            //first, check each amount has a value and category
-            
+            }          
 
             let addTransactions = splitArr.map((row) => {
                 return {
@@ -145,7 +140,7 @@ export default function AddTransaction() {
                     categoryID: row.cat.id,
                     //@ts-ignore
                     amount: Math.round(row.transAmount * 100) / 100,
-                    title: transactionTitle + ' ' + transactionAmount + ' split ' + row.transTitle,
+                    title: transactionTitle + ' ' + transactionAmount + ' split',
                     transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
                     transactionType: transactionType,
                     creatorID: currentUserData.recordID,
@@ -203,7 +198,6 @@ export default function AddTransaction() {
             recId: uuidv4(),
             cat: null,
             transAmount: 0,
-            transTitle:''
         }
         setSplitArr(prevState => [...prevState, newCat]);
     }
@@ -214,16 +208,6 @@ export default function AddTransaction() {
         let newArr = splitArr.map(obj => {
             if (obj.recId === splitRecId) {
                 return {...obj,transAmount: Number(newVal)}
-            }
-            return obj;
-        })
-        //@ts-ignore
-        setSplitArr(newArr);
-    }
-    function changeSplitTitle(splitRecId: string, newVal: any) {
-        let newArr = splitArr.map(obj => {
-            if (obj.recId === splitRecId) {
-                return {...obj,transTitle: newVal}
             }
             return obj;
         })
@@ -384,19 +368,7 @@ export default function AddTransaction() {
                                     <Grid xs={12}><Divider variant="middle" /></Grid>
                                     {splitArr.map((x) => (
                                     <>
-                                        <Grid xs={3}>
-                                            <TextField
-                                                fullWidth
-                                                size='small'
-                                                onFocus={handleFocus}
-                                                value={x.transTitle}
-                                                onChange={(event: any) => changeSplitTitle(x.recId, event.target.value)}
-                                                type="text"
-                                                label="Title"
-                                                variant='filled'
-                                            />
-                                        </Grid>
-                                        <Grid xs={3} key={x.recId}>
+                                        <Grid xs={4} key={x.recId}>
                                             <TextField
                                                 onFocus={handleFocus}
                                                 fullWidth
@@ -415,7 +387,7 @@ export default function AddTransaction() {
                                                 required
                                             />
                                         </Grid>
-                                        <Grid xs={5}>
+                                        <Grid xs={7}>
                                             <Autocomplete
                                                 disablePortal={false}
                                                 options={categoryGroups}
