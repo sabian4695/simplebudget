@@ -1,6 +1,7 @@
 {
   "short_name": "simpleBudget",
-  "name": "simpleBudget",
+  "name": "simpleBudget: Keep on track for your goals!",
+  "description": "It's a simple budget to track your in vs out.",
   "icons": [
     {
       "src": "favicon.ico",
