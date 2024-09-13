@@ -124,9 +124,9 @@ export default function AddTransaction() {
         }
         setLoadingOpen(true)
         if (splitBool) {
-            if (transactionAmount - splitArr.reduce((accumulator, object) => {
-                return accumulator + object.transAmount;
-            }, 0) !== 0) {
+            if (transactionAmount - splitArr.reduce((accumulator: any, object) => {
+                return accumulator + Number(object.transAmount);
+            }, 0).toFixed(2) !== 0) {
                 setErrorText('Must allocate full amount!')
                 setLoadingOpen(false)
                 return
@@ -207,7 +207,7 @@ export default function AddTransaction() {
     function changeSplitAmount(splitRecId: string, newVal: any) {
         let newArr = splitArr.map(obj => {
             if (obj.recId === splitRecId) {
-                return {...obj,transAmount: Number(newVal)}
+                return {...obj,transAmount: newVal}
             }
             return obj;
         })
@@ -276,7 +276,7 @@ export default function AddTransaction() {
                             {splitBool ? 
                             <>
                                 <Grid xs={12}><Typography variant='subtitle2'>{"Left to track: " + formatter.format(transactionAmount - splitArr.reduce((accumulator, object) => {
-                                        return accumulator + object.transAmount;
+                                        return accumulator + Number(object.transAmount);
                                     }, 0))}</Typography></Grid>
                             </>
                             :
