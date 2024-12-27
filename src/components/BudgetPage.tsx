@@ -229,16 +229,16 @@ export default function BudgetPage() {
                                 <Paper elevation={1} sx={{ borderRadius: 3 }}>
                                     <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
                                         <Paper elevation={3} sx={{ px: 1 }}>
-                                            <Typography color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
+                                            <Typography color='text.secondary' variant='body1'>Income: {formatter.format(totalIncome)}</Typography>
                                         </Paper>
                                         <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
-                                            <Typography color='text.secondary' variant='subtitle1'>Expenses: {formatter.format(totalExpenses)}</Typography>
+                                            <Typography color='text.secondary' variant='body1'>Expenses: {formatter.format(totalExpenses)}</Typography>
                                         </Paper>
                                         <Paper elevation={3} sx={{ px: 1 }}>
                                             <Typography
                                                 color={totalIncome - totalExpenses < 0 ? 'error.main' : 'success.main'}
                                                 style={{ fontWeight: 'bold' }}
-                                                variant='subtitle1'
+                                                variant='body1'
                                             >
                                                 Leftover: {formatter.format(totalIncome - totalExpenses)}
                                             </Typography>
@@ -252,19 +252,19 @@ export default function BudgetPage() {
                                 </Paper>
                             </TabPanel>
                             <TabPanel value={tabValue} index={1}>
-                                <Paper elevation={5} sx={{ borderRadius: 3 }}>
+                                <Paper elevation={1} sx={{ borderRadius: 3 }}>
                                     <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
-                                        <Paper elevation={1} sx={{ px: 1 }}>
-                                            <Typography color='text.secondary' variant='subtitle1'>Received: {formatter.format(totalActualIncome)}</Typography>
+                                        <Paper elevation={3} sx={{ px: 1 }}>
+                                            <Typography color='text.secondary' variant='body1'>Received: {formatter.format(totalActualIncome)}</Typography>
                                         </Paper>
-                                        <Paper elevation={1} sx={{ mx: 1, px: 1 }}>
-                                            <Typography color='text.secondary' variant='subtitle1'>Spent: {formatter.format(totalActualExpenses)}</Typography>
+                                        <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
+                                            <Typography color='text.secondary' variant='body1'>Spent: {formatter.format(totalActualExpenses)}</Typography>
                                         </Paper>
-                                        <Paper elevation={1} sx={{ px: 1 }}>
+                                        <Paper elevation={3} sx={{ px: 1 }}>
                                             <Typography
                                                 color={totalActualIncome - totalActualExpenses < 0 ? 'error.main' : 'success.main'}
                                                 style={{ fontWeight: 'bold' }}
-                                                variant='subtitle1'
+                                                variant='body1'
                                             >
                                                 Difference: {formatter.format(totalActualIncome - totalActualExpenses)}
                                             </Typography>

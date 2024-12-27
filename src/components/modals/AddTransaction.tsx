@@ -258,7 +258,7 @@ export default function AddTransaction() {
             >
                 <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
-                        New Transaction
+                        New Transaction 
                         <ToggleButton
                             value="check"
                             selected={splitBool}
@@ -334,8 +334,8 @@ export default function AddTransaction() {
                                     value={transactionTitle}
                                     onChange={(event: any) => setTransactionTitle(event.target.value)}
                                     type="text"
-                                    required
                                     label={splitBool ? "Overall Title" : "Title"}
+                                    required
                                 />
                             </Grid>
                             {splitBool ? 

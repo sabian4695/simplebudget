@@ -56,7 +56,7 @@ export default function AnalyticsPage() {
         <>
             <Box display='flex' flexDirection='column' alignItems='center'>
                 <Stack spacing={2} alignItems="stretch" sx={{maxWidth:400, width:'100%'}}>
-                    <Paper elevation={5} sx={{ borderRadius: 3, p:1, width:'100%' }}>
+                    <Paper elevation={4} sx={{ borderRadius: 3, p:1, width:'100%' }}>
                         <Box sx={{ width: '100%' }}>
                             <Typography textAlign='center' color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>
                                 Income Sources
@@ -86,7 +86,7 @@ export default function AnalyticsPage() {
                             ))}
                         </Box>
                     </Paper>
-                    <Paper elevation={5} sx={{ borderRadius: 3, p:1, width:'100%' }}>
+                    <Paper elevation={4} sx={{ borderRadius: 3, p:1, width:'100%' }}>
                         <Box sx={{ width: '100%' }}>
                             <Typography textAlign='center' color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>
                                 Expense Distribution

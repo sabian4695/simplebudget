@@ -54,7 +54,7 @@ export default function TransactionsPage() {
     }, [])
     const uncategorized = filteredTransactions.filter(x => x.categoryID === null).length > 0 ?
         <Box sx={{width: '100%'}}>
-            <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
+            <Paper elevation={4} sx={{width: '100%', borderRadius: 3}}>
                 <List dense>
                     <ListItem disablePadding key={"1"}>
                         <Typography color='text.secondary' variant='h6'
@@ -95,7 +95,7 @@ export default function TransactionsPage() {
 
     const categorized = filteredTransactions.filter(x => x.categoryID !== null).length > 0 ?
         <Box sx={{width: '100%'}}>
-            <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
+            <Paper elevation={4} sx={{width: '100%', borderRadius: 3}}>
                 <List dense>
                     <ListItem disablePadding key={"2"}>
                         <Typography color='text.secondary' variant='h6'

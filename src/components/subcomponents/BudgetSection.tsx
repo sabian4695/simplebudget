@@ -79,7 +79,7 @@ export default function BudgetSection(sectionID: any) {
 
     return (
         <>
-            <Paper elevation={5} sx={{borderRadius:5, width:'100%'}}>
+            <Paper elevation={4} sx={{borderRadius:5, width:'100%'}}>
                 <Box sx={{width:'100%'}}>
                     <List sx={{width:'100%',pb:0.5}}>
                         <ListItem disablePadding key={1}>
