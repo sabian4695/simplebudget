@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {addTransaction} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
@@ -262,7 +262,7 @@ export default function AddTransaction() {
                         <ToggleButton
                             value="check"
                             selected={splitBool}
-                            size='small'
+                            size='medium'
                             color="error"
                             onChange={() => {
                                 setSplitBool(!splitBool);
@@ -275,12 +275,12 @@ export default function AddTransaction() {
                         <Grid container spacing={2}>
                             {splitBool ? 
                             <>
-                                <Grid xs={12}><Typography variant='subtitle2'>{"Left to track: " + formatter.format(transactionAmount - splitArr.reduce((accumulator, object) => {
+                                <Grid size={12}><Typography variant='subtitle2'>{"Left to track: " + formatter.format(transactionAmount - splitArr.reduce((accumulator, object) => {
                                         return accumulator + Number(object.transAmount);
                                     }, 0))}</Typography></Grid>
                             </>
                             :
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <ToggleButtonGroup
                                     color="success"
                                     value={transactionType}
@@ -294,7 +294,7 @@ export default function AddTransaction() {
                                 </ToggleButtonGroup>
                             </Grid>
                             }
-                            <Grid xs={7} md={12}>
+                            <Grid size={{ xs: 7, md: 12 }}>
                                 <TextField
                                     onFocus={handleFocus}
                                     fullWidth
@@ -310,7 +310,7 @@ export default function AddTransaction() {
                                     label={splitBool ? "Total Amount" : "Amount"}
                                 />
                             </Grid>
-                            <Grid xs={5} md={12}>
+                            <Grid size={{ xs: 5, md: 12 }}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
                                         closeOnSelect
@@ -319,16 +319,15 @@ export default function AddTransaction() {
                                         onChange={(newValue) => {
                                             setTransactionDate(newValue);
                                         }}
-                                        renderInput={(params) => <TextField onFocus={handleFocus} {...params} fullWidth/>}
-                                        componentsProps={{
-                                            actionBar: {
-                                                actions: ['today'],
-                                            },
+                                        slotProps={{
+                                            actionBar: {actions: ['today']},
+                                            textField: (params) => <TextField onFocus={handleFocus} {...params} fullWidth />,
                                         }}
+                                        sx={{width: '100%'}}
                                     />
                                 </LocalizationProvider>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     onFocus={handleFocus}
@@ -342,7 +341,7 @@ export default function AddTransaction() {
                             {splitBool ? 
                             <></>
                             :
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <Autocomplete
                                     disablePortal={false}
                                     options={categoryGroups}
@@ -365,10 +364,10 @@ export default function AddTransaction() {
                             }
                             {splitBool ? 
                                 <Grid container spacing={1}>
-                                    <Grid xs={12}><Divider variant="middle" /></Grid>
+                                    <Grid size={12}><Divider variant="middle" /></Grid>
                                     {splitArr.map((x) => (
                                     <>
-                                        <Grid xs={4} key={x.recId}>
+                                        <Grid size={4} key={x.recId}>
                                             <TextField
                                                 onFocus={handleFocus}
                                                 fullWidth
@@ -387,7 +386,7 @@ export default function AddTransaction() {
                                                 required
                                             />
                                         </Grid>
-                                        <Grid xs={7}>
+                                        <Grid size={7}>
                                             <Autocomplete
                                                 disablePortal={false}
                                                 options={categoryGroups}
@@ -408,12 +407,12 @@ export default function AddTransaction() {
                                                 )}
                                             />
                                         </Grid>
-                                        <Grid xs={1}>
+                                        <Grid size={1}>
                                             <IconButton size='small' onClick={() => deleteSplitCat(x.recId)}><CloseIcon/></IconButton>
                                         </Grid>
                                     </>
                                     ))}
-                                    <Grid xs={12}>
+                                    <Grid size={12}>
                                         <Button fullWidth color='secondary' onClick={addSplit} startIcon={<AddIcon fontSize='small' />}>Add Category Split</Button>
                                     </Grid>
                                 </Grid>

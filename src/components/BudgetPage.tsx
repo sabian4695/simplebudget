@@ -205,7 +205,7 @@ export default function BudgetPage() {
         <>
             <Box display='flex' flexDirection='column' alignItems='center'>
                 <Stack spacing={2} alignItems="stretch" sx={{ maxWidth: 400 }}>
-                    <Box display='flex' flexDirection='row' alignSelf='flex-start'>
+                    <Box sx={{mb:-1, mt: -0.5}} display='flex' flexDirection='row' alignSelf='flex-start'>
                         <IconButton
                             size='small'
                             aria-label="more"
@@ -217,65 +217,66 @@ export default function BudgetPage() {
                         <Typography display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
                         <CustomButton onClick={handleClickListItem} size='small' sx={{ py: 0, ml: 1 }}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
                     </Box>
-                    <Tabs value={tabValue} onChange={(event: React.SyntheticEvent, newValue: number) => {
-                        setTabValue(newValue);
-                    }} centered>
-                        <Tab label="Planned" />
-                        <Tab label="Actual" />
-                    </Tabs>
-                    <TabPanel value={tabValue} index={0}>
-                        <Paper elevation={5} sx={{ borderRadius: 3 }}>
-                            <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
-                                <Paper elevation={1} sx={{ px: 1 }}>
-                                    <Typography color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
-                                </Paper>
-                                <Paper elevation={1} sx={{ mx: 1, px: 1 }}>
-                                    <Typography color='text.secondary' variant='subtitle1'>Expenses: {formatter.format(totalExpenses)}</Typography>
-                                </Paper>
-                                <Paper elevation={1} sx={{ px: 1 }}>
-                                    <Typography
-                                        color={totalIncome - totalExpenses < 0 ? 'error.main' : 'success.main'}
-                                        style={{ fontWeight: 'bold' }}
-                                        variant='subtitle1'
-                                    >
-                                        Leftover: {formatter.format(totalIncome - totalExpenses)}
-                                    </Typography>
-                                </Paper>
-                            </Box>
-                            <LinearProgress
-                                sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
-                                variant="determinate" color={(totalExpenses / totalIncome) > 1 ? 'error' : 'success'}
-                                value={(totalExpenses / totalIncome) * 100}
-                            />
-                        </Paper>
-                    </TabPanel>
-                    <TabPanel value={tabValue} index={1}>
-                        <Paper elevation={5} sx={{ borderRadius: 3 }}>
-                            <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
-                                <Paper elevation={1} sx={{ px: 1 }}>
-                                    <Typography color='text.secondary' variant='subtitle1'>Received: {formatter.format(totalActualIncome)}</Typography>
-                                </Paper>
-                                <Paper elevation={1} sx={{ mx: 1, px: 1 }}>
-                                    <Typography color='text.secondary' variant='subtitle1'>Spent: {formatter.format(totalActualExpenses)}</Typography>
-                                </Paper>
-                                <Paper elevation={1} sx={{ px: 1 }}>
-                                    <Typography
-                                        color={totalActualIncome - totalActualExpenses < 0 ? 'error.main' : 'success.main'}
-                                        style={{ fontWeight: 'bold' }}
-                                        variant='subtitle1'
-                                    >
-                                        Difference: {formatter.format(totalActualIncome - totalActualExpenses)}
-                                    </Typography>
-                                </Paper>
-                            </Box>
-                            <LinearProgress
-                                sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
-                                variant="determinate" color={(totalActualExpenses / totalActualIncome) > 1 ? 'error' : 'success'}
-                                value={(totalActualExpenses / totalActualIncome) * 100}
-                            />
-                        </Paper>
-                    </TabPanel>
-                    
+                    <Box>
+                        <Tabs value={tabValue} onChange={(event: React.SyntheticEvent, newValue: number) => {
+                            setTabValue(newValue);
+                        }} centered>
+                            <Tab label="Planned" />
+                            <Tab label="Actual" />
+                        </Tabs>
+                        <TabPanel value={tabValue} index={0}>
+                            <Paper elevation={5} sx={{ borderRadius: 3 }}>
+                                <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
+                                    <Paper elevation={1} sx={{ px: 1 }}>
+                                        <Typography color='text.secondary' variant='subtitle1'>Income: {formatter.format(totalIncome)}</Typography>
+                                    </Paper>
+                                    <Paper elevation={1} sx={{ mx: 1, px: 1 }}>
+                                        <Typography color='text.secondary' variant='subtitle1'>Expenses: {formatter.format(totalExpenses)}</Typography>
+                                    </Paper>
+                                    <Paper elevation={1} sx={{ px: 1 }}>
+                                        <Typography
+                                            color={totalIncome - totalExpenses < 0 ? 'error.main' : 'success.main'}
+                                            style={{ fontWeight: 'bold' }}
+                                            variant='subtitle1'
+                                        >
+                                            Leftover: {formatter.format(totalIncome - totalExpenses)}
+                                        </Typography>
+                                    </Paper>
+                                </Box>
+                                <LinearProgress
+                                    sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
+                                    variant="determinate" color={(totalExpenses / totalIncome) > 1 ? 'error' : 'success'}
+                                    value={(totalExpenses / totalIncome) * 100}
+                                />
+                            </Paper>
+                        </TabPanel>
+                        <TabPanel value={tabValue} index={1}>
+                            <Paper elevation={5} sx={{ borderRadius: 3 }}>
+                                <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
+                                    <Paper elevation={1} sx={{ px: 1 }}>
+                                        <Typography color='text.secondary' variant='subtitle1'>Received: {formatter.format(totalActualIncome)}</Typography>
+                                    </Paper>
+                                    <Paper elevation={1} sx={{ mx: 1, px: 1 }}>
+                                        <Typography color='text.secondary' variant='subtitle1'>Spent: {formatter.format(totalActualExpenses)}</Typography>
+                                    </Paper>
+                                    <Paper elevation={1} sx={{ px: 1 }}>
+                                        <Typography
+                                            color={totalActualIncome - totalActualExpenses < 0 ? 'error.main' : 'success.main'}
+                                            style={{ fontWeight: 'bold' }}
+                                            variant='subtitle1'
+                                        >
+                                            Difference: {formatter.format(totalActualIncome - totalActualExpenses)}
+                                        </Typography>
+                                    </Paper>
+                                </Box>
+                                <LinearProgress
+                                    sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
+                                    variant="determinate" color={(totalActualExpenses / totalActualIncome) > 1 ? 'error' : 'success'}
+                                    value={(totalActualExpenses / totalActualIncome) * 100}
+                                />
+                            </Paper>
+                        </TabPanel>
+                    </Box>
 
                     {sectionsArray.filter(x => x.sectionType === 'income').map((row) => (
                         <BudgetSection sectionID={row.recordID} key={row.recordID} />

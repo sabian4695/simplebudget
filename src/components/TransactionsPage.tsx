@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 import {useSetRecoilState, useRecoilValue} from "recoil";
 import {categories, transactions} from "../recoil/tableAtoms";
 import ListItem from "@mui/material/ListItem";
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from '@mui/material/Grid2';
 import List from '@mui/material/List';
 import Divider from "@mui/material/Divider";
 import dayjs from "dayjs";
@@ -69,19 +69,19 @@ export default function TransactionsPage() {
                             <Divider/>
                             <ListItem disablePadding key={row.recordID}>
                                 <ListItemButton onClick={() => openTransaction(row.recordID)}>
-                                    <Grid xs={12} container columnSpacing={2} alignItems='center'>
-                                        <Grid xs="auto">
-                                            <Avatar sx={{fontSize: 15, textAlign: 'center', bgcolor: 'text.secondary'}}>
+                                    <Grid size={12} container columnSpacing={1} alignItems='center' sx={{width: '100%'}}>
+                                        <Grid size={1.3}>
+                                            <Avatar sx={{ml:-1,fontSize: 15, textAlign: 'center', bgcolor: 'text.secondary'}}>
                                                 {dayjs(row.transactionDate).format('MMM DD')}
                                             </Avatar>
                                         </Grid>
-                                        <Grid xs='auto' sx={{flexGrow: 1}}>
-                                            <Typography sx={{mt: 0.5}}
+                                        <Grid size='auto' sx={{flexGrow: 1}}>
+                                            <Typography sx={{mt: 0.5}} style={{overflow: "hidden", textOverflow: "ellipsis"}}
                                                         variant='body1'>{row.title}</Typography>
                                             <Chip size='small' label='Uncategorized' color='warning'/>
                                         </Grid>
-                                        <Grid xs="auto" sx={{textAlign: 'right'}}>
-                                            <Typography
+                                        <Grid size='auto' sx={{textAlign: 'right'}}>
+                                            <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} display='inline'
                                                 variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
                                         </Grid>
                                     </Grid>
@@ -110,21 +110,21 @@ export default function TransactionsPage() {
                             <Divider/>
                             <ListItem disablePadding key={row.recordID}>
                                 <ListItemButton onClick={() => openTransaction(row.recordID)}>
-                                    <Grid xs={12} container columnSpacing={2} alignItems='center'>
-                                        <Grid xs="auto">
-                                            <Avatar sx={{fontSize: 15, textAlign: 'center', bgcolor: 'text.secondary'}}>
+                                    <Grid size={12} container columnSpacing={1} alignItems='center' sx={{width: '100%'}}>
+                                        <Grid size={1.3}>
+                                            <Avatar sx={{ml:-1,fontSize: 15, textAlign: 'center', bgcolor: 'text.secondary'}}>
                                                 {dayjs(row.transactionDate).format('MMM DD')}
                                             </Avatar>
                                         </Grid>
-                                        <Grid xs='auto' sx={{flexGrow: 1}}>
-                                            <Typography sx={{mt: 0.5}}
+                                        <Grid size='grow'>
+                                            <Typography sx={{mt: 0.5}} style={{overflow: "hidden", textOverflow: "ellipsis"}}
                                                         variant='body1'>{row.title}</Typography>
                                             <Chip size='small'
                                                   label={categoryArray.find(x => x.recordID === row.categoryID)?.categoryName}
                                                   color='primary'/>
                                         </Grid>
-                                        <Grid xs="auto" sx={{textAlign: 'right'}}>
-                                            <Typography
+                                        <Grid size='auto' sx={{textAlign: 'right'}}>
+                                            <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}}  display='inline'
                                                 variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
                                         </Grid>
                                     </Grid>

@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import BalanceIcon from '@mui/icons-material/Balance';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
@@ -53,6 +53,7 @@ import Paper from "@mui/material/Paper";
 import AddIcon from "@mui/icons-material/Add";
 import Fab from "@mui/material/Fab";
 import GlobalJS from "../extras/GlobalJS"
+import LinearProgress from '@mui/material/LinearProgress';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -309,7 +310,7 @@ export default function EditCategory() {
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 {editMode ?
                                 <TextField
                                     fullWidth
@@ -328,10 +329,31 @@ export default function EditCategory() {
                                 />
                                     :
                                     <Stack direction='row' justifyContent='space-between'>
-                                        <div>
-                                            <Typography variant='subtitle2'>{"Budgeted: " + formatter.format(categoryAmount)}</Typography>
-                                            <Typography variant='subtitle2'>{"Tracked: " + formatter.format(categorySum)}</Typography>
-                                        </div>
+                                        <Paper elevation={1} sx={{ borderRadius: 3 }}>
+                                            <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
+                                                <Paper elevation={3} sx={{ px: 1 }}>
+                                                    <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(categoryAmount)}</Typography>
+                                                </Paper>
+                                                <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
+                                                    <Typography color='text.secondary' variant='body1'>Tracked: {formatter.format(categorySum)}</Typography>
+                                                </Paper>
+                                                <Paper elevation={3} sx={{ px: 1 }}>
+                                                    <Typography
+                                                        color={categoryAmount+categorySum < 0 ? 'error.main' : 'success.main'}
+                                                        style={{ fontWeight: 'bold' }}
+                                                        variant='body1'
+                                                    >
+                                                        Remaining: {formatter.format(categoryAmount+categorySum)}
+                                                    </Typography>
+                                                </Paper>
+                                            </Box>
+                                            <LinearProgress
+                                                sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
+                                                variant="determinate" color={((-1*categorySum) / categoryAmount) > 1 ? 'error' : 'success'}
+                                                value={((-1*categorySum) / categoryAmount) * 100}
+                                            />
+                                        </Paper>
+
                                         {bigger ? 
                                             <Fab color="secondary" variant='extended' onClick={addNewTransClick}>
                                                 <AddIcon /> Add Transaction
@@ -342,7 +364,7 @@ export default function EditCategory() {
                             </Grid>
                             <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                             {editMode ?
-                                <Grid xs={12}>
+                                <Grid size={12}>
                                     <Grow in={editMode}>
                                         <DialogActions>
                                             <Button fullWidth startIcon={<SaveIcon/>} variant='contained' type='submit'>
@@ -352,7 +374,7 @@ export default function EditCategory() {
                                 </Grid>
                                 : null
                             }
-                            <Grid xs={12}>
+                            <Grid size={12} container>
                                 <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
                                     <List dense>
                                         {transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID).length > 0 ?
@@ -369,18 +391,18 @@ export default function EditCategory() {
                                                 <>
                                                     <Divider/>
                                                     <ListItem disablePadding key={row.recordID}>
-                                                        <ListItemButton onClick={() => openTransaction(row.recordID)} sx={{px:0.5}}>
-                                                            <Grid xs={12} container columnSpacing={2} alignItems='center'>
-                                                                <Grid xs="auto">
-                                                                    <Avatar sx={{fontSize: 15, textAlign: 'center', bgcolor: 'primary.light'}}>
+                                                        <ListItemButton onClick={() => openTransaction(row.recordID)}>
+                                                            <Grid size={12} container columnSpacing={1} alignItems='center' sx={{width: '100%'}}>
+                                                                <Grid size={1.3}>
+                                                                    <Avatar sx={{ml:-1,fontSize: 15, textAlign: 'center', bgcolor: 'primary.light'}}>
                                                                         {dayjs(row.transactionDate).format('MMM DD')}
                                                                     </Avatar>
                                                                 </Grid>
-                                                                <Grid xs='auto' sx={{flexGrow: 1}}>
+                                                                <Grid size='grow'>
                                                                     <Typography sx={{mt: 0.5}}
                                                                                 variant='body1'>{row.title}</Typography>
                                                                 </Grid>
-                                                                <Grid xs="auto" sx={{textAlign: 'right'}}>
+                                                                <Grid size="auto" sx={{textAlign: 'right'}}>
                                                                     <Typography
                                                                         variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
                                                                 </Grid>

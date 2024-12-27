@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {areYouSure, currentTransaction, editTransaction} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
@@ -254,7 +254,7 @@ export default function EditTransaction() {
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <ToggleButtonGroup
                                     color="success"
                                     value={transactionType}
@@ -268,7 +268,7 @@ export default function EditTransaction() {
                                     <ToggleButton value="expense">Expense</ToggleButton>
                                 </ToggleButtonGroup>
                             </Grid>
-                            <Grid xs={7} md={12}>
+                            <Grid size={{ xs: 7, md: 12 }}>
                                 <TextField
                                     autoFocus
                                     onFocus={handleFocus}
@@ -284,7 +284,7 @@ export default function EditTransaction() {
                                     label="Amount"
                                 />
                             </Grid>
-                            <Grid xs={5} md={12}>
+                            <Grid size={{ xs: 5, md: 12 }}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
                                         closeOnSelect
@@ -293,16 +293,15 @@ export default function EditTransaction() {
                                         onChange={(newValue) => {
                                             setTransactionDate(newValue);
                                         }}
-                                        renderInput={(params) => <TextField {...params} onFocus={handleFocus} fullWidth/>}
-                                        componentsProps={{
-                                            actionBar: {
-                                                actions: ['today'],
-                                            },
+                                        slotProps={{
+                                            actionBar: {actions: ['today']},
+                                            textField: (params) => <TextField {...params} onFocus={handleFocus} fullWidth/>,
                                         }}
+                                        sx={{width: '100%'}}
                                     />
                                 </LocalizationProvider>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     onFocus={handleFocus}
@@ -312,7 +311,7 @@ export default function EditTransaction() {
                                     label="Title"
                                 />
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <Autocomplete
                                     disablePortal={false}
                                     options={categoryGroups}

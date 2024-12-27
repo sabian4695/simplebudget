@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {exportToCSV} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
@@ -143,7 +143,7 @@ export default function AddSection() {
                     <Grid container spacing={2}>
                             <Typography>Select the start and end months of the data you want</Typography>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <Grid xs={12}>
+                                <Grid size={12}>
                                     <DatePicker
                                         views={['year', 'month']}
                                         label="Start Month"
@@ -151,10 +151,13 @@ export default function AddSection() {
                                         onChange={(newValue) => {
                                             setFromMonth(newValue);
                                         }}
-                                        renderInput={(params) => <TextField {...params} fullWidth helperText={null} />}
+                                        slotProps={{
+                                            textField: (params) => <TextField {...params} fullWidth helperText={null} />,
+                                        }}
+                                        sx={{width: '100%'}}
                                     />
                                 </Grid>
-                                <Grid xs={12}>
+                                <Grid size={12}>
                                     <DatePicker
                                         views={['year', 'month']}
                                         label="End Month"
@@ -162,7 +165,10 @@ export default function AddSection() {
                                         onChange={(newValue) => {
                                             setToMonth(newValue);
                                         }}
-                                        renderInput={(params) => <TextField {...params} fullWidth helperText={null} />}
+                                        slotProps={{
+                                            textField: (params) => <TextField {...params} fullWidth helperText={null} />,
+                                        }}
+                                        sx={{width: '100%'}}
                                     />
                                 </Grid>
                             </LocalizationProvider>

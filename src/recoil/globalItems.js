@@ -2,7 +2,7 @@ import {atom} from "recoil";
 import {createTheme} from "@mui/material/styles";
 
 export const primaryMain = '#4c809e'
-export const secondaryMain = '#d68758'
+export const secondaryMain = '#D6A058'
 
 export const themes = {
     darkTheme: createTheme({

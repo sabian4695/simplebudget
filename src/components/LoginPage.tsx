@@ -16,7 +16,7 @@ import {
 } from "../recoil/globalItems";
 import {ThemeProvider} from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Dialog from "@mui/material/Dialog";
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -139,7 +139,7 @@ export default function LoginPage() {
                          }}
                     >
                         <Grid container rowSpacing={2}>
-                            <Grid xs={12} sx={{my: 5}}>
+                            <Grid size={12} sx={{my: 5}}>
                                 <Stack direction='row' alignItems='center'>
                                     <img
                                         height='50'
@@ -155,10 +155,10 @@ export default function LoginPage() {
                                     <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[beta]</Typography>
                                 </Stack>
                             </Grid>
-                            <Grid xs={12} sx={{mb:0, pb:1}}>
+                            <Grid size={12} sx={{mb:0, pb:1}}>
                                 <Typography variant='body2'>Sign in to continue.</Typography>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     name="email"
@@ -169,7 +169,7 @@ export default function LoginPage() {
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     name="password"
@@ -191,13 +191,13 @@ export default function LoginPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <Typography variant='body2' color='error'>{errorText}</Typography>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <Button fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{mt: 1}}>Sign in</Button>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <Typography display='inline' variant='body2'>Don't have an account? </Typography>
                                 <Button size='small' onClick={handleRedirectSignIn}>Sign Up</Button>
                             </Grid>

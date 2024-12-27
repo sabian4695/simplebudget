@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { openChangePassword } from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
@@ -83,7 +83,7 @@ export default function ChangePassword() {
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     name="current"
@@ -109,7 +109,7 @@ export default function ChangePassword() {
                                     onChange={(e) => setCurrentPassword(e.target.value)}
                                 />
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     name="new"
@@ -135,7 +135,7 @@ export default function ChangePassword() {
                                     onChange={(e) => setNewPassword0(e.target.value)}
                                 />
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     name="newRepeat"

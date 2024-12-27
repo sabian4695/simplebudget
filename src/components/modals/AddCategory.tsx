@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {addCategory, currentSection} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
@@ -101,7 +101,7 @@ export default function AddCategory() {
                     <DialogContent dividers>
                         <Grid container spacing={2}>
                             <Typography>Adding to: {currentSectionName}</Typography>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     autoFocus
                                     fullWidth
@@ -111,7 +111,7 @@ export default function AddCategory() {
                                     label="Category Name"
                                 />
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     fullWidth
                                     onFocus={handleFocus}

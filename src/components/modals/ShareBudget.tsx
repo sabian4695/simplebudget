@@ -9,7 +9,7 @@ import {budgets, currentBudgetAndMonth} from "../../recoil/tableAtoms"
 import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
 import Box from "@mui/material/Box";
 import DialogContent from "@mui/material/DialogContent";
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from '@mui/material/Grid2';
 import TextField from "@mui/material/TextField";
 import DialogActions from "@mui/material/DialogActions";
 import ShareIcon from '@mui/icons-material/Share';
@@ -75,16 +75,16 @@ export default function ShareBudget() {
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <Alert severity="warning">Warning!! Sharing your budget allows the other user to create, view, edit and delete categories, sections, and transactions. You can remove the sharing from this budget in the future, but you cannot undo their actions.</Alert>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <Alert severity='info'>
                                     To share a budget, you need the user ID of the person to share with.
                                     They go to account settings to copy their user ID.
                                 </Alert>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     autoFocus
                                     fullWidth

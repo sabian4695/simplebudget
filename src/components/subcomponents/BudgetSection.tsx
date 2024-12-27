@@ -1,6 +1,6 @@
 import React from 'react';
 import Paper from "@mui/material/Paper";
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
@@ -79,18 +79,18 @@ export default function BudgetSection(sectionID: any) {
 
     return (
         <>
-            <Paper elevation={5} sx={{borderRadius:3, width:'100%'}}>
+            <Paper elevation={5} sx={{borderRadius:5, width:'100%'}}>
                 <Box sx={{width:'100%'}}>
                     <List sx={{width:'100%',pb:0.5}}>
                         <ListItem disablePadding key={1}>
-                            <Grid xs={12} container sx={{px:1, pb:0, mb:0}} columnSpacing={2}>
-                                <Grid xs={5.5}>
-                                    <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>
+                            <Grid size={12} container sx={{px:1, pb:0, mb:0, width:'100%'}} columnSpacing={2}>
+                                <Grid size='grow'>
+                                    <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} color='text.secondary' variant='h6' sx={{fontWeight: '600'}}>
                                         {section?.sectionName}
                                     </Typography>
                                 </Grid>
-                                <Grid xs={3.25} sx={{textAlign:'right',pt:2}}><Typography color='text.disabled' variant="subtitle2">Planned</Typography></Grid>
-                                <Grid xs={3.25} sx={{textAlign:'right',pt:2}}><Typography color='text.disabled' variant="subtitle2">Remaining</Typography></Grid>
+                                <Grid size={3.25} sx={{textAlign:'right',pt:2}}><Typography color='text.disabled' variant="subtitle2">Planned</Typography></Grid>
+                                <Grid size={3.25} sx={{textAlign:'right',pt:2}}><Typography color='text.disabled' variant="subtitle2">Remaining</Typography></Grid>
                             </Grid>
                         </ListItem>
                         {categoryArray.sort(function(a, b) {
@@ -99,14 +99,15 @@ export default function BudgetSection(sectionID: any) {
                             }).map((row) => (
                             <ListItem disablePadding key={row.recordID}>
                                 <ListItemButton onClick={() => openCategory(row.recordID)}>
-                                    <Grid xs={12} container columnSpacing={2}>
-                                        <Grid xs={5.5}>
-                                            <Typography style={{overflow: "hidden", textOverflow: "ellipsis"}} display='inline' variant='body1'>{row.categoryName}</Typography>
+                                    <Grid size={12} container columnSpacing={2} sx={{width: '100%'}}>
+                                        <Grid size='grow'>
+                                            <Typography sx={{ml:-1}} style={{overflow: "hidden", textOverflow: "ellipsis"}} display='inline' variant='body1'>{row.categoryName}</Typography>
                                         </Grid>
-                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount)}</Typography></Grid>
-                                        <Grid xs={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount - catSumGrab(row.recordID))}</Typography></Grid>
-                                        <Grid xs={12}>
+                                        <Grid size={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount)}</Typography></Grid>
+                                        <Grid size={3.25} sx={{textAlign:'right'}}><Typography variant='body1'>{formatter.format(row.amount - catSumGrab(row.recordID))}</Typography></Grid>
+                                        <Grid size={12}>
                                             <BorderLinearProgress
+                                                sx={{mx:-1}}
                                                 variant='determinate'
                                                 value={progPercent(row.recordID, row.amount)}
                                                 color={progPercent(row.recordID, row.amount) > 100 ? 'error' : 'primary'}
@@ -118,7 +119,7 @@ export default function BudgetSection(sectionID: any) {
                             )
                             )}
                     </List>
-                    <Box display='flex' justifyContent='space-between' sx={{mx:0.5, mb:0.5}}>
+                    <Box display='flex' justifyContent='space-between' sx={{mx:0.5, mb:0}}>
                         <Button size='small' variant='text' startIcon={<PlaylistAddIcon/>} onClick={openAddCategory}>Add Category</Button>
                         <IconButton onClick={openSection} size='small'><MoreHorizIcon /></IconButton>
                     </Box>

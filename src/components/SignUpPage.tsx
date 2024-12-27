@@ -16,7 +16,7 @@ import {
 } from "../recoil/globalItems";
 import {ThemeProvider} from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Dialog from "@mui/material/Dialog";
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -150,7 +150,7 @@ export default function SignUpPage() {
                          }}
                     >
                         <Grid container rowSpacing={2}>
-                            <Grid xs={12} sx={{my: 5}}>
+                            <Grid size={12} sx={{my: 5}}>
                                 <Stack direction='row' alignItems='center'>
                                     <img
                                         height='50'
@@ -168,24 +168,24 @@ export default function SignUpPage() {
                             </Grid>
                             {signedUpBool ?
                                 <>
-                                    <Grid xs={12} sx={{mb: 0, pb: 1}}>
+                                    <Grid size={12} sx={{mb: 0, pb: 1}}>
                                         <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>Congrats! You're signed up.</Typography>
                                         <Typography variant='subtitle1' sx={{ fontWeight: '800' }}>{'>>'}To log in, please verify your email first.</Typography>
                                     </Grid>
-                                    <Grid xs={12} sx={{mb: 0, pb: 1}}>
+                                    <Grid size={12} sx={{mb: 0, pb: 1}}>
                                         <Typography variant='body2'>P.S., it's OK to close this window. The email will have a link back here.</Typography>
                                     </Grid>
-                                    <Grid xs={12} sx={{mb: 0, pb: 1}}>
+                                    <Grid size={12} sx={{mb: 0, pb: 1}}>
                                         <Typography variant='body2' display='inline'>Otherwise, click <Button sx={{m:0, p:0}} size='small' onClick={handleRedirectSignUp}>HERE</Button> to go to the sign in page.</Typography>
 
                                     </Grid>
                                 </>
                                 :
                                 <>
-                                        <Grid xs={12} sx={{mb: 0, pb: 1}}>
+                                        <Grid size={12} sx={{mb: 0, pb: 1}}>
                                             <Typography variant='body2'>Sign up to continue.</Typography>
                                         </Grid>
-                                        <Grid xs={12}>
+                                        <Grid size={12}>
                                             <TextField
                                                 fullWidth
                                                 name="fullName"
@@ -196,7 +196,7 @@ export default function SignUpPage() {
                                                 onChange={(e) => setFullName(e.target.value)}
                                             />
                                         </Grid>
-                                        <Grid xs={12}>
+                                        <Grid size={12}>
                                         <TextField
                                         fullWidth
                                         name="email"
@@ -209,7 +209,7 @@ export default function SignUpPage() {
                                         onChange={(e) => setEmail(e.target.value)}
                                         />
                                         </Grid>
-                                        <Grid xs={12}>
+                                        <Grid size={12}>
                                         <TextField
                                         fullWidth
                                         name="password"
@@ -233,11 +233,11 @@ export default function SignUpPage() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         />
                                         </Grid>
-                                        <Grid xs={12}>
+                                        <Grid size={12}>
                                         <Typography color='error' variant='subtitle2'>{errorText}</Typography>
                                         <Button color='secondary' fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{mt: 1}}>Sign Up</Button>
                                         </Grid>
-                                        <Grid xs={12}>
+                                        <Grid size={12}>
                                             <Typography display='inline' variant='body2'>Already have an account? </Typography>
                                             <Button size='small' onClick={handleRedirectSignUp}>Sign In</Button>
                                         </Grid>

@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {currentSection, areYouSure, editSection} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
@@ -217,7 +217,7 @@ export default function EditSection() {
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <ToggleButtonGroup
                                     color="success"
                                     value={sectionType}
@@ -229,7 +229,7 @@ export default function EditSection() {
                                     <ToggleButton value="expense">Expense</ToggleButton>
                                 </ToggleButtonGroup>
                             </Grid>
-                            <Grid xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     autoFocus
                                     fullWidth
