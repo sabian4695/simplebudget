@@ -309,11 +309,12 @@ export default function EditCategory() {
                         <IconButton onClick={() => setOpenEditCategory(false)}><CloseIcon/></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1}>
                             <Grid size={12}>
                                 {editMode ?
                                 <TextField
                                     fullWidth
+                                    sx={{mb:1}}
                                     onFocus={handleFocus}
                                     value={categoryAmount}
                                     onChange={(event: any) => setCategoryAmount(event.target.value)}
@@ -327,40 +328,38 @@ export default function EditCategory() {
                                     placeholder='Budget Amount'
                                     label="Budget Amount"
                                 />
-                                    :
-                                    <Stack direction='row' justifyContent='space-between'>
-                                        <Paper elevation={1} sx={{ borderRadius: 3 }}>
-                                            <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
-                                                <Paper elevation={3} sx={{ px: 1 }}>
-                                                    <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(categoryAmount)}</Typography>
-                                                </Paper>
-                                                <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
-                                                    <Typography color='text.secondary' variant='body1'>Tracked: {formatter.format(categorySum)}</Typography>
-                                                </Paper>
-                                                <Paper elevation={3} sx={{ px: 1 }}>
-                                                    <Typography
-                                                        color={categoryAmount+categorySum < 0 ? 'error.main' : 'success.main'}
-                                                        style={{ fontWeight: 'bold' }}
-                                                        variant='body1'
-                                                    >
-                                                        Remaining: {formatter.format(categoryAmount+categorySum)}
-                                                    </Typography>
-                                                </Paper>
-                                            </Box>
-                                            <LinearProgress
-                                                sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
-                                                variant="determinate" color={((-1*categorySum) / categoryAmount) > 1 ? 'error' : 'success'}
-                                                value={((-1*categorySum) / categoryAmount) * 100}
-                                            />
-                                        </Paper>
-
-                                        {bigger ? 
-                                            <Fab color="secondary" variant='extended' onClick={addNewTransClick}>
-                                                <AddIcon /> Add Transaction
-                                            </Fab> : null
-                                        }
-                                    </Stack>
-                                }
+                                : null }
+                                <Stack direction='row' justifyContent='space-between'>
+                                    <Paper elevation={1} sx={{ borderRadius: 3 }}>
+                                        <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
+                                            <Paper elevation={3} sx={{ px: 1 }}>
+                                                <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(categoryAmount)}</Typography>
+                                            </Paper>
+                                            <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
+                                                <Typography color='text.secondary' variant='body1'>Tracked: {formatter.format(categorySum)}</Typography>
+                                            </Paper>
+                                            <Paper elevation={3} sx={{ px: 1 }}>
+                                                <Typography
+                                                    color={categoryAmount+categorySum < 0 ? 'error.main' : 'success.main'}
+                                                    style={{ fontWeight: 'bold' }}
+                                                    variant='body1'
+                                                >
+                                                    Remaining: {formatter.format(categoryAmount+categorySum)}
+                                                </Typography>
+                                            </Paper>
+                                        </Box>
+                                        <LinearProgress
+                                            sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
+                                            variant="determinate" color={((-1*categorySum) / categoryAmount) > 1 ? 'error' : 'success'}
+                                            value={((-1*categorySum) / categoryAmount) * 100}
+                                        />
+                                    </Paper>
+                                    {bigger ? 
+                                        <Fab color="secondary" variant='extended' onClick={addNewTransClick}>
+                                            <AddIcon /> Add Transaction
+                                        </Fab> : null
+                                    }
+                                </Stack>
                             </Grid>
                             <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
                             {editMode ?

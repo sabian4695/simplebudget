@@ -181,7 +181,7 @@ export default function App() {
           <Box sx={{
             display: 'flex',
             minHeight: window.innerHeight,
-            bgcolor: (currentTheme === 'dark' ? 'grey.900' : 'grey.100') }}>
+            bgcolor: (currentTheme === 'dark' ? '#171717' : 'grey.100') }}>
             <Box sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}><AppToolbar/></Box>
             <Box component="main"
                  sx={{ width:'100%', p: 2, mb:8, height:'100%'}}>
