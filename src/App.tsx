@@ -181,6 +181,7 @@ export default function App() {
           <Box sx={{
             display: 'flex',
             minHeight: window.innerHeight,
+            backgroundImage: 'linear-gradient(to bottom right, #161616, #252525)',
             bgcolor: (currentTheme === 'dark' ? '#171717' : 'grey.100') }}>
             <Box sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}><AppToolbar/></Box>
             <Box component="main"
