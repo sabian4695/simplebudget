@@ -10,7 +10,7 @@ import {addTransaction} from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText, addTransactionCategory, mainLoading} from "../../recoil/globalItems";
+import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText, addTransactionCategory, mainLoading, addTransactionType} from "../../recoil/globalItems";
 import {v4 as uuidv4} from "uuid";
 import dayjs, {Dayjs} from "dayjs";
 import {categories, currentBudgetAndMonth, sections, transactions} from "../../recoil/tableAtoms";
@@ -57,6 +57,7 @@ export default function AddTransaction() {
     const [transactionAmount, setTransactionAmount] = React.useState(0.00)
     const [transactionTitle, setTransactionTitle] = React.useState('')
     const [transactionCategory, setTransactionCategory] = useRecoilState(addTransactionCategory);
+    const [transactionType, setTransactionType] = useRecoilState(addTransactionType);
 
     let splitArrDef = [
         {
@@ -66,14 +67,13 @@ export default function AddTransaction() {
         }
       ]
     const [splitArr, setSplitArr] = React.useState(splitArrDef);
-
-    const [transactionType, setTransactionType] = React.useState('expense')
     const [transactionDate, setTransactionDate] = React.useState<Dayjs | null>(dayjs())
     const handleTypeChange = (
         event: React.MouseEvent<HTMLElement>,
         newType: string,
     ) => {
         if (newType !== null) {
+            //@ts-ignore
             setTransactionType(newType);
         }
     };
@@ -156,6 +156,7 @@ export default function AddTransaction() {
                     setLoadingOpen(false)
                     return
                 }
+                //@ts-ignore
                 setTransactionsArray(prevState => [...prevState, x]);
             })
 
@@ -186,6 +187,7 @@ export default function AddTransaction() {
             setLoadingOpen(false)
             return
         }
+        //@ts-ignore
         setTransactionsArray(prevState => [...prevState, newTransaction]);
         setAddNewTransaction(false)
         setLoadingOpen(false)
@@ -233,6 +235,7 @@ export default function AddTransaction() {
         if (addNewTransaction) return;
         setTransactionTitle('')
         setTransactionAmount(0)
+        //@ts-ignore
         setTransactionType('expense')
         setTransactionCategory(null)
         setTransactionDate(dayjs())
@@ -242,6 +245,7 @@ export default function AddTransaction() {
     }, [addNewTransaction])
     React.useEffect(() => {
         if (!splitBool) return;
+        //@ts-ignore
         setTransactionType('expense')
         //@ts-ignore
         setSplitArr(splitArr.map(obj => {

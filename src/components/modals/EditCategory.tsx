@@ -26,6 +26,7 @@ import {
     snackBarSeverity,
     snackBarText,
     addTransactionCategory,
+    addTransactionType,
     mainLoading
 } from "../../recoil/globalItems";
 import {categories, sections, transactions} from "../../recoil/tableAtoms";
@@ -78,6 +79,7 @@ export default function EditCategory() {
     const currentSectionID = useRecoilValue(currentSection);
     const sectionsArray = useRecoilValue(sections);
     const currentSectionName = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionName
+    const currentSectionType = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionType
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
@@ -94,7 +96,12 @@ export default function EditCategory() {
     const [categorySum, setCategorySum] = React.useState(0)
     const setTransactionCategory = useSetRecoilState(addTransactionCategory)
     const setAddNewTransaction = useSetRecoilState(addTransaction)
+    const setTransactionType = useSetRecoilState(addTransactionType)
     const { grabCategorySum } = GlobalJS();
+    let catAllowedTotal = categoryAmount
+    if (currentSectionType === 'income') {
+        catAllowedTotal = categoryAmount * -1
+    }
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -105,6 +112,8 @@ export default function EditCategory() {
             id: currentCategoryID,
             label: currentCategoryDetails?.categoryName
         })
+        //@ts-ignore
+        setTransactionType(currentSectionType)
         setAddNewTransaction(true)
     }
     const handleClose = () => {
@@ -333,18 +342,18 @@ export default function EditCategory() {
                                     <Paper elevation={1} sx={{ borderRadius: 3 }}>
                                         <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
                                             <Paper elevation={3} sx={{ px: 1 }}>
-                                                <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(categoryAmount)}</Typography>
+                                                <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(catAllowedTotal)}</Typography>
                                             </Paper>
                                             <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
                                                 <Typography color='text.secondary' variant='body1'>Tracked: {formatter.format(categorySum)}</Typography>
                                             </Paper>
                                             <Paper elevation={3} sx={{ px: 1 }}>
                                                 <Typography
-                                                    color={categoryAmount+categorySum < 0 ? 'error.main' : 'success.main'}
+                                                    color={catAllowedTotal+categorySum < 0 ? 'error.main' : 'success.main'}
                                                     style={{ fontWeight: 'bold' }}
                                                     variant='body1'
                                                 >
-                                                    Remaining: {formatter.format(categoryAmount+categorySum)}
+                                                    Remaining: {formatter.format(catAllowedTotal+categorySum)}
                                                 </Typography>
                                             </Paper>
                                         </Box>
