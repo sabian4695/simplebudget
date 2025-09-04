@@ -152,7 +152,6 @@ export default function LoginPage() {
                                     <Typography variant="h6" align="left" >
                                         Budget
                                     </Typography>
-                                    <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[beta]</Typography>
                                 </Stack>
                             </Grid>
                             <Grid size={12} sx={{mb:0, pb:1}}>

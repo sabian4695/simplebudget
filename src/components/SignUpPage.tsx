@@ -3,8 +3,8 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button"
 import Box from "@mui/material/Box";
-import {useRecoilValue, useSetRecoilState} from "recoil";
-import {useNavigate} from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useNavigate } from "react-router-dom";
 import {
     currentUser,
     dialogPaperStyles,
@@ -14,7 +14,7 @@ import {
     themeAtom,
     themes
 } from "../recoil/globalItems";
-import {ThemeProvider} from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from '@mui/material/Grid2';
 import Dialog from "@mui/material/Dialog";
@@ -22,9 +22,11 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import {supabase} from "./LoginPage";
+import { supabase } from "./LoginPage";
 import logo from "../logo.png";
 import Stack from "@mui/material/Stack";
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function SignUpPage() {
     const navigate = useNavigate();
@@ -33,7 +35,9 @@ export default function SignUpPage() {
     const [emailText, setEmailText] = React.useState('')
     const [email, setEmail] = React.useState("");
     const [passwordText, setPasswordText] = React.useState('')
+    const [passwordText1, setPasswordText1] = React.useState('')
     const [password, setPassword] = React.useState("");
+    const [password1, setPassword1] = React.useState("");
     const setSnackText = useSetRecoilState(snackBarText);
     const setSnackSev = useSetRecoilState(snackBarSeverity);
     const setSnackOpen = useSetRecoilState(snackBarOpen);
@@ -41,6 +45,7 @@ export default function SignUpPage() {
     const currentTheme = useRecoilValue(themeAtom);
     const [showPassword, setShowPassword] = React.useState(false)
     const [signedUpBool, setSignedUpBool] = React.useState(false)
+    const [loadingOpen, setLoadingOpen] = React.useState(false);
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword)
     };
@@ -68,56 +73,69 @@ export default function SignUpPage() {
             setPasswordText('Password must be longer')
             return false
         }
+        if (password !== password1) {
+            setPasswordText('Passwords must match')
+            return false
+        }
         return true
-    }
-    async function supaSignUpSingle() {
-        let { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password
-        })
-        if (error) {
-            setErrorText(error.message)
-            console.log(data)
-        }
-        if (!data) {
-            setErrorText('User already exists')
-        }
-        return data
     }
 
     async function supaSignUpFc(event: any) {
         event.preventDefault();
+        setLoadingOpen(true)
         setErrorText('')
+        let userData1: any
+        let signupErr: any
         if (validateFormFull()) {
-            const userData = await supaSignUpSingle()
-            if (errorText.length > 0) {return}
+            try {
+                const { data: userData, error: signupErr } = await supabase.auth.signUp({
+                    email: email,
+                    password: password
+                })
+                if (signupErr) {
+                    setErrorText(signupErr.message)
+                    console.error(signupErr?.message,signupErr?.code)
+                    return
+                } if (!userData) {
+                    setErrorText("Error adding user")
+                    console.error("Error adding user", 1234)
+                    return
+                }
+                userData1 = userData
 
-            await setCurrentUser({
-                //@ts-ignore
-                recordID: userData.user?.id,
-                fullName: fullName,
-                userType: 'free'
-            });
-            const {error} = await supabase
-                .from('users')
-                .insert({
-                    recordID: userData.user?.id,
+                const {error: signupErr1} = await supabase
+                    .from('users')
+                    .insert({
+                        recordID: userData.user?.id,
+                        fullName: fullName,
+                        userType: 'free'
+                })
+                if (signupErr1) {
+                    signupErr1.code === "23503" ? setErrorText("User with this email already exists") : setErrorText(signupErr1.message)
+                    console.error(signupErr1?.message,signupErr1?.code)
+                    return
+                }
+            } catch(error: any) {
+                setErrorText(error?.message)
+                return
+            } finally {
+                setCurrentUser({
+                    //@ts-ignore
+                    recordID: userData1.user?.id,
                     fullName: fullName,
                     userType: 'free'
-                })
-            if (error) {
-                setErrorText(error.message)
-                return
+                });
+                setLoadingOpen(false)
+                setSignedUpBool(true)
+                setSnackSev('success')
+                setSnackText('Signup Successful - please verify email to login')
+                setSnackOpen(true)
             }
-            setSignedUpBool(true)
-            setSnackSev('success')
-            setSnackText('Signup Successful - please verify email to login')
-            setSnackOpen(true)
         }
     }
     const handleRedirectSignUp = (event: any) => {
         event.preventDefault();
-        navigate("/login", {replace: true});
+        navigate("/login", { replace: true });
     }
     const [actTheme, setTheme] = React.useState(themes.darkTheme)
     React.useEffect(() => {
@@ -130,7 +148,7 @@ export default function SignUpPage() {
     return (
         <>
             <ThemeProvider theme={actTheme}>
-                <CssBaseline/>
+                <CssBaseline />
                 <Box sx={{
                     width: '100%',
                     height: window.innerHeight,
@@ -138,19 +156,19 @@ export default function SignUpPage() {
                 }}>
                 </Box>
                 <Dialog open={true}
-                        PaperProps={dialogPaperStyles}>
+                    PaperProps={dialogPaperStyles}>
                     <Box component='form'
-                         onSubmit={supaSignUpFc}
-                         sx={{
-                             bgcolor: 'background.paper',
-                             px: 3,
-                             pb: 5,
-                             pt: 3,
-                             maxWidth: '300px'
-                         }}
+                        onSubmit={supaSignUpFc}
+                        sx={{
+                            bgcolor: 'background.paper',
+                            px: 3,
+                            pb: 5,
+                            pt: 3,
+                            maxWidth: '300px'
+                        }}
                     >
                         <Grid container rowSpacing={2}>
-                            <Grid size={12} sx={{my: 5}}>
+                            <Grid size={12} sx={{ my: 5 }}>
                                 <Stack direction='row' alignItems='center'>
                                     <img
                                         height='50'
@@ -159,93 +177,122 @@ export default function SignUpPage() {
                                         alt='logo'
                                         loading="lazy"
                                     />
-                                    <Typography sx={{ml:1}}>simple</Typography>
+                                    <Typography sx={{ ml: 1 }}>simple</Typography>
                                     <Typography variant="h6" align="left" >
                                         Budget
                                     </Typography>
-                                    <Typography color='error' align="left" sx={{flexGrow: 1, ml:1}}>[beta]</Typography>
                                 </Stack>
                             </Grid>
                             {signedUpBool ?
                                 <>
-                                    <Grid size={12} sx={{mb: 0, pb: 1}}>
+                                    <Grid size={12} sx={{ mb: 0, pb: 1 }}>
                                         <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>Congrats! You're signed up.</Typography>
                                         <Typography variant='subtitle1' sx={{ fontWeight: '800' }}>{'>>'}To log in, please verify your email first.</Typography>
                                     </Grid>
-                                    <Grid size={12} sx={{mb: 0, pb: 1}}>
+                                    <Grid size={12} sx={{ mb: 0, pb: 1 }}>
                                         <Typography variant='body2'>P.S., it's OK to close this window. The email will have a link back here.</Typography>
                                     </Grid>
-                                    <Grid size={12} sx={{mb: 0, pb: 1}}>
-                                        <Typography variant='body2' display='inline'>Otherwise, click <Button sx={{m:0, p:0}} size='small' onClick={handleRedirectSignUp}>HERE</Button> to go to the sign in page.</Typography>
+                                    <Grid size={12} sx={{ mb: 0, pb: 1 }}>
+                                        <Typography variant='body2' display='inline'>Otherwise, click <Button sx={{ m: 0, p: 0 }} size='small' onClick={handleRedirectSignUp}>HERE</Button> to go to the sign in page.</Typography>
 
                                     </Grid>
                                 </>
                                 :
                                 <>
-                                        <Grid size={12} sx={{mb: 0, pb: 1}}>
-                                            <Typography variant='body2'>Sign up to continue.</Typography>
-                                        </Grid>
-                                        <Grid size={12}>
-                                            <TextField
-                                                fullWidth
-                                                name="fullName"
-                                                type="text"
-                                                autoFocus
-                                                label="Full Name"
-                                                value={fullName}
-                                                onChange={(e) => setFullName(e.target.value)}
-                                            />
-                                        </Grid>
-                                        <Grid size={12}>
+                                    <Grid size={12} sx={{ mb: 0, pb: 1 }}>
+                                        <Typography variant='body2'>Sign up to continue.</Typography>
+                                    </Grid>
+                                    <Grid size={12}>
                                         <TextField
-                                        fullWidth
-                                        name="email"
-                                        type="email"
-                                        helperText={emailText}
-                                        autoFocus
-                                        error={emailText.length > 0}
-                                        label="Email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                            fullWidth
+                                            name="fullName"
+                                            type="text"
+                                            autoFocus
+                                            label="Full Name"
+                                            value={fullName}
+                                            onChange={(e) => setFullName(e.target.value)}
                                         />
-                                        </Grid>
-                                        <Grid size={12}>
+                                    </Grid>
+                                    <Grid size={12}>
                                         <TextField
-                                        fullWidth
-                                        name="password"
-                                        type={showPassword ? 'text' : 'password'}
-                                        label="Password"
-                                        helperText={passwordText}
-                                        error={passwordText.length > 0}
-                                        value={password}
-                                        InputProps={{
-                                        endAdornment: <InputAdornment position="end">
-                                        <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={handleClickShowPassword}
-                                        onMouseDown={handleMouseDownPassword}
-                                        edge="end"
-                                        >
-                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                        </InputAdornment>
-                                    }}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                            fullWidth
+                                            name="email"
+                                            type="email"
+                                            helperText={emailText}
+                                            autoFocus
+                                            error={emailText.length > 0}
+                                            label="Email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                         />
-                                        </Grid>
-                                        <Grid size={12}>
+                                    </Grid>
+                                    <Grid size={12}>
+                                        <TextField
+                                            fullWidth
+                                            name="password"
+                                            type={showPassword ? 'text' : 'password'}
+                                            label="Password"
+                                            helperText={passwordText}
+                                            error={passwordText.length > 0}
+                                            value={password}
+                                            InputProps={{
+                                                endAdornment: <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="toggle password visibility"
+                                                        onClick={handleClickShowPassword}
+                                                        onMouseDown={handleMouseDownPassword}
+                                                        edge="end"
+                                                    >
+                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                        />
+                                    </Grid>
+                                    <Grid size={12}>
+                                        <TextField
+                                            fullWidth
+                                            name="password1"
+                                            type={showPassword ? 'text' : 'password'}
+                                            label="Confirm Password"
+                                            helperText={passwordText1}
+                                            error={password !== password1}
+                                            value={password1}
+                                            InputProps={{
+                                                endAdornment: <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="toggle password visibility"
+                                                        onClick={handleClickShowPassword}
+                                                        onMouseDown={handleMouseDownPassword}
+                                                        edge="end"
+                                                    >
+                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }}
+                                            onChange={(e) => setPassword1(e.target.value)}
+                                        />
+                                    </Grid>
+                                    <Grid size={12}>
                                         <Typography color='error' variant='subtitle2'>{errorText}</Typography>
-                                        <Button color='secondary' fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{mt: 1}}>Sign Up</Button>
-                                        </Grid>
-                                        <Grid size={12}>
-                                            <Typography display='inline' variant='body2'>Already have an account? </Typography>
-                                            <Button size='small' onClick={handleRedirectSignUp}>Sign In</Button>
-                                        </Grid>
+                                        <Button color='secondary' fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{ mt: 1 }}>Sign Up</Button>
+                                    </Grid>
+                                    <Grid size={12}>
+                                        <Typography display='inline' variant='body2'>Already have an account? </Typography>
+                                        <Button size='small' onClick={handleRedirectSignUp}>Sign In</Button>
+                                    </Grid>
                                 </>
                             }
                         </Grid>
                     </Box>
                 </Dialog>
+                <Backdrop
+                    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 200 }}
+                    open={loadingOpen}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
             </ThemeProvider>
         </>
     );

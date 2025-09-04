@@ -88,6 +88,25 @@ export default function App() {
   const currentUserInfo = useRecoilValue(currentUser)
   const [unCategorized, setUncategorized] = React.useState(transactionArray.filter((x: any) => x.categoryID === null).length)
   const [loadingOpen, setLoadingOpen] = useRecoilState(mainLoading)
+  const [addToHomePU, setAddToHomePU] = React.useState(false)
+
+  // Detects if device is on iOS 
+  // const isIos = () => {
+  //   const userAgent = window.navigator.userAgent.toLowerCase();
+  //   return /iphone|ipad|ipod/.test( userAgent );
+  // }
+  // // Detects if device is in standalone mode
+  // const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+  // Checks if should display install popup notification:
+  //if (isIos() && !isInStandaloneMode()) {
+    //setAddToHomePU(true);
+  //}
+
+  const addToHomeClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {return}
+    setAddToHomePU(false);
+  };
 
   React.useEffect(() => {
     setUncategorized(transactionArray.filter((x: any) => x.categoryID === null).length)
@@ -212,6 +231,12 @@ export default function App() {
               {/*@ts-ignore*/}
               <Alert onClose={snackClose} severity={snackSev} sx={{width: '100%'}}>
                 {snackText}
+              </Alert>
+            </Snackbar>
+            <Snackbar open={addToHomePU} autoHideDuration={2000} onClose={addToHomeClose} sx={{ mb: 8 }}>
+              {/*@ts-ignore*/}
+              <Alert onClose={addToHomeClose} severity="info" sx={{width: '100%'}}>
+                "Install this webapp"
               </Alert>
             </Snackbar>
           <AddBudget/>
