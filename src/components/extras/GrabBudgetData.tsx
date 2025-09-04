@@ -15,54 +15,61 @@ export default function GrabBudgetData() {
     const setTransactionArray = useSetRecoilState(transactions)
     const [currentUserData, setCurrentUser] = useRecoilState(currentUser)
     async function grabBudgetData(budgetID: string, year: number, month: string) {
+
         setLoadingOpen(true)
-        let {data, error} = await supabase
-            .from('users')
-            .select()
-            .eq('recordID',currentUserData.recordID)
-        if (error) {
-            console.log(error.message)
-        }
-        if (data) {
-            setCurrentUser({
-                recordID: currentUserData.recordID,
-                fullName: data[0].fullName,
-                userType: data[0].userType,
-            })
-        }
-        let allSections = await supaSections(budgetID, month, year)
-        if (!allSections) {
-            setSectionArray([])
-            setCategoryArray([])
-            setTransactionArray([])
-            setLoadingOpen(false)
-            return
-        }
-        setSectionArray(allSections)
-        let allCategories = await supaCategories(allSections.map(x => x.recordID))
-        if (!allCategories) {
-            setCategoryArray([])
-            setTransactionArray([])
-            setLoadingOpen(false)
-            return
-        }
-        setCategoryArray(allCategories)
-        let noCategoryTransactions = await supaTransactions(budgetID)
-        let categorizedTransactions = await supaTransactionsFromCategories(allCategories.map(x => x.recordID))
-        let allTransactions
 
-        if (categorizedTransactions) {
-            allTransactions = categorizedTransactions.concat(noCategoryTransactions)
-        } else if (noCategoryTransactions) {
-            allTransactions = noCategoryTransactions.concat(categorizedTransactions)
-        }
+        try {
+            let {data, error} = await supabase
+                .from('users')
+                .select()
+                .eq('recordID',currentUserData.recordID)
+            if (error) {
+                console.log(error.message)
+            }
+            if (data) {
+                setCurrentUser({
+                    recordID: currentUserData.recordID,
+                    fullName: data[0].fullName,
+                    userType: data[0].userType,
+                })
+            }
+            let allSections = await supaSections(budgetID, month, year)
+            if (!allSections) {
+                setSectionArray([])
+                setCategoryArray([])
+                setTransactionArray([])
+                setLoadingOpen(false)
+                return
+            }
+            setSectionArray(allSections)
+            let allCategories = await supaCategories(allSections.map(x => x.recordID))
+            if (!allCategories) {
+                setCategoryArray([])
+                setTransactionArray([])
+                setLoadingOpen(false)
+                return
+            }
+            setCategoryArray(allCategories)
+            let noCategoryTransactions = await supaTransactions(budgetID)
+            let categorizedTransactions = await supaTransactionsFromCategories(allCategories.map(x => x.recordID))
+            let allTransactions
 
-        if (allTransactions) {
-            setTransactionArray(allTransactions)
-        } else {
-            setTransactionArray([])
+            if (categorizedTransactions) {
+                allTransactions = categorizedTransactions.concat(noCategoryTransactions)
+            } else if (noCategoryTransactions) {
+                allTransactions = noCategoryTransactions.concat(categorizedTransactions)
+            }
+
+            if (allTransactions) {
+                setTransactionArray(allTransactions)
+            } else {
+                setTransactionArray([])
+            }
+        } catch(error) {
+            console.error('Error Fetching Data', error)
+        } finally {
+            setLoadingOpen(false)
         }
-        setLoadingOpen(false)
     }
     return (
         {grabBudgetData}

@@ -99,8 +99,10 @@ export default function EditCategory() {
     const setTransactionType = useSetRecoilState(addTransactionType)
     const { grabCategorySum } = GlobalJS();
     let catAllowedTotal = categoryAmount
+    let incomeType = 1
     if (currentSectionType === 'income') {
         catAllowedTotal = categoryAmount * -1
+        incomeType = -1
     }
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -342,25 +344,25 @@ export default function EditCategory() {
                                     <Paper elevation={1} sx={{ borderRadius: 3 }}>
                                         <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
                                             <Paper elevation={3} sx={{ px: 1 }}>
-                                                <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(catAllowedTotal)}</Typography>
+                                                <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(catAllowedTotal*incomeType)}</Typography>
                                             </Paper>
                                             <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
                                                 <Typography color='text.secondary' variant='body1'>Tracked: {formatter.format(categorySum)}</Typography>
                                             </Paper>
                                             <Paper elevation={3} sx={{ px: 1 }}>
                                                 <Typography
-                                                    color={catAllowedTotal+categorySum < 0 ? 'error.main' : 'success.main'}
+                                                    color={(catAllowedTotal+categorySum)*incomeType < 0 ? 'error.main' : 'success.main'}
                                                     style={{ fontWeight: 'bold' }}
                                                     variant='body1'
                                                 >
-                                                    Remaining: {formatter.format(catAllowedTotal+categorySum)}
+                                                    Remaining: {formatter.format((catAllowedTotal+categorySum)*incomeType)}
                                                 </Typography>
                                             </Paper>
                                         </Box>
                                         <LinearProgress
                                             sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
                                             variant="determinate" color={((-1*categorySum) / categoryAmount) > 1 ? 'error' : 'success'}
-                                            value={((-1*categorySum) / categoryAmount) * 100}
+                                            value={((-1*categorySum*incomeType) / categoryAmount) * 100}
                                         />
                                     </Paper>
                                     {bigger ? 
