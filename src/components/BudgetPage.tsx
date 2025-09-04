@@ -216,10 +216,10 @@ export default function BudgetPage() {
                                 onClick={handleOpenOptions}
                             ><MoreVertIcon /></IconButton>
                             <Typography display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
-                            <CustomButton onClick={handleClickListItem} size='small' sx={{ py: 0, ml: 1 }}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
+                            <CustomButton color={monthName[dayjs().toDate().getMonth()] === currentBudget.month ? 'primary' : 'secondary'} variant="outlined" onClick={handleClickListItem} size='small' sx={{ py: 0, ml: 1 }}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
                         </Box>
                         <Box>
-                            <Tabs value={tabValue} onChange={(event: React.SyntheticEvent, newValue: number) => {
+                            <Tabs variant='fullWidth' value={tabValue} onChange={(event: React.SyntheticEvent, newValue: number) => {
                                 setTabValue(newValue);
                             }} centered>
                                 <Tab label="Planned" />

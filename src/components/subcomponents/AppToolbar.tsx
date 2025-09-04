@@ -17,9 +17,9 @@ export default function AppToolbar() {
 
     return (
         <>
-            <AppBar position="fixed"
+            <AppBar position="fixed" elevation={1}
                     sx={{width: '100%'}}>
-                <Toolbar sx={currentTheme === 'dark' ? null : {backgroundColor:'background.paper', color:'primary.main'}}>
+                <Toolbar variant='dense' sx={currentTheme === 'dark' ? null : {backgroundColor:'background.paper', color:'primary.main'}}>
                     <img
                         height='30'
                         src={logo}

@@ -188,7 +188,7 @@ export default function App() {
                  sx={{ width:'100%', p: 2, mb:8, height:'100%'}}>
               <Toolbar/><Outlet/>
             </Box>
-            <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={5}>
+            <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
               <BottomNavigation
                   showLabels
                   value={tabValue}
