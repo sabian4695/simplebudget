@@ -1,4 +1,5 @@
 # simpleBudget
+[![Made with Supabase](https://supabase.com/badge-made-with-supabase.svg)](https://supabase.com)
 
 deployed site:
 https://simplebudget.vercel.app/
