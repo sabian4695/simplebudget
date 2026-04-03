@@ -4,21 +4,21 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Grid2';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {addBudget} from '../../recoil/modalStatusAtoms'
+import Grid from '@mui/material/Grid';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { addBudget } from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import {snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, currentUser, mainLoading} from "../../recoil/globalItems";
-import {budgets, currentBudgetAndMonth} from "../../recoil/tableAtoms";
-import {v4 as uuidv4} from "uuid";
-import {supabase} from "../LoginPage";
+import { snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, currentUser, mainLoading } from "../../recoil/globalItems";
+import { budgets, currentBudgetAndMonth } from "../../recoil/tableAtoms";
+import { v4 as uuidv4 } from "uuid";
+import { supabase } from "../LoginPage";
 import GrabBudgetData from "../extras/GrabBudgetData";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import {useTheme} from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddBudget() {
@@ -35,7 +35,7 @@ export default function AddBudget() {
     const setSnackOpen = useSetRecoilState(snackBarOpen);
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
-    const handleSubmit = async(event: any) => {
+    const handleSubmit = async (event: any) => {
         event.preventDefault();
         setErrorText('')
         if (budgetName === '' || budgetName === null) {
@@ -48,7 +48,7 @@ export default function AddBudget() {
             creatorID: currentUserDetails.recordID,
             budgetName: budgetName,
         }
-        const {error} = await supabase
+        const { error } = await supabase
             .from('budgets')
             .insert(newBudget)
         if (error) {
@@ -79,14 +79,14 @@ export default function AddBudget() {
     return (
         <>
             <Dialog open={addNewBudget}
-                    onClose={() => setAddNewBudget(false)}
-                    scroll='paper'
-                    fullScreen={!bigger}
-                    PaperProps={bigger ? dialogPaperStyles : undefined}
+                onClose={() => setAddNewBudget(false)}
+                scroll='paper'
+                fullScreen={!bigger}
+                PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
-                        New Budget<IconButton onClick={() => setAddNewBudget(false)}><CloseIcon/></IconButton>
+                <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        New Budget<IconButton onClick={() => setAddNewBudget(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
@@ -102,7 +102,7 @@ export default function AddBudget() {
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
+                    <Box sx={{ mx: 1, mt: 0.5 }}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
                         <Button fullWidth startIcon={<AddIcon />} variant='contained' type='submit'>Add Budget</Button>
                     </DialogActions>

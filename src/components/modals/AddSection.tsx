@@ -4,18 +4,18 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Grid2';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {addSection} from '../../recoil/modalStatusAtoms'
+import Grid from '@mui/material/Grid';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { addSection } from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, mainLoading} from "../../recoil/globalItems";
-import {currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";
-import {v4 as uuidv4} from "uuid";
+import { snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, mainLoading } from "../../recoil/globalItems";
+import { currentBudgetAndMonth, sections } from "../../recoil/tableAtoms";
+import { v4 as uuidv4 } from "uuid";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import AddIcon from '@mui/icons-material/Add';
-import {supabase} from "../LoginPage";
+import { supabase } from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
@@ -24,7 +24,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function AddSection() {
     const setLoadingOpen = useSetRecoilState(mainLoading)
-    const [addNewSection,setAddNewSection] = useRecoilState(addSection);
+    const [addNewSection, setAddNewSection] = useRecoilState(addSection);
     const [sectionName, setSectionName] = React.useState('');
     const [sectionType, setSectionType] = React.useState('expense');
     const handleTypeChange = (
@@ -67,7 +67,7 @@ export default function AddSection() {
                 sectionYear: currentBudget.year,
                 sectionMonth: currentBudget.month,
             };
-            let {error} = await supabase
+            let { error } = await supabase
                 .from('sections')
                 .insert(newSection)
             if (error) {
@@ -92,14 +92,14 @@ export default function AddSection() {
     return (
         <>
             <Dialog open={addNewSection}
-                    onClose={() => setAddNewSection(false)}
-                    scroll='paper'
-                    fullScreen={!bigger}
-                    PaperProps={bigger ? dialogPaperStyles : undefined}
+                onClose={() => setAddNewSection(false)}
+                scroll='paper'
+                fullScreen={!bigger}
+                PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
-                        New Section <IconButton onClick={() => setAddNewSection(false)}><CloseIcon/></IconButton>
+                <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        New Section <IconButton onClick={() => setAddNewSection(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
@@ -127,7 +127,7 @@ export default function AddSection() {
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
+                    <Box sx={{ mx: 1, mt: 0.5 }}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
                         <Button fullWidth startIcon={<AddIcon />} type='submit' variant='contained'>Add Section</Button>
                     </DialogActions>

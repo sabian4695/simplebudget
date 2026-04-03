@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { openChangePassword } from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
@@ -51,7 +51,7 @@ export default function ChangePassword() {
         if (verifyInputs()) {
             const { data, error } = await supabase.auth.updateUser({
                 password: newPassword0,
-              })
+            })
             if (error) {
                 setErrorText(error.message)
                 return

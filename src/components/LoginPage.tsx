@@ -3,8 +3,8 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button"
 import Box from "@mui/material/Box";
-import {useSetRecoilState, useRecoilValue} from "recoil";
-import {useNavigate} from "react-router-dom";
+import { useSetRecoilState, useRecoilValue } from "recoil";
+import { useNavigate } from "react-router-dom";
 import {
     currentUser,
     dialogPaperStyles,
@@ -14,15 +14,15 @@ import {
     themeAtom,
     themes
 } from "../recoil/globalItems";
-import {ThemeProvider} from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Dialog from "@mui/material/Dialog";
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import {createClient} from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import logo from "../logo.png";
@@ -77,9 +77,9 @@ export default function LoginPage() {
                     userType: users[0].userType,
                 }
             )
-            localStorage.setItem('fullName',users[0].fullName)
+            localStorage.setItem('fullName', users[0].fullName)
             if (errorText === '') {
-                navigate("/budget", {replace: true});
+                navigate("/budget", { replace: true });
                 setSnackSev('success')
                 setSnackText('Login Successful')
                 setSnackOpen(true)
@@ -94,7 +94,7 @@ export default function LoginPage() {
     const currentTheme = useRecoilValue(themeAtom);
     const handleRedirectSignIn = (event: any) => {
         event.preventDefault();
-        navigate("/signup", {replace: true});
+        navigate("/signup", { replace: true });
     }
     const handleSubmit = (event: any) => {
         event.preventDefault();
@@ -119,7 +119,7 @@ export default function LoginPage() {
     return (
         <>
             <ThemeProvider theme={actTheme}>
-                <CssBaseline/>
+                <CssBaseline />
                 <Box sx={{
                     width: '100%',
                     height: window.innerHeight,
@@ -127,19 +127,19 @@ export default function LoginPage() {
                 }}>
                 </Box>
                 <Dialog open={true}
-                        PaperProps={dialogPaperStyles}>
+                    PaperProps={dialogPaperStyles}>
                     <Box component='form'
-                         onSubmit={handleSubmit}
-                         sx={{
-                             bgcolor: 'background.paper',
-                             px: 3,
-                             pb: 5,
-                             pt: 3,
-                             maxWidth: '300px'
-                         }}
+                        onSubmit={handleSubmit}
+                        sx={{
+                            bgcolor: 'background.paper',
+                            px: 3,
+                            pb: 5,
+                            pt: 3,
+                            maxWidth: '300px'
+                        }}
                     >
                         <Grid container rowSpacing={2}>
-                            <Grid size={12} sx={{my: 5}}>
+                            <Grid size={12} sx={{ my: 5 }}>
                                 <Stack direction='row' alignItems='center'>
                                     <img
                                         height='50'
@@ -148,13 +148,13 @@ export default function LoginPage() {
                                         alt='logo'
                                         loading="lazy"
                                     />
-                                    <Typography sx={{ml:1}}>simple</Typography>
+                                    <Typography sx={{ ml: 1 }}>simple</Typography>
                                     <Typography variant="h6" align="left" >
                                         Budget
                                     </Typography>
                                 </Stack>
                             </Grid>
-                            <Grid size={12} sx={{mb:0, pb:1}}>
+                            <Grid size={12} sx={{ mb: 0, pb: 1 }}>
                                 <Typography variant='body2'>Sign in to continue.</Typography>
                             </Grid>
                             <Grid size={12}>
@@ -194,7 +194,7 @@ export default function LoginPage() {
                                 <Typography variant='body2' color='error'>{errorText}</Typography>
                             </Grid>
                             <Grid size={12}>
-                                <Button fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{mt: 1}}>Sign in</Button>
+                                <Button fullWidth variant='contained' disabled={!validateForm()} type='submit' sx={{ mt: 1 }}>Sign in</Button>
                             </Grid>
                             <Grid size={12}>
                                 <Typography display='inline' variant='body2'>Don't have an account? </Typography>

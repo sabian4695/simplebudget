@@ -16,7 +16,7 @@ import {
 } from "../recoil/globalItems";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Dialog from "@mui/material/Dialog";
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -94,7 +94,7 @@ export default function SignUpPage() {
                 })
                 if (signupErr) {
                     setErrorText(signupErr.message)
-                    console.error(signupErr?.message,signupErr?.code)
+                    console.error(signupErr?.message, signupErr?.code)
                     return
                 } if (!userData) {
                     setErrorText("Error adding user")
@@ -103,19 +103,19 @@ export default function SignUpPage() {
                 }
                 userData1 = userData
 
-                const {error: signupErr1} = await supabase
+                const { error: signupErr1 } = await supabase
                     .from('users')
                     .insert({
                         recordID: userData.user?.id,
                         fullName: fullName,
                         userType: 'free'
-                })
+                    })
                 if (signupErr1) {
                     signupErr1.code === "23503" ? setErrorText("User with this email already exists") : setErrorText(signupErr1.message)
-                    console.error(signupErr1?.message,signupErr1?.code)
+                    console.error(signupErr1?.message, signupErr1?.code)
                     return
                 }
-            } catch(error: any) {
+            } catch (error: any) {
                 setErrorText(error?.message)
                 return
             } finally {
