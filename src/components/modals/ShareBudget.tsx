@@ -3,22 +3,22 @@ import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import Typography from '@mui/material/Typography';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {shareBudget} from "../../recoil/modalStatusAtoms";
-import {budgets, currentBudgetAndMonth} from "../../recoil/tableAtoms"
-import {currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText} from "../../recoil/globalItems";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { shareBudget } from "../../recoil/modalStatusAtoms";
+import { budgets, currentBudgetAndMonth } from "../../recoil/tableAtoms"
+import { currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText } from "../../recoil/globalItems";
 import Box from "@mui/material/Box";
 import DialogContent from "@mui/material/DialogContent";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import TextField from "@mui/material/TextField";
 import DialogActions from "@mui/material/DialogActions";
 import ShareIcon from '@mui/icons-material/Share';
 import Alert from '@mui/material/Alert';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
-import {supabase} from "../LoginPage";
-import {v4 as uuidv4} from "uuid";
-import {useTheme} from "@mui/material/styles";
+import { supabase } from "../LoginPage";
+import { v4 as uuidv4 } from "uuid";
+import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function ShareBudget() {
@@ -33,7 +33,7 @@ export default function ShareBudget() {
     const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
-    const handleSubmit = async(event: any) => {
+    const handleSubmit = async (event: any) => {
         event.preventDefault();
         setErrorText('')
         if (shareToID === user.recordID) {
@@ -49,7 +49,7 @@ export default function ShareBudget() {
             budgetID: currentBudgetDetails.budgetID,
             sharedToID: shareToID
         }
-        let {error} = await supabase
+        let { error } = await supabase
             .from('shared')
             .insert(newShare)
         if (error) {
@@ -69,9 +69,9 @@ export default function ShareBudget() {
                 fullScreen={!bigger}
                 PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
-                        Share Budget<IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
+                <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        Share Budget<IconButton onClick={() => setOpen(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
@@ -96,7 +96,7 @@ export default function ShareBudget() {
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
+                    <Box sx={{ mx: 1, mt: 0.5 }}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
                         <Button fullWidth startIcon={<ShareIcon />} type='submit' variant='contained'>Share My Budget</Button>
                     </DialogActions>

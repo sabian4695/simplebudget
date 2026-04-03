@@ -4,9 +4,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Grid2';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {areYouSure, currentTransaction, editTransaction} from '../../recoil/modalStatusAtoms'
+import Grid from '@mui/material/Grid';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { areYouSure, currentTransaction, editTransaction } from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -20,20 +20,20 @@ import {
     snackBarText,
     mainLoading
 } from "../../recoil/globalItems";
-import dayjs, {Dayjs} from "dayjs";
-import {categories, transactions, sections} from "../../recoil/tableAtoms";
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import {DatePicker} from "@mui/x-date-pickers/DatePicker";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs, { Dayjs } from "dayjs";
+import { categories, transactions, sections } from "../../recoil/tableAtoms";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Autocomplete from '@mui/material/Autocomplete';
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
-import {supabase} from "../LoginPage";
+import { supabase } from "../LoginPage";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
-import {useTheme} from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Stack from "@mui/material/Stack";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -48,14 +48,14 @@ const GroupHeader = styled('div')(({ theme }) => ({
     padding: '4px 10px',
     color: theme.palette.primary.main,
     backgroundColor:
-      theme.palette.mode === 'light'
-        ? lighten(theme.palette.primary.light, 0.85)
-        : darken(theme.palette.primary.main, 0.8),
-  }));
+        theme.palette.mode === 'light'
+            ? lighten(theme.palette.primary.light, 0.85)
+            : darken(theme.palette.primary.main, 0.8),
+}));
 
-  const GroupItems = styled('ul')({
+const GroupItems = styled('ul')({
     padding: 0,
-  });
+});
 
 export default function EditTransaction() {
     const setLoadingOpen = useSetRecoilState(mainLoading)
@@ -92,15 +92,15 @@ export default function EditTransaction() {
     const categoryGroups = categoriesArray.map((option) => {
         const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
         return {
-          sectionName: sectionName === undefined ? "" : sectionName,
-          id: option.recordID,
-          label: option.categoryName
+            sectionName: sectionName === undefined ? "" : sectionName,
+            id: option.recordID,
+            label: option.categoryName
         };
-      }).sort(function(a, b){
-        if(a.sectionName < b.sectionName) { return -1; }
-        if(a.sectionName > b.sectionName) { return 1; }
+    }).sort(function (a, b) {
+        if (a.sectionName < b.sectionName) { return -1; }
+        if (a.sectionName > b.sectionName) { return 1; }
         return 0;
-        }
+    }
     );
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const moreOpen = Boolean(anchorEl);
@@ -115,7 +115,7 @@ export default function EditTransaction() {
         setDeleteTrans(true)
         setAnchorEl(null);
         let transDetails = 'Title: '
-        if(currentTransactionDetails !== undefined) {
+        if (currentTransactionDetails !== undefined) {
             transDetails = transDetails + currentTransactionDetails.title
         }
         setCheckTitle('Are you sure you want to delete this transaction?')
@@ -124,8 +124,8 @@ export default function EditTransaction() {
     }
 
     React.useEffect(() => {
-        if(!areYouSureOpen) {
-            if(checkAccept) {
+        if (!areYouSureOpen) {
+            if (checkAccept) {
                 handleDelete()
             }
             setDeleteTrans(false)
@@ -134,7 +134,7 @@ export default function EditTransaction() {
 
     async function handleDelete() {
         setErrorText('')
-        if(!deleteTrans) {
+        if (!deleteTrans) {
             return
         }
         setLoadingOpen(true)
@@ -147,7 +147,7 @@ export default function EditTransaction() {
             setErrorText(error.message)
             return
         }
-        let newArr = transactionsArray.filter(function(el) { return el.recordID !== currentTransactionID; });
+        let newArr = transactionsArray.filter(function (el) { return el.recordID !== currentTransactionID; });
         setTransactionsArray(newArr);
         setOpenEditTransaction(false)
         setLoadingOpen(false)
@@ -192,7 +192,8 @@ export default function EditTransaction() {
             }
             let newArr = transactionsArray.map(obj => {
                 if (obj.recordID === currentTransactionID) {
-                    return {...obj,
+                    return {
+                        ...obj,
                         categoryID: transactionCategory === null ? null : transactionCategory.id,
                         //@ts-ignore
                         amount: transactionAmount === '' ? 0 : transactionAmount,
@@ -230,13 +231,13 @@ export default function EditTransaction() {
     return (
         <>
             <Dialog open={openEditTransaction}
-                    onClose={() => setOpenEditTransaction(false)}
-                    scroll='paper'
-                    fullScreen={!bigger}
-                    PaperProps={bigger ? dialogPaperStyles : undefined}
+                onClose={() => setOpenEditTransaction(false)}
+                scroll='paper'
+                fullScreen={!bigger}
+                PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Stack direction='row' alignItems='center' spacing={1}>
                             <IconButton
                                 size='small'
@@ -246,11 +247,11 @@ export default function EditTransaction() {
                                 aria-haspopup="true"
                                 onClick={handleClick}
                             >
-                                <MoreVertIcon/>
+                                <MoreVertIcon />
                             </IconButton>
                             <div>Edit Transaction</div>
                         </Stack>
-                        <IconButton onClick={() => setOpenEditTransaction(false)}><CloseIcon/></IconButton>
+                        <IconButton onClick={() => setOpenEditTransaction(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
@@ -279,7 +280,7 @@ export default function EditTransaction() {
                                     InputProps={{
                                         startAdornment: <InputAdornment position="start">$</InputAdornment>,
                                     }}
-                                    inputProps={{step:'.01'}}
+                                    inputProps={{ step: '.01' }}
                                     placeholder='Amount'
                                     label="Amount"
                                 />
@@ -294,10 +295,10 @@ export default function EditTransaction() {
                                             setTransactionDate(newValue);
                                         }}
                                         slotProps={{
-                                            actionBar: {actions: ['today']},
-                                            textField: (params) => <TextField {...params} onFocus={handleFocus} fullWidth/>,
+                                            actionBar: { actions: ['today'] },
+                                            textField: (params) => <TextField {...params} onFocus={handleFocus} fullWidth />,
                                         }}
-                                        sx={{width: '100%'}}
+                                        sx={{ width: '100%' }}
                                     />
                                 </LocalizationProvider>
                             </Grid>
@@ -322,18 +323,18 @@ export default function EditTransaction() {
                                     onChange={(event: any, newValue: any) => {
                                         setTransactionCategory(newValue)
                                     }}
-                                    renderInput={(params) => <TextField onFocus={handleFocus} margin="none" {...params} label="Category"/>}
+                                    renderInput={(params) => <TextField onFocus={handleFocus} margin="none" {...params} label="Category" />}
                                     renderGroup={(params) => (
                                         <li>
-                                          <GroupHeader>{params.group}</GroupHeader>
-                                          <GroupItems>{params.children}</GroupItems>
+                                            <GroupHeader>{params.group}</GroupHeader>
+                                            <GroupItems>{params.children}</GroupItems>
                                         </li>
-                                      )}
+                                    )}
                                 />
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
+                    <Box sx={{ mx: 1, mt: 0.5 }}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
                         <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>Save Changes</Button>
                     </DialogActions>
@@ -349,7 +350,7 @@ export default function EditTransaction() {
                 onClose={handleClose}
             >
                 <MenuItem onClick={handleDoubleCheck}>
-                    <DeleteIcon/>
+                    <DeleteIcon />
                     Delete
                 </MenuItem>
             </Menu>

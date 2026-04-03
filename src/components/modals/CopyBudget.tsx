@@ -4,9 +4,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Grid2';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {copyBudget} from '../../recoil/modalStatusAtoms'
+import Grid from '@mui/material/Grid';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { copyBudget } from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -17,20 +17,20 @@ import {
     snackBarText,
     mainLoading
 } from "../../recoil/globalItems";
-import {categories, currentBudgetAndMonth, sections} from "../../recoil/tableAtoms";
+import { categories, currentBudgetAndMonth, sections } from "../../recoil/tableAtoms";
 import SaveIcon from '@mui/icons-material/Save';
-import {supabase} from "../LoginPage";
+import { supabase } from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
-import {useTheme} from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Stack from "@mui/material/Stack";
 import dayjs, { Dayjs } from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import {supaCategories, supaSections} from "../extras/api_functions";
-import {v4 as uuidv4} from "uuid";
+import { supaCategories, supaSections } from "../extras/api_functions";
+import { v4 as uuidv4 } from "uuid";
 
 export default function CopyBudget() {
     const [fromMonth, setFromMonth] = React.useState<Dayjs | null>(dayjs());
@@ -83,15 +83,15 @@ export default function CopyBudget() {
             }
 
             let newSectionArray = allSections.map((x) => ({
-                    recordID: uuidv4(),
-                    budgetID: currentBudget.budgetID,
-                    sectionName: x.sectionName,
-                    sectionType: x.sectionType,
-                    sectionYear: Number(dayjs(toMonth).format('YYYY')),
-                    sectionMonth: dayjs(toMonth).format('MMMM'),
+                recordID: uuidv4(),
+                budgetID: currentBudget.budgetID,
+                sectionName: x.sectionName,
+                sectionType: x.sectionType,
+                sectionYear: Number(dayjs(toMonth).format('YYYY')),
+                sectionMonth: dayjs(toMonth).format('MMMM'),
             }))
             for (let i = 0; i < newSectionArray.length; i++) {
-                let {error} = await supabase
+                let { error } = await supabase
                     .from('sections')
                     .insert(newSectionArray[i])
                 if (error) {
@@ -110,7 +110,7 @@ export default function CopyBudget() {
                     amount: row.amount
                 }))
                 for (let i = 0; i < newCategories.length; i++) {
-                    let {error} = await supabase
+                    let { error } = await supabase
                         .from('categories')
                         .insert(newCategories[i])
                     if (error) {
@@ -129,17 +129,17 @@ export default function CopyBudget() {
     return (
         <>
             <Dialog open={openCopyBudget}
-                    onClose={() => setOpenCopyBudget(false)}
-                    scroll='paper'
-                    fullScreen={!bigger}
-                    PaperProps={bigger ? dialogPaperStyles : undefined}
+                onClose={() => setOpenCopyBudget(false)}
+                scroll='paper'
+                fullScreen={!bigger}
+                PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Stack direction='row' alignItems='center' spacing={1}>
                             <div>Copy Budget Data</div>
                         </Stack>
-                        <IconButton onClick={() => setOpenCopyBudget(false)}><CloseIcon/></IconButton>
+                        <IconButton onClick={() => setOpenCopyBudget(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
@@ -158,7 +158,7 @@ export default function CopyBudget() {
                                         slotProps={{
                                             textField: (params) => <TextField {...params} fullWidth helperText={null} />,
                                         }}
-                                        sx={{width: '100%'}}
+                                        sx={{ width: '100%' }}
                                     />
                                 </Grid>
                                 <Grid size={12}>
@@ -174,13 +174,13 @@ export default function CopyBudget() {
                                         slotProps={{
                                             textField: (params) => <TextField {...params} fullWidth helperText={null} />,
                                         }}
-                                        sx={{width: '100%'}}
+                                        sx={{ width: '100%' }}
                                     />
                                 </Grid>
                             </LocalizationProvider>
                         </Grid>
                     </DialogContent>
-                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
+                    <Box sx={{ mx: 1, mt: 0.5 }}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
                         <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>Copy Data</Button>
                     </DialogActions>

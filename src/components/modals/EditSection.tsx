@@ -4,9 +4,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Grid2';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {currentSection, areYouSure, editSection} from '../../recoil/modalStatusAtoms'
+import Grid from '@mui/material/Grid';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { currentSection, areYouSure, editSection } from '../../recoil/modalStatusAtoms'
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -20,12 +20,12 @@ import {
     snackBarText,
     mainLoading
 } from "../../recoil/globalItems";
-import {categories, sections, transactions} from "../../recoil/tableAtoms";
+import { categories, sections, transactions } from "../../recoil/tableAtoms";
 import SaveIcon from '@mui/icons-material/Save';
-import {supabase} from "../LoginPage";
+import { supabase } from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
-import {useTheme} from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import DeleteIcon from '@mui/icons-material/Delete';
 import Stack from "@mui/material/Stack";
@@ -82,8 +82,8 @@ export default function EditSection() {
     }
 
     React.useEffect(() => {
-        if(!areYouSureOpen) {
-            if(checkAccept) {
+        if (!areYouSureOpen) {
+            if (checkAccept) {
                 handleDelete()
             }
             setDeleteSection(false)
@@ -92,11 +92,11 @@ export default function EditSection() {
 
     async function deleteTransactions(catArray: string | any[]) {
         for (let i = 0; i < catArray.length; i++) {
-            let {error} = await supabase
+            let { error } = await supabase
                 .from('transactions')
                 .delete()
                 .eq('categoryID', catArray[i].recordID)
-            let newTrans = transactionsArray.filter(function(el) { return el.categoryID !== catArray[i].recordID; });
+            let newTrans = transactionsArray.filter(function (el) { return el.categoryID !== catArray[i].recordID; });
             setTransactionsArray(newTrans)
         }
     }
@@ -124,8 +124,8 @@ export default function EditSection() {
             setErrorText(error.message)
             return
         }
-        let newSec = sectionsArray.filter(function(el) { return el.recordID !== currentSectionID; });
-        let newCat = categoryArray.filter(function(el) { return el.sectionID !== currentSectionID; });
+        let newSec = sectionsArray.filter(function (el) { return el.recordID !== currentSectionID; });
+        let newCat = categoryArray.filter(function (el) { return el.sectionID !== currentSectionID; });
         setSectionsArray(newSec)
         setCategoryArray(newCat)
 
@@ -163,9 +163,11 @@ export default function EditSection() {
             }
             let newArr = sectionsArray.map(obj => {
                 if (obj.recordID === currentSectionID) {
-                    return {...obj,
+                    return {
+                        ...obj,
                         sectionName: sectionName,
-                        sectionType: sectionType}
+                        sectionType: sectionType
+                    }
                 }
                 return obj;
             });
@@ -184,22 +186,22 @@ export default function EditSection() {
     };
     React.useEffect(() => {
         if (!openEditSection) return;
-            if (currentSectionDetails) {
-                setSectionName(currentSectionDetails.sectionName)
-                setSectionType(currentSectionDetails.sectionType)
-            }
+        if (currentSectionDetails) {
+            setSectionName(currentSectionDetails.sectionName)
+            setSectionType(currentSectionDetails.sectionType)
+        }
         setErrorText('')
     }, [openEditSection])
     return (
         <>
             <Dialog open={openEditSection}
-                    onClose={() => setOpenEditSection(false)}
-                    scroll='paper'
-                    fullScreen={!bigger}
-                    PaperProps={bigger ? dialogPaperStyles : undefined}
+                onClose={() => setOpenEditSection(false)}
+                scroll='paper'
+                fullScreen={!bigger}
+                PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper', height:'100%'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Stack direction='row' alignItems='center' spacing={1}>
                             <IconButton
                                 size='small'
@@ -209,11 +211,11 @@ export default function EditSection() {
                                 aria-haspopup="true"
                                 onClick={handleClick}
                             >
-                                <MoreVertIcon/>
+                                <MoreVertIcon />
                             </IconButton>
                             <div>Edit Section</div>
                         </Stack>
-                        <IconButton onClick={() => setOpenEditSection(false)}><CloseIcon/></IconButton>
+                        <IconButton onClick={() => setOpenEditSection(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
@@ -242,7 +244,7 @@ export default function EditSection() {
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
+                    <Box sx={{ mx: 1, mt: 0.5 }}><Typography color='error'>{errorText}</Typography></Box>
                     <DialogActions>
                         <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>Save Changes</Button>
                     </DialogActions>
@@ -258,7 +260,7 @@ export default function EditSection() {
                 onClose={handleClose}
             >
                 <MenuItem onClick={handleDoubleCheck}>
-                    <DeleteIcon/>
+                    <DeleteIcon />
                     Delete
                 </MenuItem>
             </Menu>

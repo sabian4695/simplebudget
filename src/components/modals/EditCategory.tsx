@@ -4,9 +4,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import BalanceIcon from '@mui/icons-material/Balance';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
     currentCategory,
     currentSection,
@@ -29,13 +29,13 @@ import {
     addTransactionType,
     mainLoading
 } from "../../recoil/globalItems";
-import {categories, sections, transactions} from "../../recoil/tableAtoms";
+import { categories, sections, transactions } from "../../recoil/tableAtoms";
 import InputAdornment from '@mui/material/InputAdornment';
 import SaveIcon from '@mui/icons-material/Save';
-import {supabase} from "../LoginPage";
+import { supabase } from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
-import {useTheme} from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import DeleteIcon from '@mui/icons-material/Delete';
 import Stack from "@mui/material/Stack";
@@ -142,8 +142,10 @@ export default function EditCategory() {
         }
         let newArr = categoryArray.map(obj => {
             if (obj.recordID === currentCategoryID) {
-                return {...obj,
-                    amount: Number(Math.abs(categorySum))}
+                return {
+                    ...obj,
+                    amount: Number(Math.abs(categorySum))
+                }
             }
             return obj;
         });
@@ -163,8 +165,8 @@ export default function EditCategory() {
     }
 
     React.useEffect(() => {
-        if(!areYouSureOpen) {
-            if(checkAccept) {
+        if (!areYouSureOpen) {
+            if (checkAccept) {
                 handleDelete()
             }
             setCategoryDelete(false)
@@ -190,10 +192,10 @@ export default function EditCategory() {
             setErrorText(error.message)
             return
         }
-        let newCat = categoryArray.filter(function(el) { return el.recordID !== currentCategoryID; });
+        let newCat = categoryArray.filter(function (el) { return el.recordID !== currentCategoryID; });
         setCategoryArray(newCat);
 
-        let newTrans = transactionsArray.filter(function(el) { return el.categoryID !== currentCategoryID; });
+        let newTrans = transactionsArray.filter(function (el) { return el.categoryID !== currentCategoryID; });
         setTransactionsArray(newTrans);
 
         setOpenEditCategory(false)
@@ -235,9 +237,11 @@ export default function EditCategory() {
             }
             let newArr = categoryArray.map(obj => {
                 if (obj.recordID === currentCategoryID) {
-                    return {...obj,
+                    return {
+                        ...obj,
                         categoryName: categoryName,
-                        amount: Number(categoryAmount)}
+                        amount: Number(categoryAmount)
+                    }
                 }
                 return obj;
             });
@@ -262,30 +266,30 @@ export default function EditCategory() {
     }
     React.useEffect(() => {
         if (!openEditCategory) return;
-            if (currentCategoryDetails) {
-                setCategoryName(currentCategoryDetails.categoryName)
-                setCategoryAmount(currentCategoryDetails.amount)
-                setEditMode(false)
-                setCategorySum(grabCategorySum(currentCategoryID))
-            }
+        if (currentCategoryDetails) {
+            setCategoryName(currentCategoryDetails.categoryName)
+            setCategoryAmount(currentCategoryDetails.amount)
+            setEditMode(false)
+            setCategorySum(grabCategorySum(currentCategoryID))
+        }
         setErrorText('')
     }, [openEditCategory])
     React.useEffect(() => {
         if (!openEditCategory) return;
-            if (currentCategoryDetails) {
-                setCategorySum(grabCategorySum(currentCategoryID))
-            }
+        if (currentCategoryDetails) {
+            setCategorySum(grabCategorySum(currentCategoryID))
+        }
     }, [transactionsArray])
     return (
         <>
             <Dialog open={openEditCategory}
-                    onClose={() => setOpenEditCategory(false)}
-                    scroll='paper'
-                    fullScreen={!bigger}
-                    PaperProps={bigger ? dialogPaperStyles : undefined}
+                onClose={() => setOpenEditCategory(false)}
+                scroll='paper'
+                fullScreen={!bigger}
+                PaperProps={bigger ? dialogPaperStyles : undefined}
             >
-                <Box sx={{bgcolor: 'background.paper', overflow:'auto', minHeight:'100%'}} component='form' onSubmit={handleSubmit}>
-                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
+                <Box sx={{ bgcolor: 'background.paper', overflow: 'auto', minHeight: '100%' }} component='form' onSubmit={handleSubmit}>
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Stack direction='row' alignItems='center' spacing={1}>
                             <IconButton
                                 size='small'
@@ -295,7 +299,7 @@ export default function EditCategory() {
                                 aria-haspopup="true"
                                 onClick={handleClick}
                             >
-                                <MoreVertIcon/>
+                                <MoreVertIcon />
                             </IconButton>
                             <Stack spacing={-1}>
                                 <Typography variant='overline'>{currentSectionName}</Typography>
@@ -317,67 +321,67 @@ export default function EditCategory() {
                                 }
                             </Stack>
                         </Stack>
-                        <IconButton onClick={() => setOpenEditCategory(false)}><CloseIcon/></IconButton>
+                        <IconButton onClick={() => setOpenEditCategory(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={1}>
                             <Grid size={12}>
                                 {editMode ?
-                                <TextField
-                                    fullWidth
-                                    sx={{mb:1}}
-                                    onFocus={handleFocus}
-                                    value={categoryAmount}
-                                    onChange={(event: any) => setCategoryAmount(event.target.value)}
-                                    type="number"
-                                    InputProps={{
-                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                    }}
-                                    inputProps={{
-                                        step: 'any'
-                                    }}
-                                    placeholder='Budget Amount'
-                                    label="Budget Amount"
-                                />
-                                : null }
+                                    <TextField
+                                        fullWidth
+                                        sx={{ mb: 1 }}
+                                        onFocus={handleFocus}
+                                        value={categoryAmount}
+                                        onChange={(event: any) => setCategoryAmount(event.target.value)}
+                                        type="number"
+                                        InputProps={{
+                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                        }}
+                                        inputProps={{
+                                            step: 'any'
+                                        }}
+                                        placeholder='Budget Amount'
+                                        label="Budget Amount"
+                                    />
+                                    : null}
                                 <Stack direction='row' justifyContent='space-between'>
                                     <Paper elevation={1} sx={{ borderRadius: 3 }}>
                                         <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
                                             <Paper elevation={3} sx={{ px: 1 }}>
-                                                <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(catAllowedTotal*incomeType)}</Typography>
+                                                <Typography color='text.secondary' variant='body1'>Budgeted: {formatter.format(catAllowedTotal * incomeType)}</Typography>
                                             </Paper>
                                             <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
                                                 <Typography color='text.secondary' variant='body1'>Tracked: {formatter.format(categorySum)}</Typography>
                                             </Paper>
                                             <Paper elevation={3} sx={{ px: 1 }}>
                                                 <Typography
-                                                    color={(catAllowedTotal+categorySum)*incomeType < 0 ? 'error.main' : 'success.main'}
+                                                    color={(catAllowedTotal + categorySum) * incomeType < 0 ? 'error.main' : 'success.main'}
                                                     style={{ fontWeight: 'bold' }}
                                                     variant='body1'
                                                 >
-                                                    Remaining: {formatter.format((catAllowedTotal+categorySum)*incomeType)}
+                                                    Remaining: {formatter.format((catAllowedTotal + categorySum) * incomeType)}
                                                 </Typography>
                                             </Paper>
                                         </Box>
                                         <LinearProgress
                                             sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
-                                            variant="determinate" color={((-1*categorySum) / categoryAmount) > 1 ? 'error' : 'success'}
-                                            value={((-1*categorySum*incomeType) / categoryAmount) * 100}
+                                            variant="determinate" color={((-1 * categorySum) / categoryAmount) > 1 ? 'error' : 'success'}
+                                            value={((-1 * categorySum * incomeType) / categoryAmount) * 100}
                                         />
                                     </Paper>
-                                    {bigger ? 
+                                    {bigger ?
                                         <Fab color="secondary" variant='extended' onClick={addNewTransClick}>
                                             <AddIcon /> Add Transaction
                                         </Fab> : null
                                     }
                                 </Stack>
                             </Grid>
-                            <Box sx={{mx:1, mt:0.5}}><Typography color='error'>{errorText}</Typography></Box>
+                            <Box sx={{ mx: 1, mt: 0.5 }}><Typography color='error'>{errorText}</Typography></Box>
                             {editMode ?
                                 <Grid size={12}>
                                     <Grow in={editMode}>
                                         <DialogActions>
-                                            <Button fullWidth startIcon={<SaveIcon/>} variant='contained' type='submit'>
+                                            <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>
                                                 Save Changes</Button>
                                         </DialogActions>
                                     </Grow>
@@ -385,47 +389,47 @@ export default function EditCategory() {
                                 : null
                             }
                             <Grid size={12} container>
-                                <Paper elevation={5} sx={{width: '100%', borderRadius: 3}}>
+                                <Paper elevation={5} sx={{ width: '100%', borderRadius: 3 }}>
                                     <List dense>
                                         {transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID).length > 0 ?
                                             <>
-                                            <ListItem disablePadding key="1">
-                                                <Typography color='text.secondary' variant='h6'
-                                                            sx={{fontWeight: '600', ml: 1}}>Tracked</Typography>
-                                            </ListItem>
-                                            {transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID).sort(
-                                                (a, b) => {
-                                                    return b.transactionDate - a.transactionDate;
-                                                }
-                                            ).map((row) => (
-                                                <>
-                                                    <Divider/>
-                                                    <ListItem disablePadding key={row.recordID}>
-                                                        <ListItemButton onClick={() => openTransaction(row.recordID)}>
-                                                            <Grid size={12} container columnSpacing={1} alignItems='center' sx={{width: '100%'}}>
-                                                                <Grid size={1.3}>
-                                                                    <Avatar sx={{ml:-1,fontSize: 15, textAlign: 'center', bgcolor: 'primary.light'}}>
-                                                                        {dayjs(row.transactionDate).format('MMM DD')}
-                                                                    </Avatar>
+                                                <ListItem disablePadding key="1">
+                                                    <Typography color='text.secondary' variant='h6'
+                                                        sx={{ fontWeight: '600', ml: 1 }}>Tracked</Typography>
+                                                </ListItem>
+                                                {transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID).sort(
+                                                    (a, b) => {
+                                                        return b.transactionDate - a.transactionDate;
+                                                    }
+                                                ).map((row) => (
+                                                    <>
+                                                        <Divider />
+                                                        <ListItem disablePadding key={row.recordID}>
+                                                            <ListItemButton onClick={() => openTransaction(row.recordID)}>
+                                                                <Grid size={12} container columnSpacing={1} alignItems='center' sx={{ width: '100%' }}>
+                                                                    <Grid size={1.3}>
+                                                                        <Avatar sx={{ ml: -1, fontSize: 15, textAlign: 'center', bgcolor: 'primary.light' }}>
+                                                                            {dayjs(row.transactionDate).format('MMM DD')}
+                                                                        </Avatar>
+                                                                    </Grid>
+                                                                    <Grid size='grow'>
+                                                                        <Typography sx={{ mt: 0.5 }}
+                                                                            variant='body1'>{row.title}</Typography>
+                                                                    </Grid>
+                                                                    <Grid size="auto" sx={{ textAlign: 'right' }}>
+                                                                        <Typography
+                                                                            variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
+                                                                    </Grid>
                                                                 </Grid>
-                                                                <Grid size='grow'>
-                                                                    <Typography sx={{mt: 0.5}}
-                                                                                variant='body1'>{row.title}</Typography>
-                                                                </Grid>
-                                                                <Grid size="auto" sx={{textAlign: 'right'}}>
-                                                                    <Typography
-                                                                        variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
-                                                                </Grid>
-                                                            </Grid>
-                                                        </ListItemButton>
-                                                    </ListItem>
-                                                </>
-                                            ))}
+                                                            </ListItemButton>
+                                                        </ListItem>
+                                                    </>
+                                                ))}
                                             </>
                                             :
                                             <ListItem disablePadding key="2">
                                                 <Typography color='text.secondary' variant='h6'
-                                                sx={{fontWeight: '600', ml: 1}}>Nothing Tracked Here</Typography>
+                                                    sx={{ fontWeight: '600', ml: 1 }}>Nothing Tracked Here</Typography>
                                             </ListItem>
                                         }
                                     </List>
@@ -450,15 +454,15 @@ export default function EditCategory() {
                 onClose={handleClose}
             >
                 <MenuItem onClick={editModeClick}>
-                    <EditIcon sx={{mr:1}}/>
+                    <EditIcon sx={{ mr: 1 }} />
                     Edit Category
                 </MenuItem>
                 <MenuItem onClick={balanceClick}>
-                    <BalanceIcon sx={{mr:1}}/>
+                    <BalanceIcon sx={{ mr: 1 }} />
                     Balance Category
                 </MenuItem>
                 <MenuItem onClick={handleDoubleCheck}>
-                    <DeleteIcon sx={{mr:1}}/>
+                    <DeleteIcon sx={{ mr: 1 }} />
                     Delete Category
                 </MenuItem>
             </Menu>

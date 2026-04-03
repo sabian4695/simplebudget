@@ -1,5 +1,5 @@
-import {atom} from "recoil";
-import {createTheme} from "@mui/material/styles";
+import { atom } from "recoil";
+import { createTheme } from "@mui/material/styles";
 
 export const primaryMain = '#4c809e'
 export const secondaryMain = '#D6A058'
@@ -15,9 +15,11 @@ export const themes = {
                 main: secondaryMain
             },
         },
-        overrides: {
+        components: {
             MuiAutocomplete: {
-                popup: { zIndex: 1500 },
+                styleOverrides: {
+                    popper: { zIndex: 1500 },
+                },
             },
         },
     }),
@@ -31,9 +33,11 @@ export const themes = {
                 main: secondaryMain
             },
         },
-        overrides: {
+        components: {
             MuiAutocomplete: {
-                popup: { zIndex: 1500 },
+                styleOverrides: {
+                    popper: { zIndex: 1500 },
+                },
             },
         },
     }),
@@ -92,7 +96,7 @@ export const currentUser = atom({
     }
 });
 
-export const mainLoading = atom( {
+export const mainLoading = atom({
     key: "mainLoading",
     default: false,
 });

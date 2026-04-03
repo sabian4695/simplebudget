@@ -5,12 +5,12 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@fontsource/roboto": "^4.5.8",
-    "@google-cloud/recaptcha-enterprise": "^5.13.0",
-    "@mui/icons-material": "^6.3.0",
-    "@mui/lab": "^6.0.0-beta.21",
-    "@mui/material": "^6.3.0",
-    "@mui/x-date-pickers": "^7.23.3",
+    "@fontsource/roboto": "^5.2.10",
+    "@mui/icons-material": "^7.3.9",
+    "@mui/lab": "^7.0.1-beta.23",
+    "@mui/material": "^7.3.9",
+    "@mui/system": "^7.3.9",
+    "@mui/x-date-pickers": "^8.27.2",
     "@supabase/supabase-js": "^2.47.10",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -25,14 +25,13 @@
     "react": "^18.3.1",
     "react-csv": "^2.2.2",
     "react-dom": "^18.3.1",
-    "react-google-charts": "^4.0.7",
+    "react-google-charts": "^5.2.1",
     "react-router-dom": "^6.28.1",
     "react-scripts": "^5.0.1",
-    "recharts": "^2.15.0",
     "recoil": "^0.7.7",
-    "typescript": "^4.9.5",
-    "uuid": "^9.0.1",
-    "web-vitals": "^2.1.4"
+    "typescript": "~5.8.0",
+    "uuid": "^13.0.0",
+    "web-vitals": "^5.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -62,7 +61,6 @@
     ]
   },
   "devDependencies": {
-    "@types/react-csv": "^1.1.10",
-    "@types/uuid": "^9.0.8"
+    "@types/react-csv": "^1.1.10"
   }
 }
