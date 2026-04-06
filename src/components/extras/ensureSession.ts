@@ -1,4 +1,4 @@
-import { supabase } from "../LoginPage";
+import { supabase } from "../../lib/supabase";
 
 /**
  * Ensures the Supabase session is fresh before making a request.

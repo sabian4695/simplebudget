@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import AddIcon from '@mui/icons-material/Add';
-import { supabase } from "../LoginPage";
+import { supabase } from "../../lib/supabase";
 import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";

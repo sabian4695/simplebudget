@@ -15,11 +15,13 @@ import ShareIcon from '@mui/icons-material/Share';
 import Alert from '@mui/material/Alert';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
-import { supabase } from "../LoginPage";
+import { supabase } from "../../lib/supabase";
 import { ensureSession } from "../extras/ensureSession";
 import { v4 as uuidv4 } from "uuid";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import { Html5Qrcode } from "html5-qrcode";
 
 export default function ShareBudget() {
     const open = useModalStore(s => s.shareBudget)
@@ -35,6 +37,56 @@ export default function ShareBudget() {
     const setCurrentBudget = useTableStore(s => s.setCurrentBudgetAndMonth)
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
+    const [scanning, setScanning] = React.useState(false);
+    const scannerRef = React.useRef<Html5Qrcode | null>(null);
+    const scannerContainerId = 'qr-reader';
+
+    const startScanner = async () => {
+        setScanning(true);
+        // Small delay to let the DOM element render
+        setTimeout(async () => {
+            try {
+                const html5QrCode = new Html5Qrcode(scannerContainerId);
+                scannerRef.current = html5QrCode;
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 200, height: 200 } },
+                    (decodedText) => {
+                        setShareToID(decodedText);
+                        stopScanner();
+                        setSnackSev('success');
+                        setSnackText('QR Code scanned!');
+                        setSnackOpen(true);
+                    },
+                    () => { } // ignore scan failures
+                );
+            } catch (err) {
+                console.error('QR Scanner error:', err);
+                setScanning(false);
+                setErrorText('Could not access camera');
+            }
+        }, 100);
+    };
+
+    const stopScanner = async () => {
+        if (scannerRef.current) {
+            try {
+                await scannerRef.current.stop();
+                scannerRef.current.clear();
+            } catch (e) { /* ignore */ }
+            scannerRef.current = null;
+        }
+        setScanning(false);
+    };
+
+    // Cleanup scanner when modal closes
+    React.useEffect(() => {
+        if (!open) {
+            stopScanner();
+            setShareToID('');
+            setErrorText('');
+        }
+    }, [open]);
     const handleSubmit = async (event: any) => {
         event.preventDefault();
         setErrorText('')
@@ -83,9 +135,28 @@ export default function ShareBudget() {
                             </Grid>
                             <Grid size={12}>
                                 <Alert severity='info'>
-                                    To share a budget, you need the user ID of the person to share with.
-                                    They go to account settings to copy their user ID.
+                                    To share a budget, scan their QR code or enter their user ID.
+                                    They can find their QR code in Settings → "Show My QR Code".
                                 </Alert>
+                            </Grid>
+                            <Grid size={12}>
+                                {scanning ? (
+                                    <Box>
+                                        <div id={scannerContainerId} style={{ width: '100%' }} />
+                                        <Button fullWidth size='small' color='error' onClick={stopScanner} sx={{ mt: 1 }}>
+                                            Stop Scanner
+                                        </Button>
+                                    </Box>
+                                ) : (
+                                    <Button
+                                        fullWidth
+                                        variant='outlined'
+                                        startIcon={<QrCodeScannerIcon />}
+                                        onClick={startScanner}
+                                    >
+                                        Scan QR Code
+                                    </Button>
+                                )}
                             </Grid>
                             <Grid size={12}>
                                 <TextField

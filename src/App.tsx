@@ -38,7 +38,7 @@ import {
 } from "./components/extras/api_functions";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
-import GrabBudgetData from "./components/extras/GrabBudgetData";
+import useGrabBudgetData from "./components/extras/GrabBudgetData";
 import SelectBudget from "./components/modals/SelectBudget";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -46,6 +46,8 @@ import AddTransaction from "./components/modals/AddTransaction";
 import Badge from '@mui/material/Badge';
 import AreYouSure from "./components/subcomponents/AreYouSure";
 import EditTransaction from "./components/modals/EditTransaction";
+import UpdatePrompt from "./components/subcomponents/UpdatePrompt";
+import { usePwaStore } from "./store/pwaStore";
 
 const fabStyle = {
   position: 'fixed',
@@ -63,7 +65,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 export default function App() {
   let location = useLocation();
   const currentTheme = useGlobalStore(s => s.themeAtom);
-  const { grabBudgetData } = GrabBudgetData();
+  const { grabBudgetData } = useGrabBudgetData();
   const snackText = useGlobalStore(s => s.snackBarText);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('sm'));
@@ -75,6 +77,9 @@ export default function App() {
   const setBudgetArray = useTableStore(s => s.setBudgets)
   const setAddNewTransaction = useModalStore(s => s.setAddTransaction)
   const setSelectBudget = useModalStore(s => s.setSelectBudget)
+  const needRefresh = usePwaStore(s => s.needRefresh)
+  const setNeedRefresh = usePwaStore(s => s.setNeedRefresh)
+  const pwaUpdateSW = usePwaStore(s => s.updateSW)
   const setSectionArray = useTableStore(s => s.setSections)
   const setCategoryArray = useTableStore(s => s.setCategories)
   const transactionArray = useTableStore(s => s.transactions)
@@ -236,6 +241,11 @@ export default function App() {
         </Backdrop>
         <SelectBudget />
         <AreYouSure />
+        <UpdatePrompt
+          open={needRefresh}
+          onUpdate={() => { if (pwaUpdateSW) pwaUpdateSW(true); }}
+          onDismiss={() => setNeedRefresh(false)}
+        />
       </ThemeProvider>
     </>
   );

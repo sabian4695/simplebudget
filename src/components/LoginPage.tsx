@@ -17,27 +17,11 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import logo from "../logo.png";
 import Stack from "@mui/material/Stack";
-
-const options = {
-    db: {
-        schema: 'public',
-    },
-    auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-    },
-}
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzZG1qamN2YXhlanhrdHF3ZGNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzAzMzA0ODMsImV4cCI6MTk4NTkwNjQ4M30.7Uqw2v3Ny5FvPBRBbbvtcUxJj_ReNDjRBUn6cWlal_o'
-
-const SUPABASE_URL = "https://psdmjjcvaxejxktqwdcm.supabase.co"
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, options)
 
 export default function LoginPage() {
     const navigate = useNavigate();

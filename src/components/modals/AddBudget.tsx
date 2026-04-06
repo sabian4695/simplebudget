@@ -11,9 +11,9 @@ import Button from "@mui/material/Button";
 import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import { useTableStore } from "../../store/tableStore";
 import { v4 as uuidv4 } from "uuid";
-import { supabase } from "../LoginPage";
+import { supabase } from "../../lib/supabase";
 import { ensureSession } from "../extras/ensureSession";
-import GrabBudgetData from "../extras/GrabBudgetData";
+import useGrabBudgetData from "../extras/GrabBudgetData";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
@@ -22,7 +22,7 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddBudget() {
-    const { grabBudgetData } = GrabBudgetData();
+    const { grabBudgetData } = useGrabBudgetData();
     const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
     const addNewBudget = useModalStore(s => s.addBudget);
     const setAddNewBudget = useModalStore(s => s.setAddBudget);

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -6,8 +6,15 @@ export default defineConfig({
     plugins: [
         react(),
         VitePWA({
-            registerType: 'autoUpdate',
+            registerType: 'prompt',
             includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'android-chrome-192x192.png', 'android-chrome-512x512.png'],
+            workbox: {
+                // Don't cache-bust URLs that already have hashes (Vite assets)
+                dontCacheBustURLsMatching: /\.[a-f0-9]{8}\./,
+                // Skip waiting so the new SW activates immediately when user accepts
+                skipWaiting: false, // We control this via the prompt
+                clientsClaim: true,
+            },
             manifest: {
                 short_name: 'simpleBudget',
                 name: 'simpleBudget: Keep on track for your goals!',
@@ -57,5 +64,10 @@ export default defineConfig({
     },
     build: {
         outDir: 'build',
+    },
+    test: {
+        globals: true,
+        environment: 'happy-dom',
+        setupFiles: './src/test/setup.ts',
     },
 });

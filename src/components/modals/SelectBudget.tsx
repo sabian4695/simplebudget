@@ -13,8 +13,8 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import Box from "@mui/material/Box";
 import ListItemButton from '@mui/material/ListItemButton';
-import GrabBudgetData from "../extras/GrabBudgetData";
-import { supabase } from "../LoginPage";
+import useGrabBudgetData from "../extras/GrabBudgetData";
+import { supabase } from "../../lib/supabase";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import dayjs from "dayjs";
@@ -22,7 +22,7 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function SelectBudget() {
-    const { grabBudgetData } = GrabBudgetData();
+    const { grabBudgetData } = useGrabBudgetData();
     const open = useModalStore(s => s.selectBudget)
     const setOpen = useModalStore(s => s.setSelectBudget)
     const createNewBudget = useModalStore(s => s.addBudget)

@@ -11,6 +11,7 @@ import { useModalStore } from "../store/modalStore";
 import { supaALLsections, supaCategories } from './extras/api_functions'
 import { useNavigate } from "react-router-dom";
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Divider from "@mui/material/Divider";
 import Typography from '@mui/material/Typography';
@@ -20,11 +21,16 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ShareIcon from '@mui/icons-material/Share';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { supabase } from "./LoginPage";
+import { supabase } from "../lib/supabase";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ShareBudget from "./modals/ShareBudget";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import { QRCodeSVG } from 'qrcode.react';
 import ChangePassword from './modals/ChangePassword'
 import ExportToCSV from './modals/ExportToCSV'
 
@@ -52,6 +58,7 @@ export default function SettingsPage() {
     const budgetsArray = useTableStore(s => s.budgets)
     const setSelectBudgetOpen = useModalStore(s => s.setSelectBudget)
     let currentBudgetDetails = budgetsArray.find(x => x.recordID === currentBudget.budgetID)
+    const [qrOpen, setQrOpen] = React.useState(false)
     const handleThemeClick = (event: any) => {
         setSlideCheck(event.target.checked);
         if (event.target.checked) {
@@ -252,11 +259,11 @@ export default function SettingsPage() {
                             </ListItem>
                             <Divider />
                             <ListItem disablePadding>
-                                <ListItemButton onClick={copyUserID}>
+                                <ListItemButton onClick={() => setQrOpen(true)}>
                                     <ListItemIcon>
-                                        <ContentCopyIcon />
+                                        <QrCodeIcon />
                                     </ListItemIcon>
-                                    <ListItemText primary="Copy My User ID" />
+                                    <ListItemText primary="Show My QR Code" secondary="For sharing budgets" />
                                 </ListItemButton>
                             </ListItem>
                             <Divider />
@@ -284,6 +291,23 @@ export default function SettingsPage() {
             <ShareBudget />
             <ChangePassword />
             <ExportToCSV />
+            <Dialog open={qrOpen} onClose={() => setQrOpen(false)}>
+                <DialogTitle>My User ID</DialogTitle>
+                <DialogContent sx={{ textAlign: 'center', pb: 3 }}>
+                    <QRCodeSVG value={currentUserDetails.recordID} size={200} />
+                    <Typography variant='body2' color='text.secondary' sx={{ mt: 2, wordBreak: 'break-all' }}>
+                        {currentUserDetails.recordID}
+                    </Typography>
+                    <Button
+                        sx={{ mt: 1 }}
+                        size='small'
+                        startIcon={<ContentCopyIcon />}
+                        onClick={() => { copyUserID(); setQrOpen(false); }}
+                    >
+                        Copy ID
+                    </Button>
+                </DialogContent>
+            </Dialog>
         </>
     )
 }

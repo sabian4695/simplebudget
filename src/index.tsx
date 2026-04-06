@@ -12,8 +12,32 @@ import LoginPage from "./components/LoginPage";
 import SettingsPage from "./components/SettingsPage";
 import SignUpPage from "./components/SignUpPage";
 import { registerSW } from 'virtual:pwa-register';
+import { usePwaStore } from './store/pwaStore';
 
-registerSW({ immediate: true });
+// Register service worker with update prompt
+const updateSW = registerSW({
+    immediate: true,
+    onNeedRefresh() {
+        usePwaStore.getState().setNeedRefresh(true);
+    },
+    onOfflineReady() {
+        console.log('App ready to work offline');
+    },
+});
+
+// Store the updateSW function so React components can trigger it
+usePwaStore.getState().setUpdateSW(updateSW);
+
+// Force update check when the app regains focus (critical for iOS PWA)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        updateSW();
+    }
+});
+
+window.addEventListener('focus', () => {
+    updateSW();
+});
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement

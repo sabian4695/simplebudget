@@ -3,75 +3,84 @@ import { useGlobalStore } from "../../store/globalStore";
 import {
     supaCategories,
     supaSections,
-    supaTransactions, supaTransactionsFromCategories
-} from './api_functions'
-import { supabase } from "../LoginPage";
+    supaTransactions,
+    supaTransactionsFromCategories
+} from './api_functions';
+import { supabase } from "../../lib/supabase";
 
-export default function GrabBudgetData() {
-    const setSectionArray = useTableStore(s => s.setSections)
-    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
-    const setCategoryArray = useTableStore(s => s.setCategories)
-    const setTransactionArray = useTableStore(s => s.setTransactions)
-    const currentUserData = useGlobalStore(s => s.currentUser)
-    const setCurrentUser = useGlobalStore(s => s.setCurrentUser)
-    async function grabBudgetData(budgetID: string, year: number, month: string) {
+export default function useGrabBudgetData() {
+    const setSections = useTableStore(s => s.setSections);
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading);
+    const setCategories = useTableStore(s => s.setCategories);
+    const setTransactions = useTableStore(s => s.setTransactions);
+    const currentUserData = useGlobalStore(s => s.currentUser);
+    const setCurrentUser = useGlobalStore(s => s.setCurrentUser);
 
-        setLoadingOpen(true)
-
+    async function refreshUserProfile() {
         try {
-            let { data, error } = await supabase
+            const { data, error } = await supabase
                 .from('users')
                 .select()
                 .eq('recordID', currentUserData.recordID)
+                .single();
             if (error) {
-                console.log(error.message)
+                console.error('Error fetching user profile:', error.message);
+                return;
             }
             if (data) {
                 setCurrentUser({
                     recordID: currentUserData.recordID,
-                    fullName: data[0].fullName,
-                    userType: data[0].userType,
-                })
+                    fullName: data.fullName,
+                    userType: data.userType,
+                });
             }
-            let allSections = await supaSections(budgetID, month, year)
-            if (!allSections) {
-                setSectionArray([])
-                setCategoryArray([])
-                setTransactionArray([])
-                setLoadingOpen(false)
-                return
-            }
-            setSectionArray(allSections)
-            let allCategories = await supaCategories(allSections.map(x => x.recordID))
-            if (!allCategories) {
-                setCategoryArray([])
-                setTransactionArray([])
-                setLoadingOpen(false)
-                return
-            }
-            setCategoryArray(allCategories)
-            let noCategoryTransactions = await supaTransactions(budgetID)
-            let categorizedTransactions = await supaTransactionsFromCategories(allCategories.map(x => x.recordID))
-            let allTransactions
-
-            if (categorizedTransactions) {
-                allTransactions = categorizedTransactions.concat(noCategoryTransactions)
-            } else if (noCategoryTransactions) {
-                allTransactions = noCategoryTransactions.concat(categorizedTransactions)
-            }
-
-            if (allTransactions) {
-                setTransactionArray(allTransactions)
-            } else {
-                setTransactionArray([])
-            }
-        } catch (error) {
-            console.error('Error Fetching Data', error)
-        } finally {
-            setLoadingOpen(false)
+        } catch (err) {
+            console.error('Error fetching user profile:', err);
         }
     }
-    return (
-        { grabBudgetData }
-    )
+
+    async function grabBudgetData(budgetID: string, year: number, month: string) {
+        setLoadingOpen(true);
+        try {
+            // Refresh user profile
+            await refreshUserProfile();
+
+            // Fetch sections
+            const allSections = await supaSections(budgetID, month, year);
+            if (!allSections || allSections.length === 0) {
+                setSections([]);
+                setCategories([]);
+                setTransactions([]);
+                return;
+            }
+            setSections(allSections);
+
+            // Fetch categories
+            const allCategories = await supaCategories(allSections.map(x => x.recordID));
+            if (!allCategories || allCategories.length === 0) {
+                setCategories([]);
+                setTransactions([]);
+                return;
+            }
+            setCategories(allCategories);
+
+            // Fetch transactions — both categorized and uncategorized
+            const [noCategoryTransactions, categorizedTransactions] = await Promise.all([
+                supaTransactions(budgetID),
+                supaTransactionsFromCategories(allCategories.map(x => x.recordID)),
+            ]);
+
+            const allTransactions = [
+                ...(categorizedTransactions || []),
+                ...(noCategoryTransactions || []),
+            ];
+            setTransactions(allTransactions);
+        } catch (error) {
+            console.error('Error fetching budget data:', error);
+        } finally {
+            setLoadingOpen(false);
+        }
+    }
+
+    return { grabBudgetData, refreshUserProfile };
 }
