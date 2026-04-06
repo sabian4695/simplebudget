@@ -12,9 +12,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="simpleBudget" />
     <title>simpleBudget</title>
+    <script>
+        try {
+            var t = localStorage.getItem('userTheme');
+            if (t === 'light') document.documentElement.style.backgroundColor = '#eee';
+            else document.documentElement.style.backgroundColor = '#161616';
+        } catch (e) { }
+    </script>
 </head>
 
-<body>
+<body style="background-color:#161616">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/index.tsx"></script>
