@@ -22,6 +22,8 @@ import EditSection from "./modals/EditSection";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import CopyAllIcon from '@mui/icons-material/CopyAll';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CopyBudget from "./modals/CopyBudget";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -259,6 +261,9 @@ export default function BudgetPage() {
                                     aria-haspopup="true"
                                     onClick={handleOpenOptions}
                                 ><MoreVertIcon /></IconButton>
+                                <IconButton size='small' onClick={() => handleMonthChange(selectedMonth.subtract(1, 'month'))}>
+                                    <ChevronLeftIcon />
+                                </IconButton>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
                                         views={['year', 'month']}
@@ -267,11 +272,14 @@ export default function BudgetPage() {
                                         slotProps={{
                                             textField: {
                                                 size: 'small',
-                                                variant: 'outlined'
+                                                variant: 'outlined',
                                             },
                                         }}
                                     />
                                 </LocalizationProvider>
+                                <IconButton size='small' onClick={() => handleMonthChange(selectedMonth.add(1, 'month'))}>
+                                    <ChevronRightIcon />
+                                </IconButton>
                             </Box>
                             <Paper elevation={2} sx={{ borderRadius: 3, mt: 1, p: 1.5 }}>
                                 <Box display='flex' justifyContent='space-between' sx={{ mb: 0.5 }}>
