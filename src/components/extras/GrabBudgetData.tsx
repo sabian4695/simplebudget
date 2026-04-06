@@ -1,28 +1,28 @@
-import {useRecoilState, useSetRecoilState} from "recoil";
+import { useTableStore } from "../../store/tableStore";
+import { useGlobalStore } from "../../store/globalStore";
 import {
     supaCategories,
     supaSections,
     supaTransactions, supaTransactionsFromCategories
 } from './api_functions'
-import {categories, currentBudgetAndMonth, sections, transactions} from "../../recoil/tableAtoms";
-import {currentUser, mainLoading} from "../../recoil/globalItems";
-import {supabase} from "../LoginPage";
+import { supabase } from "../LoginPage";
 
 export default function GrabBudgetData() {
-    const setSectionArray = useSetRecoilState(sections)
-    const setLoadingOpen = useSetRecoilState(mainLoading)
-    const setCategoryArray = useSetRecoilState(categories)
-    const setTransactionArray = useSetRecoilState(transactions)
-    const [currentUserData, setCurrentUser] = useRecoilState(currentUser)
+    const setSectionArray = useTableStore(s => s.setSections)
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
+    const setCategoryArray = useTableStore(s => s.setCategories)
+    const setTransactionArray = useTableStore(s => s.setTransactions)
+    const currentUserData = useGlobalStore(s => s.currentUser)
+    const setCurrentUser = useGlobalStore(s => s.setCurrentUser)
     async function grabBudgetData(budgetID: string, year: number, month: string) {
 
         setLoadingOpen(true)
 
         try {
-            let {data, error} = await supabase
+            let { data, error } = await supabase
                 .from('users')
                 .select()
-                .eq('recordID',currentUserData.recordID)
+                .eq('recordID', currentUserData.recordID)
             if (error) {
                 console.log(error.message)
             }
@@ -65,13 +65,13 @@ export default function GrabBudgetData() {
             } else {
                 setTransactionArray([])
             }
-        } catch(error) {
+        } catch (error) {
             console.error('Error Fetching Data', error)
         } finally {
             setLoadingOpen(false)
         }
     }
     return (
-        {grabBudgetData}
+        { grabBudgetData }
     )
 }

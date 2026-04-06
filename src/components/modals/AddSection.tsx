@@ -5,12 +5,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { addSection } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, mainLoading } from "../../recoil/globalItems";
-import { currentBudgetAndMonth, sections } from "../../recoil/tableAtoms";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
+import { useTableStore } from "../../store/tableStore";
 import { v4 as uuidv4 } from "uuid";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
@@ -23,8 +22,9 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function AddSection() {
-    const setLoadingOpen = useSetRecoilState(mainLoading)
-    const [addNewSection, setAddNewSection] = useRecoilState(addSection);
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
+    const addNewSection = useModalStore(s => s.addSection);
+    const setAddNewSection = useModalStore(s => s.setAddSection);
     const [sectionName, setSectionName] = React.useState('');
     const [sectionType, setSectionType] = React.useState('expense');
     const handleTypeChange = (
@@ -35,11 +35,12 @@ export default function AddSection() {
             setSectionType(newType);
         }
     };
-    const currentBudget = useRecoilValue(currentBudgetAndMonth)
-    const [sectionsArray, setSectionArray] = useRecoilState(sections);
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const currentBudget = useTableStore(s => s.currentBudgetAndMonth)
+    const sectionsArray = useTableStore(s => s.sections);
+    const setSectionArray = useTableStore(s => s.setSections);
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
     const [errorText, setErrorText] = React.useState('')
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));

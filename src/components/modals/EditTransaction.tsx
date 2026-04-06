@@ -5,23 +5,16 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { areYouSure, currentTransaction, editTransaction } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import {
-    areYouSureAccept,
-    areYouSureDetails,
-    areYouSureTitle,
     dialogPaperStyles,
-    snackBarOpen,
-    snackBarSeverity,
-    snackBarText,
-    mainLoading
-} from "../../recoil/globalItems";
+    useGlobalStore
+} from "../../store/globalStore";
 import dayjs, { Dayjs } from "dayjs";
-import { categories, transactions, sections } from "../../recoil/tableAtoms";
+import { useTableStore } from "../../store/tableStore";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -58,13 +51,15 @@ const GroupItems = styled('ul')({
 });
 
 export default function EditTransaction() {
-    const setLoadingOpen = useSetRecoilState(mainLoading)
-    const [openEditTransaction, setOpenEditTransaction] = useRecoilState(editTransaction);
-    const currentTransactionID = useRecoilValue(currentTransaction)
-    const [transactionsArray, setTransactionsArray] = useRecoilState(transactions)
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
+    const openEditTransaction = useModalStore(s => s.editTransaction);
+    const setOpenEditTransaction = useModalStore(s => s.setEditTransaction);
+    const currentTransactionID = useModalStore(s => s.currentTransaction)
+    const transactionsArray = useTableStore(s => s.transactions)
+    const setTransactionsArray = useTableStore(s => s.setTransactions)
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
     const [errorText, setErrorText] = React.useState('')
     const currentTransactionDetails = transactionsArray.find(x => x.recordID === currentTransactionID)
     const [transactionAmount, setTransactionAmount] = React.useState(0.00)
@@ -72,10 +67,12 @@ export default function EditTransaction() {
     const [transactionCategory, setTransactionCategory] = React.useState<any>(null);
     const [transactionType, setTransactionType] = React.useState('expense')
     const [transactionDate, setTransactionDate] = React.useState<Dayjs | null>(dayjs())
-    const [areYouSureOpen, setAreYouSureOpen] = useRecoilState(areYouSure);
-    const setCheckTitle = useSetRecoilState(areYouSureTitle);
-    const setCheckDetails = useSetRecoilState(areYouSureDetails);
-    const [checkAccept, setCheckAccept] = useRecoilState(areYouSureAccept);
+    const areYouSureOpen = useModalStore(s => s.areYouSure);
+    const setAreYouSureOpen = useModalStore(s => s.setAreYouSure);
+    const setCheckTitle = useGlobalStore(s => s.setAreYouSureTitle);
+    const setCheckDetails = useGlobalStore(s => s.setAreYouSureDetails);
+    const checkAccept = useGlobalStore(s => s.areYouSureAccept);
+    const setCheckAccept = useGlobalStore(s => s.setAreYouSureAccept);
     const [deleteTrans, setDeleteTrans] = React.useState(false)
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
@@ -87,8 +84,8 @@ export default function EditTransaction() {
             setTransactionType(newType);
         }
     };
-    const categoriesArray = useRecoilValue(categories)
-    const sectionsArray = useRecoilValue(sections)
+    const categoriesArray = useTableStore(s => s.categories)
+    const sectionsArray = useTableStore(s => s.sections)
     const categoryGroups = categoriesArray.map((option) => {
         const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
         return {

@@ -5,12 +5,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { exportToCSV } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, mainLoading } from "../../recoil/globalItems";
-import { currentBudgetAndMonth } from "../../recoil/tableAtoms";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
+import { useTableStore } from "../../store/tableStore";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
@@ -25,14 +24,15 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { CSVLink } from "react-csv";
 
 export default function AddSection() {
-    const setLoadingOpen = useSetRecoilState(mainLoading)
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
     const [fromMonth, setFromMonth] = React.useState<Dayjs | null>(dayjs());
     const [toMonth, setToMonth] = React.useState<Dayjs | null>(dayjs());
-    const [exportCSV, setExportCSV] = useRecoilState(exportToCSV);
-    const currentBudget = useRecoilValue(currentBudgetAndMonth)
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const exportCSV = useModalStore(s => s.exportToCSV);
+    const setExportCSV = useModalStore(s => s.setExportToCSV);
+    const currentBudget = useTableStore(s => s.currentBudgetAndMonth)
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
     const [allExportData, setAllExportData] = React.useState()
     const [grabbedSections, setGrabbedSections] = React.useState(false)
     const [exportSections, setExportSections] = React.useState()

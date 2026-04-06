@@ -4,20 +4,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
-import {Switch} from "@mui/material";
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
-import {currentUser, 
-    snackBarOpen, 
-    snackBarSeverity, 
-    snackBarText, 
-    themeAtom,
-    areYouSureAccept,
-    areYouSureDetails,
-    areYouSureTitle,
-    mainLoading
-} from "../recoil/globalItems";
-import {supaALLsections, supaCategories} from './extras/api_functions'
-import {useNavigate} from "react-router-dom";
+import { Switch } from "@mui/material";
+import { useGlobalStore } from "../store/globalStore";
+import { useTableStore } from "../store/tableStore";
+import { useModalStore } from "../store/modalStore";
+import { supaALLsections, supaCategories } from './extras/api_functions'
+import { useNavigate } from "react-router-dom";
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Divider from "@mui/material/Divider";
@@ -28,36 +20,37 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ShareIcon from '@mui/icons-material/Share';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import LogoutIcon from '@mui/icons-material/Logout';
-import {supabase} from "./LoginPage";
+import { supabase } from "./LoginPage";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import {budgets, currentBudgetAndMonth, sections} from "../recoil/tableAtoms";
-import {openChangePassword, selectBudget, shareBudget, areYouSure, exportToCSV} from "../recoil/modalStatusAtoms";
 import ShareBudget from "./modals/ShareBudget";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ChangePassword from './modals/ChangePassword'
 import ExportToCSV from './modals/ExportToCSV'
 
 export default function SettingsPage() {
-    const setLoadingOpen = useSetRecoilState(mainLoading)
-    const setExportToCSV = useSetRecoilState(exportToCSV)
-    const sectionsArray = useRecoilValue(sections);
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
+    const setExportToCSV = useModalStore(s => s.setExportToCSV)
+    const sectionsArray = useTableStore(s => s.sections);
     const [slideCheck, setSlideCheck] = React.useState(false);
-    const [areYouSureOpen, setAreYouSureOpen] = useRecoilState(areYouSure);
-    const setCheckTitle = useSetRecoilState(areYouSureTitle);
-    const setCheckDetails = useSetRecoilState(areYouSureDetails);
-    const [checkAccept, setCheckAccept] = useRecoilState(areYouSureAccept);
+    const areYouSureOpen = useModalStore(s => s.areYouSure);
+    const setAreYouSureOpen = useModalStore(s => s.setAreYouSure);
+    const setCheckTitle = useGlobalStore(s => s.setAreYouSureTitle);
+    const setCheckDetails = useGlobalStore(s => s.setAreYouSureDetails);
+    const checkAccept = useGlobalStore(s => s.areYouSureAccept);
+    const setCheckAccept = useGlobalStore(s => s.setAreYouSureAccept);
     const [budgetDelete, setBudgetDelete] = React.useState(false)
-    const setShareBudgetOpen = useSetRecoilState(shareBudget)
-    const [currentTheme, setTheme] = useRecoilState(themeAtom);
-    const setOpenChangePassword = useSetRecoilState(openChangePassword);
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const currentBudget = useRecoilValue(currentBudgetAndMonth)
-    const currentUserDetails = useRecoilValue(currentUser)
-    const budgetsArray = useRecoilValue(budgets)
-    const setSelectBudgetOpen = useSetRecoilState(selectBudget)
+    const setShareBudgetOpen = useModalStore(s => s.setShareBudget)
+    const currentTheme = useGlobalStore(s => s.themeAtom);
+    const setTheme = useGlobalStore(s => s.setThemeAtom);
+    const setOpenChangePassword = useModalStore(s => s.setOpenChangePassword);
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
+    const currentBudget = useTableStore(s => s.currentBudgetAndMonth)
+    const currentUserDetails = useGlobalStore(s => s.currentUser)
+    const budgetsArray = useTableStore(s => s.budgets)
+    const setSelectBudgetOpen = useModalStore(s => s.setSelectBudget)
     let currentBudgetDetails = budgetsArray.find(x => x.recordID === currentBudget.budgetID)
     const handleThemeClick = (event: any) => {
         setSlideCheck(event.target.checked);
@@ -95,8 +88,8 @@ export default function SettingsPage() {
         let { error } = await supabase.auth.signOut()
     }
     React.useEffect(() => {
-        if(!areYouSureOpen) {
-            if(checkAccept) {
+        if (!areYouSureOpen) {
+            if (checkAccept) {
                 handleDelete()
             }
             setBudgetDelete(false)
@@ -119,7 +112,7 @@ export default function SettingsPage() {
             .eq('budgetID', currentBudget.budgetID)
 
         let allSections = await supaALLsections(currentBudget.budgetID)
-        
+
         await supabase
             .from('categories')
             .delete()
@@ -163,13 +156,13 @@ export default function SettingsPage() {
         } else {
             setSlideCheck(false)
         }
-    }, [slideCheck,currentTheme]);
+    }, [slideCheck, currentTheme]);
     const navigate = useNavigate();
     const fnLogout = () => {
         supaLogOut()
-        navigate("/login", {replace: true});
+        navigate("/login", { replace: true });
     }
-    const copyUserID = async() => {
+    const copyUserID = async () => {
         //navigator.clipboard.writeText(user.recordID)
         await navigator.clipboard
             .writeText(currentUserDetails.recordID)
@@ -190,31 +183,31 @@ export default function SettingsPage() {
     return (
         <>
             <Box display='flex' flexDirection='column' alignItems='center'>
-                <Stack spacing={2} alignItems="stretch" sx={{maxWidth:400, width:'100%'}}>
-                    <Typography sx={{alignSelf:'flex-start'}} color='text.secondary' variant='h6'>Settings</Typography>
-                    <Paper elevation={4} sx={{width:'100%', borderRadius: 3}}>
+                <Stack spacing={2} alignItems="stretch" sx={{ maxWidth: 400, width: '100%' }}>
+                    <Typography sx={{ alignSelf: 'flex-start' }} color='text.secondary' variant='h6'>Settings</Typography>
+                    <Paper elevation={4} sx={{ width: '100%', borderRadius: 3 }}>
                         <List>
                             <ListItem disablePadding>
-                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>General</Typography>
+                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml: 1 }}>General</Typography>
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <ListItem disablePadding>
                                 <ListItemButton onClick={handleListThemeClick}>
                                     <ListItemIcon>
                                         <DarkModeIcon />
                                     </ListItemIcon>
                                     <ListItemText primary="Dark Mode" />
-                                    <Switch sx={{ml: 1}} size='small' checked={slideCheck} onChange={handleThemeClick}/>
+                                    <Switch sx={{ ml: 1 }} size='small' checked={slideCheck} onChange={handleThemeClick} />
                                 </ListItemButton>
                             </ListItem>
                         </List>
                     </Paper>
-                    <Paper elevation={4} sx={{width:'100%', borderRadius: 3}}>
+                    <Paper elevation={4} sx={{ width: '100%', borderRadius: 3 }}>
                         <List>
                             <ListItem disablePadding>
-                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>{'Budget: ' + currentBudgetDetails?.budgetName}</Typography>
+                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml: 1 }}>{'Budget: ' + currentBudgetDetails?.budgetName}</Typography>
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <ListItem disablePadding>
                                 <ListItemButton onClick={() => setSelectBudgetOpen(true)}>
                                     <ListItemIcon>
@@ -223,7 +216,7 @@ export default function SettingsPage() {
                                     <ListItemText primary="Switch Budgets" />
                                 </ListItemButton>
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <ListItem disablePadding>
                                 <ListItemButton onClick={() => setExportToCSV(true)}>
                                     <ListItemIcon>
@@ -232,7 +225,7 @@ export default function SettingsPage() {
                                     <ListItemText primary="Export Data to CSV" />
                                 </ListItemButton>
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <ListItem disablePadding>
                                 <ListItemButton onClick={() => setShareBudgetOpen(true)}>
                                     <ListItemIcon>
@@ -241,7 +234,7 @@ export default function SettingsPage() {
                                     <ListItemText primary="Share Budget" />
                                 </ListItemButton>
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <ListItem disablePadding>
                                 <ListItemButton onClick={handleDoubleCheck}>
                                     <ListItemIcon>
@@ -252,12 +245,12 @@ export default function SettingsPage() {
                             </ListItem>
                         </List>
                     </Paper>
-                    <Paper elevation={4} sx={{width:'100%', borderRadius: 3}}>
+                    <Paper elevation={4} sx={{ width: '100%', borderRadius: 3 }}>
                         <List>
                             <ListItem disablePadding>
-                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml:1 }}>Account: {currentUserDetails.fullName}</Typography>
+                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml: 1 }}>Account: {currentUserDetails.fullName}</Typography>
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <ListItem disablePadding>
                                 <ListItemButton onClick={copyUserID}>
                                     <ListItemIcon>
@@ -266,7 +259,7 @@ export default function SettingsPage() {
                                     <ListItemText primary="Copy My User ID" />
                                 </ListItemButton>
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <ListItem disablePadding>
                                 <ListItemButton onClick={() => setOpenChangePassword(true)}>
                                     <ListItemIcon>
@@ -275,7 +268,7 @@ export default function SettingsPage() {
                                     <ListItemText primary="Change Password" />
                                 </ListItemButton>
                             </ListItem>
-                            <Divider/>
+                            <Divider />
                             <ListItem disablePadding>
                                 <ListItemButton onClick={fnLogout}>
                                     <ListItemIcon>
@@ -288,9 +281,9 @@ export default function SettingsPage() {
                     </Paper>
                 </Stack>
             </Box>
-            <ShareBudget/>
-            <ChangePassword/>
-            <ExportToCSV/>
+            <ShareBudget />
+            <ChangePassword />
+            <ExportToCSV />
         </>
     )
 }

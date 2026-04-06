@@ -5,17 +5,16 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import {dialogPaperStyles} from "../../recoil/globalItems";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import Box from "@mui/material/Box";
-import {areYouSure} from '../../recoil/modalStatusAtoms'
-import {areYouSureTitle, areYouSureDetails, areYouSureAccept} from '../../recoil/globalItems'
-import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
+import { useModalStore } from '../../store/modalStore';
 
 export default function AreYouSure() {
-    const [open, setOpen] = useRecoilState(areYouSure)
-    const setAccept = useSetRecoilState(areYouSureAccept)
-    const title = useRecoilValue(areYouSureTitle)
-    const details = useRecoilValue(areYouSureDetails)
+    const open = useModalStore(s => s.areYouSure)
+    const setOpen = useModalStore(s => s.setAreYouSure)
+    const setAccept = useGlobalStore(s => s.setAreYouSureAccept)
+    const title = useGlobalStore(s => s.areYouSureTitle)
+    const details = useGlobalStore(s => s.areYouSureDetails)
     function handleClick(answer: boolean) {
         setAccept(answer)
         setOpen(false)
@@ -27,7 +26,7 @@ export default function AreYouSure() {
                 onClose={() => setOpen(false)}
                 PaperProps={dialogPaperStyles}
             >
-                <Box sx={{bgcolor: 'background.paper', height:'100%'}}>
+                <Box sx={{ bgcolor: 'background.paper', height: '100%' }}>
                     <DialogTitle id="alert-dialog-title">
                         {title}
                     </DialogTitle>

@@ -5,14 +5,13 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { addCategory, currentSection } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText, mainLoading } from "../../recoil/globalItems";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import { v4 as uuidv4 } from "uuid";
-import { categories, sections } from "../../recoil/tableAtoms";
+import { useTableStore } from "../../store/tableStore";
 import InputAdornment from '@mui/material/InputAdornment';
 import AddIcon from "@mui/icons-material/Add";
 import { supabase } from "../LoginPage";
@@ -22,17 +21,18 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddCategory() {
-    const setLoadingOpen = useSetRecoilState(mainLoading)
-    const [addNewCategory, setAddNewCategory] = useRecoilState(addCategory);
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
+    const addNewCategory = useModalStore(s => s.addCategory);
+    const setAddNewCategory = useModalStore(s => s.setAddCategory);
     const [categoryName, setCategoryName] = React.useState('');
     const [categoryAmount, setCategoryAmount] = React.useState(0);
-    const setCategoryArray = useSetRecoilState(categories)
-    const currentSectionID = useRecoilValue(currentSection);
-    const sectionsArray = useRecoilValue(sections);
+    const setCategoryArray = useTableStore(s => s.setCategories)
+    const currentSectionID = useModalStore(s => s.currentSection);
+    const sectionsArray = useTableStore(s => s.sections);
     const currentSectionName = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionName
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
     const [errorText, setErrorText] = React.useState('')
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
