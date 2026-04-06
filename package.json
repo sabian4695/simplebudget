@@ -35,15 +35,20 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "predeploy": "npm run build",
     "deploy": "gh-pages -b master -d build"
   },
   "homepage": "https://simplebudget.vercel.app/",
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/react-csv": "^1.1.10",
     "@vitejs/plugin-react": "^6.0.1",
+    "happy-dom": "^20.8.9",
+    "jsdom": "^29.0.1",
     "vite": "^8.0.3",
     "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.1.2",
     "workbox-window": "^7.4.0"
   }
 }
