@@ -7,46 +7,48 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import AddIcon from '@mui/icons-material/Add';
-import {useRecoilState, useRecoilValue} from "recoil";
-import {addBudget, selectBudget} from "../../recoil/modalStatusAtoms";
-import {budgets, currentBudgetAndMonth} from "../../recoil/tableAtoms"
+import { useModalStore } from '../../store/modalStore';
+import { useTableStore } from '../../store/tableStore';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import {currentUser, dialogPaperStyles} from "../../recoil/globalItems";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import Box from "@mui/material/Box";
 import ListItemButton from '@mui/material/ListItemButton';
 import GrabBudgetData from "../extras/GrabBudgetData";
-import {supabase} from "../LoginPage";
+import { supabase } from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import dayjs from "dayjs";
-import {useTheme} from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function SelectBudget() {
     const { grabBudgetData } = GrabBudgetData();
-    const [open, setOpen] = useRecoilState(selectBudget)
-    const [createNewBudget, setCreateNewBudget] = useRecoilState(addBudget)
-    const userData = useRecoilValue(currentUser)
-    const budgetsArray = useRecoilValue(budgets)
+    const open = useModalStore(s => s.selectBudget)
+    const setOpen = useModalStore(s => s.setSelectBudget)
+    const createNewBudget = useModalStore(s => s.addBudget)
+    const setCreateNewBudget = useModalStore(s => s.setAddBudget)
+    const userData = useGlobalStore(s => s.currentUser)
+    const budgetsArray = useTableStore(s => s.budgets)
     const [userNamesArray, setUserNamesArray] = React.useState([{
         recordID: '',
         fullName: '',
         userType: ''
     }])
-    const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
+    const currentBudgetDetails = useTableStore(s => s.currentBudgetAndMonth)
+    const setCurrentBudget = useTableStore(s => s.setCurrentBudgetAndMonth)
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     React.useEffect(() => {
         if (open) {
             findUserNames()
         }
-        }, [open])
+    }, [open])
     async function findUserNames() {
         let userIDarray = budgetsArray.map(x => x.creatorID)
-        let {data, error} = await supabase
+        let { data, error } = await supabase
             .from('users')
             .select()
-            .in('recordID',userIDarray)
+            .in('recordID', userIDarray)
         if (error) {
             console.log(error.message)
         }
@@ -66,7 +68,7 @@ export default function SelectBudget() {
         }
         return output
     }
-    const handleListItemClick = async(newBudgetID: string) => {
+    const handleListItemClick = async (newBudgetID: string) => {
         if (newBudgetID !== 'addBudget') {
             setCurrentBudget({
                 budgetID: newBudgetID,
@@ -92,9 +94,9 @@ export default function SelectBudget() {
                 open={open}
                 PaperProps={dialogPaperStyles}
             >
-                <Box sx={{bgcolor: 'background.paper', height:'100%', minWidth: 250}}>
-                    <DialogTitle sx={{display: 'flex',justifyContent: 'space-between', alignItems: 'center'}}>
-                        Select Budget<IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
+                <Box sx={{ bgcolor: 'background.paper', height: '100%', minWidth: 250 }}>
+                    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        Select Budget<IconButton onClick={() => setOpen(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
                     <List sx={{ pt: 0 }}>
                         {budgetsArray.map((row) => (
@@ -105,7 +107,7 @@ export default function SelectBudget() {
                                             <DashboardIcon />
                                         </Avatar>
                                     </ListItemAvatar>
-                                    <ListItemText primary={row.budgetName} secondary={grabUserName(row.creatorID)}/>
+                                    <ListItemText primary={row.budgetName} secondary={grabUserName(row.creatorID)} />
                                 </ListItemButton>
                             </ListItem>
                         ))}

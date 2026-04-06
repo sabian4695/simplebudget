@@ -3,8 +3,7 @@ import { Chart } from "react-google-charts";
 import { useTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-import { categories, sections, transactions } from '../recoil/tableAtoms';
-import { useRecoilValue } from 'recoil';
+import { useTableStore } from '../store/tableStore';
 import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack";
 import Divider from '@mui/material/Divider';
@@ -15,8 +14,8 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 export default function AnalyticsPage() {
-    const categoriesArray = useRecoilValue(categories)
-    const sectionsArray = useRecoilValue(sections)
+    const categoriesArray = useTableStore(s => s.categories)
+    const sectionsArray = useTableStore(s => s.sections)
     const theme = useTheme()
 
     function sumCat(idVal: string) {
@@ -37,7 +36,7 @@ export default function AnalyticsPage() {
             sumCat(y.recordID)
         ]
     ))
-        
+
     let incomeColumns = [["Income Title", "Amount"]]
     let expenseColumns = [["Columns Title", "Amount"]]
     //@ts-ignore
@@ -55,8 +54,8 @@ export default function AnalyticsPage() {
     return (
         <>
             <Box display='flex' flexDirection='column' alignItems='center'>
-                <Stack spacing={2} alignItems="stretch" sx={{maxWidth:400, width:'100%'}}>
-                    <Paper elevation={4} sx={{ borderRadius: 3, p:1, width:'100%' }}>
+                <Stack spacing={2} alignItems="stretch" sx={{ maxWidth: 400, width: '100%' }}>
+                    <Paper elevation={4} sx={{ borderRadius: 3, p: 1, width: '100%' }}>
                         <Box sx={{ width: '100%' }}>
                             <Typography textAlign='center' color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>
                                 Income Sources
@@ -68,16 +67,16 @@ export default function AnalyticsPage() {
                                 width={"100%"}
                                 height={"400px"}
                             />
-                            {incomeArray.sort(function(a, b) {
+                            {incomeArray.sort(function (a, b) {
                                 //@ts-ignore
                                 return b[1] - a[1];
                             }).map(x => (
-                                <Box display='flex' flexDirection='row' justifyContent='space-between' sx={{mx:2, my:1}}>
+                                <Box display='flex' flexDirection='row' justifyContent='space-between' sx={{ mx: 2, my: 1 }}>
                                     <Typography variant='body2' fontWeight='bold' color='text.secondary'>
                                         {/*@ts-ignore*/}
                                         {x[0]}
                                     </Typography>
-                                    <Divider variant='middle' sx={{flexGrow:'1', alignSelf:'center'}}/>
+                                    <Divider variant='middle' sx={{ flexGrow: '1', alignSelf: 'center' }} />
                                     <Typography variant='body2' fontWeight='bold' color='text.secondary'>
                                         {/*@ts-ignore*/}
                                         {formatter.format(x[1])}
@@ -86,7 +85,7 @@ export default function AnalyticsPage() {
                             ))}
                         </Box>
                     </Paper>
-                    <Paper elevation={4} sx={{ borderRadius: 3, p:1, width:'100%' }}>
+                    <Paper elevation={4} sx={{ borderRadius: 3, p: 1, width: '100%' }}>
                         <Box sx={{ width: '100%' }}>
                             <Typography textAlign='center' color='text.secondary' variant='h6' sx={{ fontWeight: '600' }}>
                                 Expense Distribution
@@ -98,16 +97,16 @@ export default function AnalyticsPage() {
                                 width={"100%"}
                                 height={"400px"}
                             />
-                            {expenseArray.sort(function(a, b) {
+                            {expenseArray.sort(function (a, b) {
                                 //@ts-ignore
                                 return b[1] - a[1];
                             }).map(x => (
-                                <Box display='flex' flexDirection='row' justifyContent='space-between' sx={{mx:2, my:1}}>
+                                <Box display='flex' flexDirection='row' justifyContent='space-between' sx={{ mx: 2, my: 1 }}>
                                     <Typography variant='body2' fontWeight='bold' color='text.secondary'>
                                         {/*@ts-ignore*/}
                                         {x[0]}
                                     </Typography>
-                                    <Divider variant='middle' sx={{flexGrow:'1', alignSelf:'center'}}/>
+                                    <Divider variant='middle' sx={{ flexGrow: '1', alignSelf: 'center' }} />
                                     <Typography variant='body2' fontWeight='bold' color='text.secondary'>
                                         {/*@ts-ignore*/}
                                         {formatter.format(x[1])}

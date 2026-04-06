@@ -5,19 +5,15 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { copyBudget } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import {
     dialogPaperStyles,
-    snackBarOpen,
-    snackBarSeverity,
-    snackBarText,
-    mainLoading
-} from "../../recoil/globalItems";
-import { categories, currentBudgetAndMonth, sections } from "../../recoil/tableAtoms";
+    useGlobalStore
+} from "../../store/globalStore";
+import { useTableStore } from "../../store/tableStore";
 import SaveIcon from '@mui/icons-material/Save';
 import { supabase } from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
@@ -35,15 +31,16 @@ import { v4 as uuidv4 } from "uuid";
 export default function CopyBudget() {
     const [fromMonth, setFromMonth] = React.useState<Dayjs | null>(dayjs());
     const [toMonth, setToMonth] = React.useState<Dayjs | null>(dayjs().add(1, 'month'));
-    const [openCopyBudget, setOpenCopyBudget] = useRecoilState(copyBudget)
-    const currentBudget = useRecoilValue(currentBudgetAndMonth)
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const openCopyBudget = useModalStore(s => s.copyBudget)
+    const setOpenCopyBudget = useModalStore(s => s.setCopyBudget)
+    const currentBudget = useTableStore(s => s.currentBudgetAndMonth)
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
     const [errorText, setErrorText] = React.useState('')
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
-    const setLoadingOpen = useSetRecoilState(mainLoading)
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
 
     const verifyInputs = () => {
         if (fromMonth === null) {

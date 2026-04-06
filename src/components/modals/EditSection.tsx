@@ -5,22 +5,15 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { currentSection, areYouSure, editSection } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import {
-    areYouSureAccept,
-    areYouSureDetails,
-    areYouSureTitle,
     dialogPaperStyles,
-    snackBarOpen,
-    snackBarSeverity,
-    snackBarText,
-    mainLoading
-} from "../../recoil/globalItems";
-import { categories, sections, transactions } from "../../recoil/tableAtoms";
+    useGlobalStore
+} from "../../store/globalStore";
+import { useTableStore } from "../../store/tableStore";
 import SaveIcon from '@mui/icons-material/Save';
 import { supabase } from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
@@ -36,12 +29,16 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 
 export default function EditSection() {
-    const setLoadingOpen = useSetRecoilState(mainLoading)
-    const [openEditSection, setOpenEditSection] = useRecoilState(editSection);
-    const [transactionsArray, setTransactionsArray] = useRecoilState(transactions)
-    const [categoryArray, setCategoryArray] = useRecoilState(categories)
-    const [sectionsArray, setSectionsArray] = useRecoilState(sections);
-    const currentSectionID = useRecoilValue(currentSection);
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
+    const openEditSection = useModalStore(s => s.editSection);
+    const setOpenEditSection = useModalStore(s => s.setEditSection);
+    const transactionsArray = useTableStore(s => s.transactions)
+    const setTransactionsArray = useTableStore(s => s.setTransactions)
+    const categoryArray = useTableStore(s => s.categories)
+    const setCategoryArray = useTableStore(s => s.setCategories)
+    const sectionsArray = useTableStore(s => s.sections);
+    const setSectionsArray = useTableStore(s => s.setSections);
+    const currentSectionID = useModalStore(s => s.currentSection);
     let currentSectionDetails = sectionsArray.find(x => x.recordID === currentSectionID)
     const [sectionName, setSectionName] = React.useState('');
     const [sectionType, setSectionType] = React.useState('expense');
@@ -53,13 +50,15 @@ export default function EditSection() {
             setSectionType(newType);
         }
     };
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const [areYouSureOpen, setAreYouSureOpen] = useRecoilState(areYouSure);
-    const setCheckTitle = useSetRecoilState(areYouSureTitle);
-    const setCheckDetails = useSetRecoilState(areYouSureDetails);
-    const [checkAccept, setCheckAccept] = useRecoilState(areYouSureAccept);
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
+    const areYouSureOpen = useModalStore(s => s.areYouSure);
+    const setAreYouSureOpen = useModalStore(s => s.setAreYouSure);
+    const setCheckTitle = useGlobalStore(s => s.setAreYouSureTitle);
+    const setCheckDetails = useGlobalStore(s => s.setAreYouSureDetails);
+    const checkAccept = useGlobalStore(s => s.areYouSureAccept);
+    const setCheckAccept = useGlobalStore(s => s.setAreYouSureAccept);
     const [errorText, setErrorText] = React.useState('')
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));

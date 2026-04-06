@@ -3,17 +3,12 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button"
 import Box from "@mui/material/Box";
-import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
 import {
-    currentUser,
     dialogPaperStyles,
-    snackBarOpen,
-    snackBarSeverity,
-    snackBarText,
-    themeAtom,
-    themes
-} from "../recoil/globalItems";
+    themes,
+    useGlobalStore
+} from "../store/globalStore";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from '@mui/material/Grid';
@@ -31,18 +26,18 @@ import CircularProgress from '@mui/material/CircularProgress';
 export default function SignUpPage() {
     const navigate = useNavigate();
     const [fullName, setFullName] = React.useState("");
-    const setCurrentUser = useSetRecoilState(currentUser)
+    const setCurrentUser = useGlobalStore(s => s.setCurrentUser)
     const [emailText, setEmailText] = React.useState('')
     const [email, setEmail] = React.useState("");
     const [passwordText, setPasswordText] = React.useState('')
     const [passwordText1, setPasswordText1] = React.useState('')
     const [password, setPassword] = React.useState("");
     const [password1, setPassword1] = React.useState("");
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const setSnackText = useGlobalStore(s => s.setSnackBarText)
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity)
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen)
     const [errorText, setErrorText] = React.useState('')
-    const currentTheme = useRecoilValue(themeAtom);
+    const currentTheme = useGlobalStore(s => s.themeAtom);
     const [showPassword, setShowPassword] = React.useState(false)
     const [signedUpBool, setSignedUpBool] = React.useState(false)
     const [loadingOpen, setLoadingOpen] = React.useState(false);

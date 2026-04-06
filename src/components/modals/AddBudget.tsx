@@ -5,12 +5,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { addBudget } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { snackBarOpen, snackBarSeverity, snackBarText, dialogPaperStyles, currentUser, mainLoading } from "../../recoil/globalItems";
-import { budgets, currentBudgetAndMonth } from "../../recoil/tableAtoms";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
+import { useTableStore } from "../../store/tableStore";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "../LoginPage";
 import GrabBudgetData from "../extras/GrabBudgetData";
@@ -23,16 +22,18 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AddBudget() {
     const { grabBudgetData } = GrabBudgetData();
-    const setLoadingOpen = useSetRecoilState(mainLoading)
-    const [addNewBudget, setAddNewBudget] = useRecoilState(addBudget);
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
+    const addNewBudget = useModalStore(s => s.addBudget);
+    const setAddNewBudget = useModalStore(s => s.setAddBudget);
     const [budgetName, setBudgetName] = React.useState('');
     const [errorText, setErrorText] = React.useState('');
-    const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
-    const setBudgetArray = useSetRecoilState(budgets)
-    const currentUserDetails = useRecoilValue(currentUser)
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const currentBudgetDetails = useTableStore(s => s.currentBudgetAndMonth)
+    const setCurrentBudget = useTableStore(s => s.setCurrentBudgetAndMonth)
+    const setBudgetArray = useTableStore(s => s.setBudgets)
+    const currentUserDetails = useGlobalStore(s => s.currentUser)
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const handleSubmit = async (event: any) => {

@@ -2,8 +2,8 @@ import React from 'react';
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
-import { useSetRecoilState, useRecoilValue } from "recoil";
-import { categories, transactions } from "../recoil/tableAtoms";
+import { useTableStore } from "../store/tableStore";
+import { useModalStore } from "../store/modalStore";
 import ListItem from "@mui/material/ListItem";
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
@@ -13,7 +13,6 @@ import Box from '@mui/material/Box';
 import ListItemButton from '@mui/material/ListItemButton';
 import Chip from '@mui/material/Chip';
 import Avatar from '@mui/material/Avatar';
-import { currentTransaction, editTransaction } from "../recoil/modalStatusAtoms";
 import TextField from "@mui/material/TextField";
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
@@ -24,7 +23,7 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 export default function TransactionsPage() {
-    const transactionsArray = useRecoilValue(transactions)
+    const transactionsArray = useTableStore(s => s.transactions)
     const [filteredTransactions, setFilteredTransactions] = React.useState(transactionsArray)
     React.useEffect(() => {
         filterTransactions(searchText)
@@ -42,9 +41,9 @@ export default function TransactionsPage() {
             setFilteredTransactions(transactionsArray)
         }
     }
-    const categoryArray = useRecoilValue(categories)
-    const setCurrentTransaction = useSetRecoilState(currentTransaction)
-    const setOpenEditTransaction = useSetRecoilState(editTransaction)
+    const categoryArray = useTableStore(s => s.categories)
+    const setCurrentTransaction = useModalStore(s => s.setCurrentTransaction)
+    const setOpenEditTransaction = useModalStore(s => s.setEditTransaction)
     const openTransaction = (trsID: string) => {
         setCurrentTransaction(trsID)
         setOpenEditTransaction(true)

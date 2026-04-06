@@ -5,12 +5,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { openChangePassword } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText } from "../../recoil/globalItems";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import InputAdornment from '@mui/material/InputAdornment';
 import { supabase } from "../LoginPage";
 import CloseIcon from '@mui/icons-material/Close';
@@ -22,10 +21,11 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import SaveIcon from '@mui/icons-material/Save';
 
 export default function ChangePassword() {
-    const [openModal, setOpenModal] = useRecoilState(openChangePassword);
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
+    const openModal = useModalStore(s => s.openChangePassword);
+    const setOpenModal = useModalStore(s => s.setOpenChangePassword);
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
     const [currentPassword, setCurrentPassword] = React.useState('')
     const [newPassword0, setNewPassword0] = React.useState('')
     const [newPassword1, setNewPassword1] = React.useState('')

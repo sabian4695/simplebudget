@@ -3,10 +3,9 @@ import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import Typography from '@mui/material/Typography';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { shareBudget } from "../../recoil/modalStatusAtoms";
-import { budgets, currentBudgetAndMonth } from "../../recoil/tableAtoms"
-import { currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText } from "../../recoil/globalItems";
+import { useModalStore } from '../../store/modalStore';
+import { useTableStore } from '../../store/tableStore';
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import Box from "@mui/material/Box";
 import DialogContent from "@mui/material/DialogContent";
 import Grid from '@mui/material/Grid';
@@ -22,15 +21,17 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function ShareBudget() {
-    const [open, setOpen] = useRecoilState(shareBudget)
+    const open = useModalStore(s => s.shareBudget)
+    const setOpen = useModalStore(s => s.setShareBudget)
     const [shareToID, setShareToID] = React.useState('')
     const [errorText, setErrorText] = React.useState('')
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const user = useRecoilValue(currentUser)
-    const budgetsArray = useRecoilValue(budgets)
-    const [currentBudgetDetails, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
+    const user = useGlobalStore(s => s.currentUser)
+    const budgetsArray = useTableStore(s => s.budgets)
+    const currentBudgetDetails = useTableStore(s => s.currentBudgetAndMonth)
+    const setCurrentBudget = useTableStore(s => s.setCurrentBudgetAndMonth)
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const handleSubmit = async (event: any) => {

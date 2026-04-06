@@ -4,10 +4,9 @@ import Stack from "@mui/material/Stack";
 import BudgetSection from "./subcomponents/BudgetSection";
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
-import { useRecoilValue, useSetRecoilState, useRecoilState } from "recoil";
-import { addSection, copyBudget } from "../recoil/modalStatusAtoms";
+import { useModalStore } from "../store/modalStore";
+import { useTableStore } from "../store/tableStore";
 import AddSection from "./modals/AddSection";
-import { categories, currentBudgetAndMonth, sections, transactions } from '../recoil/tableAtoms';
 import Box from '@mui/material/Box';
 import AddCategory from "./modals/AddCategory";
 import MenuItem from '@mui/material/MenuItem';
@@ -71,15 +70,16 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 export default function BudgetPage() {
-    const setAddNewSection = useSetRecoilState(addSection)
-    const sectionsArray = useRecoilValue(sections)
-    const transactionsArray = useRecoilValue(transactions)
-    const setOpenCopyBudget = useSetRecoilState(copyBudget)
+    const setAddNewSection = useModalStore(s => s.setAddSection)
+    const sectionsArray = useTableStore(s => s.sections)
+    const transactionsArray = useTableStore(s => s.transactions)
+    const setOpenCopyBudget = useModalStore(s => s.setCopyBudget)
     const { grabBudgetData } = GrabBudgetData();
-    const [currentBudget, setCurrentBudget] = useRecoilState(currentBudgetAndMonth)
+    const currentBudget = useTableStore(s => s.currentBudgetAndMonth)
+    const setCurrentBudget = useTableStore(s => s.setCurrentBudgetAndMonth)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [anchorEl1, setAnchorEl1] = React.useState<null | HTMLElement>(null);
-    const categoryArray = useRecoilValue(categories)
+    const categoryArray = useTableStore(s => s.categories)
     const [selectedIndex, setSelectedIndex] = React.useState(options.indexOf(currentBudget.month + ' ' + currentBudget.year));
     const [tabValue, setTabValue] = React.useState(0);
     const open = Boolean(anchorEl);
@@ -206,7 +206,7 @@ export default function BudgetPage() {
             <Box display='flex' flexDirection='column' alignItems='center'>
                 <Stack spacing={2} alignItems="stretch" sx={{ maxWidth: 400 }}>
                     <Box>
-                        <Box sx={{mt: -0.5}} display='flex' flexDirection='row' alignSelf='flex-start'>
+                        <Box sx={{ mt: -0.5 }} display='flex' flexDirection='row' alignSelf='flex-start'>
                             <IconButton
                                 size='small'
                                 aria-label="more"
@@ -219,7 +219,7 @@ export default function BudgetPage() {
                             <CustomButton color={monthName[dayjs().toDate().getMonth()] === currentBudget.month ? 'success' : 'secondary'} variant="outlined" onClick={handleClickListItem} size='small' sx={{ py: 0, ml: 1 }}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
                         </Box>
                         <Box>
-                            <Tabs variant='fullWidth' sx={{mt:1}} value={tabValue} onChange={(event: React.SyntheticEvent, newValue: number) => {
+                            <Tabs variant='fullWidth' sx={{ mt: 1 }} value={tabValue} onChange={(event: React.SyntheticEvent, newValue: number) => {
                                 setTabValue(newValue);
                             }} centered>
                                 <Tab label="Planned" />
@@ -284,10 +284,10 @@ export default function BudgetPage() {
                         <BudgetSection sectionID={row.recordID} key={row.recordID} />
                     )
                     )}
-                    {sectionsArray.filter(x => x.sectionType === 'expense').sort(function(a, b) {
-                                //@ts-ignore
-                                return sumCat(b.recordID) - sumCat(a.recordID);
-                            }).map((row) => (
+                    {sectionsArray.filter(x => x.sectionType === 'expense').sort(function (a, b) {
+                        //@ts-ignore
+                        return sumCat(b.recordID) - sumCat(a.recordID);
+                    }).map((row) => (
                         <BudgetSection sectionID={row.recordID} key={row.recordID} />
                     )
                     )}

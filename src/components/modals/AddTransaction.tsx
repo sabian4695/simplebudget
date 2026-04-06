@@ -5,15 +5,14 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { addTransaction } from '../../recoil/modalStatusAtoms'
+import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { currentUser, dialogPaperStyles, snackBarOpen, snackBarSeverity, snackBarText, addTransactionCategory, mainLoading, addTransactionType } from "../../recoil/globalItems";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import { v4 as uuidv4 } from "uuid";
 import dayjs, { Dayjs } from "dayjs";
-import { categories, currentBudgetAndMonth, sections, transactions } from "../../recoil/tableAtoms";
+import { useTableStore } from "../../store/tableStore";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -51,13 +50,16 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 export default function AddTransaction() {
-    const setLoadingOpen = useSetRecoilState(mainLoading)
+    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
     const [splitBool, setSplitBool] = React.useState(false);
-    const [addNewTransaction, setAddNewTransaction] = useRecoilState(addTransaction);
+    const addNewTransaction = useModalStore(s => s.addTransaction);
+    const setAddNewTransaction = useModalStore(s => s.setAddTransaction);
     const [transactionAmount, setTransactionAmount] = React.useState(0.00)
     const [transactionTitle, setTransactionTitle] = React.useState('')
-    const [transactionCategory, setTransactionCategory] = useRecoilState(addTransactionCategory);
-    const [transactionType, setTransactionType] = useRecoilState(addTransactionType);
+    const transactionCategory = useGlobalStore(s => s.addTransactionCategory);
+    const setTransactionCategory = useGlobalStore(s => s.setAddTransactionCategory);
+    const transactionType = useGlobalStore(s => s.addTransactionType);
+    const setTransactionType = useGlobalStore(s => s.setAddTransactionType);
 
     let splitArrDef = [
         {
@@ -77,8 +79,8 @@ export default function AddTransaction() {
             setTransactionType(newType);
         }
     };
-    const categoriesArray = useRecoilValue(categories)
-    const sectionsArray = useRecoilValue(sections)
+    const categoriesArray = useTableStore(s => s.categories)
+    const sectionsArray = useTableStore(s => s.sections)
     const categoryGroups = categoriesArray.map((option) => {
         const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
         return {
@@ -92,12 +94,12 @@ export default function AddTransaction() {
         return 0;
     }
     );
-    const setTransactionsArray = useSetRecoilState(transactions)
-    const setSnackText = useSetRecoilState(snackBarText);
-    const setSnackSev = useSetRecoilState(snackBarSeverity);
-    const setSnackOpen = useSetRecoilState(snackBarOpen);
-    const currentBudget = useRecoilValue(currentBudgetAndMonth)
-    const currentUserData = useRecoilValue(currentUser)
+    const setTransactionsArray = useTableStore(s => s.setTransactions)
+    const setSnackText = useGlobalStore(s => s.setSnackBarText);
+    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
+    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
+    const currentBudget = useTableStore(s => s.currentBudgetAndMonth)
+    const currentUserData = useGlobalStore(s => s.currentUser)
     const [errorText, setErrorText] = React.useState('')
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
