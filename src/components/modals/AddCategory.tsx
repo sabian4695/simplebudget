@@ -94,7 +94,7 @@ export default function AddCategory() {
                 onClose={() => setAddNewCategory(false)}
                 scroll='paper'
                 fullScreen={!bigger}
-                PaperProps={bigger ? dialogPaperStyles : undefined}
+                slotProps={{ paper: bigger ? dialogPaperStyles : undefined }}
             >
                 <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -120,11 +120,13 @@ export default function AddCategory() {
                                     value={categoryAmount}
                                     onChange={(event: any) => setCategoryAmount(event.target.value)}
                                     type="number"
-                                    InputProps={{
-                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                    }}
-                                    inputProps={{
-                                        step: 'any'
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                        },
+                                        htmlInput: {
+                                            step: 'any',
+                                        },
                                     }}
                                     placeholder='Budget Amount'
                                     label="Budget Amount"

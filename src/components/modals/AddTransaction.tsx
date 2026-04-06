@@ -293,7 +293,7 @@ export default function AddTransaction() {
                 onClose={() => setAddNewTransaction(false)}
                 scroll='paper'
                 fullScreen={!bigger}
-                PaperProps={bigger ? dialogPaperStyles : undefined}
+                slotProps={{ paper: bigger ? dialogPaperStyles : undefined }}
             >
                 <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -341,10 +341,12 @@ export default function AddTransaction() {
                                     value={transactionAmount}
                                     onChange={(event: any) => setTransactionAmount(event.target.value)}
                                     type="number"
-                                    InputProps={{
-                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                        },
+                                        htmlInput: { step: '.01' },
                                     }}
-                                    inputProps={{ step: '.01' }}
                                     placeholder='Amount'
                                     label={splitBool ? "Total Amount" : "Amount"}
                                 />
@@ -423,10 +425,12 @@ export default function AddTransaction() {
                                                     value={x.transAmount}
                                                     onChange={(event: any) => changeSplitAmount(x.recId, event.target.value)}
                                                     type="number"
-                                                    InputProps={{
-                                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                                    slotProps={{
+                                                        input: {
+                                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                                        },
+                                                        htmlInput: { step: '.01' },
                                                     }}
-                                                    inputProps={{ step: '.01' }}
                                                     placeholder='Amount'
                                                     label="Amount"
                                                     variant='filled'

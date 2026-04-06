@@ -299,11 +299,13 @@ export default function BudgetPage() {
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
-                MenuListProps={{
-                    'aria-labelledby': 'lock-button',
-                    role: 'listbox',
+                slotProps={{
+                    list: {
+                        'aria-labelledby': 'lock-button',
+                        role: 'listbox',
+                    },
+                    paper: { style: { maxHeight: 300 } },
                 }}
-                PaperProps={{ style: { maxHeight: 300 } }}
             >
                 {options.map((option, index) => (
                     <MenuItem
@@ -317,8 +319,10 @@ export default function BudgetPage() {
                 ))}
             </Menu>
             <Menu
-                MenuListProps={{
-                    'aria-labelledby': 'long-button',
+                slotProps={{
+                    list: {
+                        'aria-labelledby': 'long-button',
+                    },
                 }}
                 anchorEl={anchorEl1}
                 open={moreOpen}

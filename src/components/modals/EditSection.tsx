@@ -200,7 +200,7 @@ export default function EditSection() {
                 onClose={() => setOpenEditSection(false)}
                 scroll='paper'
                 fullScreen={!bigger}
-                PaperProps={bigger ? dialogPaperStyles : undefined}
+                slotProps={{ paper: bigger ? dialogPaperStyles : undefined }}
             >
                 <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -254,8 +254,10 @@ export default function EditSection() {
             </Dialog>
             <Menu
                 id="long-menu"
-                MenuListProps={{
-                    'aria-labelledby': 'long-button',
+                slotProps={{
+                    list: {
+                        'aria-labelledby': 'long-button',
+                    },
                 }}
                 anchorEl={anchorEl}
                 open={moreOpen}

@@ -106,7 +106,7 @@ export default function LoginPage() {
                 }}>
                 </Box>
                 <Dialog open={true}
-                    PaperProps={dialogPaperStyles}>
+                    slotProps={{ paper: dialogPaperStyles }}>
                     <Box component='form'
                         onSubmit={handleSubmit}
                         sx={{
@@ -154,17 +154,19 @@ export default function LoginPage() {
                                     type={showPassword ? 'text' : 'password'}
                                     label="Password"
                                     value={password}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={handleClickShowPassword}
-                                                onMouseDown={handleMouseDownPassword}
-                                                edge="end"
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={handleClickShowPassword}
+                                                    onMouseDown={handleMouseDownPassword}
+                                                    edge="end"
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>,
+                                        },
                                     }}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />

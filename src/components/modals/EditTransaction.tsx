@@ -246,7 +246,7 @@ export default function EditTransaction() {
                 onClose={() => setOpenEditTransaction(false)}
                 scroll='paper'
                 fullScreen={!bigger}
-                PaperProps={bigger ? dialogPaperStyles : undefined}
+                slotProps={{ paper: bigger ? dialogPaperStyles : undefined }}
             >
                 <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -289,10 +289,12 @@ export default function EditTransaction() {
                                     value={transactionAmount}
                                     onChange={(event: any) => setTransactionAmount(event.target.value)}
                                     type="number"
-                                    InputProps={{
-                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                    slotProps={{
+                                        input: {
+                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                        },
+                                        htmlInput: { step: '.01' },
                                     }}
-                                    inputProps={{ step: '.01' }}
                                     placeholder='Amount'
                                     label="Amount"
                                 />
@@ -362,8 +364,10 @@ export default function EditTransaction() {
             </Dialog>
             <Menu
                 id="long-menu"
-                MenuListProps={{
-                    'aria-labelledby': 'long-button',
+                slotProps={{
+                    list: {
+                        'aria-labelledby': 'long-button',
+                    },
                 }}
                 anchorEl={anchorEl}
                 open={moreOpen}

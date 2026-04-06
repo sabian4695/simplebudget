@@ -330,7 +330,7 @@ export default function EditCategory() {
                 onClose={() => setOpenEditCategory(false)}
                 scroll='paper'
                 fullScreen={!bigger}
-                PaperProps={bigger ? dialogPaperStyles : undefined}
+                slotProps={{ paper: bigger ? dialogPaperStyles : undefined }}
             >
                 <Box sx={{ bgcolor: 'background.paper', overflow: 'auto', minHeight: '100%' }} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -378,11 +378,13 @@ export default function EditCategory() {
                                         value={categoryAmount}
                                         onChange={(event: any) => setCategoryAmount(event.target.value)}
                                         type="number"
-                                        InputProps={{
-                                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                        }}
-                                        inputProps={{
-                                            step: 'any'
+                                        slotProps={{
+                                            input: {
+                                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                            },
+                                            htmlInput: {
+                                                step: 'any',
+                                            },
                                         }}
                                         placeholder='Budget Amount'
                                         label="Budget Amount"
@@ -490,8 +492,10 @@ export default function EditCategory() {
             </Dialog>
             <Menu
                 id="long-menu"
-                MenuListProps={{
-                    'aria-labelledby': 'long-button',
+                slotProps={{
+                    list: {
+                        'aria-labelledby': 'long-button',
+                    },
                 }}
                 anchorEl={anchorEl}
                 open={moreOpen}

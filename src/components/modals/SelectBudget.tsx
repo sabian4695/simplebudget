@@ -92,7 +92,7 @@ export default function SelectBudget() {
             <Dialog
                 onClose={() => setOpen(false)}
                 open={open}
-                PaperProps={dialogPaperStyles}
+                slotProps={{ paper: dialogPaperStyles }}
             >
                 <Box sx={{ bgcolor: 'background.paper', height: '100%', minWidth: 250 }}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
