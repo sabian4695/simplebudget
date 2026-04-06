@@ -82,12 +82,21 @@ export default function AddTransaction() {
     };
     const categoriesArray = useTableStore(s => s.categories)
     const sectionsArray = useTableStore(s => s.sections)
+    const transactionsArr = useTableStore(s => s.transactions)
     const categoryGroups = categoriesArray.map((option) => {
-        const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
+        const section = sectionsArray.find(x => x.recordID === option.sectionID)
+        const sectionName = section?.sectionName ?? ""
+        const expenses = transactionsArr.filter(x => x.categoryID === option.recordID && x.transactionType === "expense").reduce((a, o) => a + o.amount, 0)
+        const incomes = transactionsArr.filter(x => x.categoryID === option.recordID && x.transactionType === "income").reduce((a, o) => a + o.amount, 0)
+        const tracked = Math.round((incomes - expenses + Number.EPSILON) * 100) / 100
+        const remaining = section?.sectionType === 'income'
+            ? option.amount + tracked
+            : option.amount + tracked
         return {
-            sectionName: sectionName === undefined ? "" : sectionName,
+            sectionName,
             id: option.recordID,
-            label: option.categoryName
+            label: option.categoryName,
+            remaining: Math.round(remaining * 100) / 100,
         };
     }).sort(function (a, b) {
         if (a.sectionName < b.sectionName) { return -1; }
@@ -383,6 +392,14 @@ export default function AddTransaction() {
                                             setTransactionCategory(newValue)
                                         }}
                                         renderInput={(params) => <TextField onFocus={handleFocus} margin="none" {...params} label="Category" />}
+                                        renderOption={(props, option) => (
+                                            <li {...props} key={option.id}>
+                                                <Box display='flex' justifyContent='space-between' width='100%'>
+                                                    <span>{option.label}</span>
+                                                    <Typography variant='body2' color='text.secondary'>{formatter.format(option.remaining)}</Typography>
+                                                </Box>
+                                            </li>
+                                        )}
                                         renderGroup={(params) => (
                                             <li>
                                                 <GroupHeader>{params.group}</GroupHeader>
@@ -429,6 +446,14 @@ export default function AddTransaction() {
                                                         changeSplitCat(x.recId, newValue)
                                                     }}
                                                     renderInput={(params) => <TextField variant='filled' required onFocus={handleFocus} margin="none" {...params} label="Category" />}
+                                                    renderOption={(props, option) => (
+                                                        <li {...props} key={option.id}>
+                                                            <Box display='flex' justifyContent='space-between' width='100%'>
+                                                                <span>{option.label}</span>
+                                                                <Typography variant='body2' color='text.secondary'>{formatter.format(option.remaining)}</Typography>
+                                                            </Box>
+                                                        </li>
+                                                    )}
                                                     renderGroup={(params) => (
                                                         <li>
                                                             <GroupHeader>{params.group}</GroupHeader>
