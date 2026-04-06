@@ -11,15 +11,10 @@ import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import {
-    dialogPaperStyles,
-    useGlobalStore
-} from "../../store/globalStore";
+import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import { useTableStore } from "../../store/tableStore";
 import InputAdornment from '@mui/material/InputAdornment';
 import SaveIcon from '@mui/icons-material/Save';
-import { supabase } from "../../lib/supabase";
-import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -40,290 +35,141 @@ import dayjs from "dayjs";
 import Paper from "@mui/material/Paper";
 import AddIcon from "@mui/icons-material/Add";
 import Fab from "@mui/material/Fab";
-import GlobalJS from "../extras/GlobalJS"
+import GlobalJS from "../extras/GlobalJS";
 import LinearProgress from '@mui/material/LinearProgress';
+import useCategoryActions from "../extras/useCategoryActions";
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
 });
-const fabStyle = {
-    position: 'fixed',
-    bottom: 16,
-    right: 16,
-};
+const fabStyle = { position: 'fixed', bottom: 16, right: 16 };
 
 export default function EditCategory() {
-    const setLoadingOpen = useGlobalStore(s => s.setMainLoading)
     const openEditCategory = useModalStore(s => s.editCategory);
     const setOpenEditCategory = useModalStore(s => s.setEditCategory);
     const [categoryName, setCategoryName] = React.useState('');
     const [categoryAmount, setCategoryAmount] = React.useState(0);
     const [editMode, setEditMode] = React.useState(false);
-    const categoryArray = useTableStore(s => s.categories)
-    const setCategoryArray = useTableStore(s => s.setCategories)
-    const transactionsArray = useTableStore(s => s.transactions)
-    const setTransactionsArray = useTableStore(s => s.setTransactions)
+    const transactionsArray = useTableStore(s => s.transactions);
     const currentCategoryID = useModalStore(s => s.currentCategory);
-    let currentCategoryDetails = categoryArray.find(x => x.recordID === currentCategoryID)
-    const currentSectionID = useModalStore(s => s.currentSection);
-    const sectionsArray = useTableStore(s => s.sections);
-    const currentSectionName = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionName
-    const currentSectionType = sectionsArray.find(x => x.recordID === currentSectionID)?.sectionType
-    const setSnackText = useGlobalStore(s => s.setSnackBarText);
-    const setSnackSev = useGlobalStore(s => s.setSnackBarSeverity);
-    const setSnackOpen = useGlobalStore(s => s.setSnackBarOpen);
-    const areYouSureOpen = useModalStore(s => s.areYouSure);
-    const setAreYouSureOpen = useModalStore(s => s.setAreYouSure);
-    const setCheckTitle = useGlobalStore(s => s.setAreYouSureTitle);
-    const setCheckDetails = useGlobalStore(s => s.setAreYouSureDetails);
-    const checkAccept = useGlobalStore(s => s.areYouSureAccept);
-    const setCheckAccept = useGlobalStore(s => s.setAreYouSureAccept);
-    const [errorText, setErrorText] = React.useState('')
+    const categoryArray = useTableStore(s => s.categories);
+    const currentCategoryDetails = categoryArray.find(x => x.recordID === currentCategoryID);
+    const [errorText, setErrorText] = React.useState('');
     const theme = useTheme();
     const bigger = useMediaQuery(theme.breakpoints.up('sm'));
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const moreOpen = Boolean(anchorEl);
-    const [categoryDelete, setCategoryDelete] = React.useState(false)
-    const [categorySum, setCategorySum] = React.useState(0)
-    const setTransactionCategory = useGlobalStore(s => s.setAddTransactionCategory)
-    const setAddNewTransaction = useModalStore(s => s.setAddTransaction)
-    const setTransactionType = useGlobalStore(s => s.setAddTransactionType)
+    const [categoryDelete, setCategoryDelete] = React.useState(false);
+    const [categorySum, setCategorySum] = React.useState(0);
     const { grabCategorySum } = GlobalJS();
-    let catAllowedTotal = categoryAmount
-    let incomeType = 1
+
+    const {
+        balanceCategory,
+        allocateRestOfBudget,
+        promptDeleteCategory,
+        deleteCategory,
+        updateCategory,
+        currentSection,
+        currentSectionType,
+    } = useCategoryActions();
+
+    const setTransactionCategory = useGlobalStore(s => s.setAddTransactionCategory);
+    const setAddNewTransaction = useModalStore(s => s.setAddTransaction);
+    const setTransactionType = useGlobalStore(s => s.setAddTransactionType);
+    const setCurrentTransaction = useModalStore(s => s.setCurrentTransaction);
+    const setOpenEditTransaction = useModalStore(s => s.setEditTransaction);
+    const areYouSureOpen = useModalStore(s => s.areYouSure);
+    const checkAccept = useGlobalStore(s => s.areYouSureAccept);
+    const setCheckAccept = useGlobalStore(s => s.setAreYouSureAccept);
+
+    let catAllowedTotal = categoryAmount;
+    let incomeType = 1;
     if (currentSectionType === 'income') {
-        catAllowedTotal = categoryAmount * -1
-        incomeType = -1
+        catAllowedTotal = categoryAmount * -1;
+        incomeType = -1;
     }
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
+
     const addNewTransClick = () => {
         setTransactionCategory({
-            //@ts-ignore
-            sectionName: currentSectionName,
+            sectionName: currentSection?.sectionName,
             id: currentCategoryID,
-            label: currentCategoryDetails?.categoryName
-        })
-        //@ts-ignore
-        setTransactionType(currentSectionType)
-        setAddNewTransaction(true)
-    }
-    const handleClose = () => {
-        setAnchorEl(null);
+            label: currentCategoryDetails?.categoryName,
+        });
+        setTransactionType(currentSectionType);
+        setAddNewTransaction(true);
     };
-    function editModeClick() {
+
+    const openTransaction = (trsID: string) => {
+        setCurrentTransaction(trsID);
+        setOpenEditTransaction(true);
+    };
+
+    // Menu actions
+    async function handleBalanceClick() {
         setAnchorEl(null);
-        setEditMode(!editMode)
+        const err = await balanceCategory();
+        if (err) { setErrorText(err); return; }
+        setOpenEditCategory(false);
     }
-    async function balanceClick() {
+    async function handleAllocateClick() {
         setAnchorEl(null);
-        setLoadingOpen(true)
-        await ensureSession();
-        let { error } = await supabase
-            .from('categories')
-            .update({
-                //@ts-ignore
-                amount: Math.abs(categorySum) === '' ? 0 : Math.abs(categorySum)
-            })
-            .eq('recordID', currentCategoryID)
-        if (error) {
-            setLoadingOpen(false)
-            setErrorText(error.message)
-            return
-        }
-        let newArr = categoryArray.map(obj => {
-            if (obj.recordID === currentCategoryID) {
-                return {
-                    ...obj,
-                    amount: Number(Math.abs(categorySum))
-                }
-            }
-            return obj;
-        });
-        setCategoryArray(newArr);
-        setOpenEditCategory(false)
-        setLoadingOpen(false)
-        setSnackSev('success')
-        setSnackText('Category Balanced!')
-        setSnackOpen(true)
+        const err = await allocateRestOfBudget();
+        if (err) { setErrorText(err); return; }
+        // Refresh local state
+        const updated = useTableStore.getState().categories.find(c => c.recordID === currentCategoryID);
+        if (updated) setCategoryAmount(updated.amount);
     }
-    async function allocateRestClick() {
+    function handleDeleteClick() {
+        setCategoryDelete(true);
         setAnchorEl(null);
-        // Sum all income category budgets
-        const totalIncome = categoryArray
-            .filter(c => sectionsArray.find(s => s.recordID === c.sectionID)?.sectionType === 'income')
-            .reduce((acc, c) => acc + Number(c.amount), 0);
-        // Sum all expense category budgets, excluding this category
-        const totalExpense = categoryArray
-            .filter(c => sectionsArray.find(s => s.recordID === c.sectionID)?.sectionType === 'expense')
-            .filter(c => c.recordID !== currentCategoryID)
-            .reduce((acc, c) => acc + Number(c.amount), 0);
-        // What's left depends on whether this is an income or expense category
-        let remaining: number;
-        if (currentSectionType === 'income') {
-            // For income: remaining = total tracked income - other income budgets
-            const otherIncome = categoryArray
-                .filter(c => sectionsArray.find(s => s.recordID === c.sectionID)?.sectionType === 'income')
-                .filter(c => c.recordID !== currentCategoryID)
-                .reduce((acc, c) => acc + Number(c.amount), 0);
-            remaining = totalIncome - otherIncome;
-        } else {
-            // For expense: remaining = total income - all other expense budgets
-            remaining = totalIncome - totalExpense;
-        }
-        remaining = Math.round(Math.max(remaining, 0) * 100) / 100;
-        setLoadingOpen(true);
-        await ensureSession();
-        let { error } = await supabase
-            .from('categories')
-            .update({ amount: remaining })
-            .eq('recordID', currentCategoryID);
-        if (error) {
-            setLoadingOpen(false);
-            setErrorText(error.message);
-            return;
-        }
-        let newArr = categoryArray.map(obj => {
-            if (obj.recordID === currentCategoryID) {
-                return { ...obj, amount: remaining };
-            }
-            return obj;
-        });
-        setCategoryArray(newArr);
-        setCategoryAmount(remaining);
-        setLoadingOpen(false);
-        setSnackSev('success');
-        setSnackText('Allocated ' + formatter.format(remaining) + ' to this category');
-        setSnackOpen(true);
-    }
-    async function handleDoubleCheck() {
-        setCategoryDelete(true)
-        setAnchorEl(null);
-        setCheckTitle('Are you sure you want to delete this category?')
-        setCheckDetails('WARNING: This will delete all transactions assigned to this category as well.')
-        setAreYouSureOpen(true)
+        promptDeleteCategory();
     }
 
     React.useEffect(() => {
-        if (!areYouSureOpen) {
+        if (!areYouSureOpen && categoryDelete) {
             if (checkAccept) {
-                handleDelete()
+                deleteCategory();
+                setOpenEditCategory(false);
+                setCheckAccept(false);
             }
-            setCategoryDelete(false)
+            setCategoryDelete(false);
         }
-    }, [areYouSureOpen])
+    }, [areYouSureOpen]);
 
-    async function handleDelete() {
-        setErrorText('')
-        if (!categoryDelete) {
-            return
-        }
-        setLoadingOpen(true)
-        await ensureSession();
-        let { data } = await supabase
-            .from('transactions')
-            .delete()
-            .eq('categoryID', currentCategoryID)
-        let { error } = await supabase
-            .from('categories')
-            .delete()
-            .eq('recordID', currentCategoryID)
-        if (error) {
-            setLoadingOpen(false)
-            setErrorText(error.message)
-            return
-        }
-        let newCat = categoryArray.filter(function (el) { return el.recordID !== currentCategoryID; });
-        setCategoryArray(newCat);
-
-        let newTrans = transactionsArray.filter(function (el) { return el.categoryID !== currentCategoryID; });
-        setTransactionsArray(newTrans);
-
-        setOpenEditCategory(false)
-        setLoadingOpen(false)
-        setSnackSev('success')
-        setSnackText('Category deleted')
-        setSnackOpen(true)
-        setCheckAccept(false)
-        setCategoryDelete(false)
-    }
-    const verifyInputs = () => {
-        if (categoryName === '' || categoryName === null) {
-            setErrorText('Please enter a category name')
-            return false
-        }
-        //@ts-ignore
-        if (categoryAmount === null || categoryAmount === '') {
-            setCategoryAmount(0)
-        }
-        return true
-    }
     async function handleSubmit(event: any) {
         event.preventDefault();
-        setErrorText('')
-        if (verifyInputs()) {
-            setLoadingOpen(true)
-            await ensureSession();
-            let { error } = await supabase
-                .from('categories')
-                .update({
-                    categoryName: categoryName,
-                    //@ts-ignore
-                    amount: categoryAmount === '' ? 0 : categoryAmount
-                })
-                .eq('recordID', currentCategoryID)
-            if (error) {
-                setLoadingOpen(false)
-                setErrorText(error.message)
-                return
-            }
-            let newArr = categoryArray.map(obj => {
-                if (obj.recordID === currentCategoryID) {
-                    return {
-                        ...obj,
-                        categoryName: categoryName,
-                        amount: Number(categoryAmount)
-                    }
-                }
-                return obj;
-            });
-            setCategoryArray(newArr);
-            setOpenEditCategory(false)
-            setLoadingOpen(false)
-            setSnackSev('success')
-            setSnackText('Category updated!')
-            setSnackOpen(true)
+        setErrorText('');
+        if (categoryName === '' || categoryName === null) {
+            setErrorText('Please enter a category name');
+            return;
         }
+        const amt = (categoryAmount === null || (categoryAmount as any) === '') ? 0 : Number(categoryAmount);
+        const err = await updateCategory(categoryName, amt);
+        if (err) { setErrorText(err); return; }
+        setOpenEditCategory(false);
     }
-    const handleFocus = (event: any) => {
-        if (event) {
-            event.target.select()
-        }
-    };
-    const setCurrentTransaction = useModalStore(s => s.setCurrentTransaction)
-    const setOpenEditTransaction = useModalStore(s => s.setEditTransaction)
-    const openTransaction = (trsID: string) => {
-        setCurrentTransaction(trsID)
-        setOpenEditTransaction(true)
-    }
+
+    const handleFocus = (event: any) => { if (event) event.target.select(); };
+
     React.useEffect(() => {
         if (!openEditCategory) return;
         if (currentCategoryDetails) {
-            setCategoryName(currentCategoryDetails.categoryName)
-            setCategoryAmount(currentCategoryDetails.amount)
-            setEditMode(false)
-            setCategorySum(grabCategorySum(currentCategoryID))
+            setCategoryName(currentCategoryDetails.categoryName);
+            setCategoryAmount(currentCategoryDetails.amount);
+            setEditMode(false);
+            setCategorySum(grabCategorySum(currentCategoryID));
         }
-        setErrorText('')
-    }, [openEditCategory])
+        setErrorText('');
+    }, [openEditCategory]);
+
     React.useEffect(() => {
         if (!openEditCategory) return;
         if (currentCategoryDetails) {
-            setCategorySum(grabCategorySum(currentCategoryID))
+            setCategorySum(grabCategorySum(currentCategoryID));
         }
-    }, [transactionsArray])
+    }, [transactionsArray]);
+
     return (
         <>
             <Dialog open={openEditCategory}
@@ -335,33 +181,21 @@ export default function EditCategory() {
                 <Box sx={{ bgcolor: 'background.paper', overflow: 'auto', minHeight: '100%' }} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Stack direction='row' alignItems='center' spacing={1}>
-                            <IconButton
-                                size='small'
-                                aria-label="more"
-                                aria-controls={moreOpen ? 'long-menu' : undefined}
-                                aria-expanded={moreOpen ? 'true' : undefined}
-                                aria-haspopup="true"
-                                onClick={handleClick}
-                            >
+                            <IconButton size='small' onClick={(e) => setAnchorEl(e.currentTarget)}>
                                 <MoreVertIcon />
                             </IconButton>
                             <Stack spacing={-1}>
-                                <Typography variant='overline'>{currentSectionName}</Typography>
+                                <Typography variant='overline'>
+                                    {currentSection?.sectionName}
+                                    {currentSectionType === 'income' ? ' · Income' : ' · Expense'}
+                                </Typography>
                                 {editMode ?
                                     <Grow in={editMode}>
-                                        <TextField
-                                            fullWidth
-                                            size='small'
-                                            variant='filled'
-                                            onFocus={handleFocus}
-                                            value={categoryName}
-                                            onChange={(event: any) => setCategoryName(event.target.value)}
-                                            type="text"
-                                            label="Category Name"
-                                        />
+                                        <TextField fullWidth size='small' variant='filled' onFocus={handleFocus}
+                                            value={categoryName} onChange={(e: any) => setCategoryName(e.target.value)}
+                                            type="text" label="Category Name" />
                                     </Grow>
-                                    :
-                                    <Typography variant='h6'>{categoryName}</Typography>
+                                    : <Typography variant='h6'>{categoryName}</Typography>
                                 }
                             </Stack>
                         </Stack>
@@ -371,24 +205,14 @@ export default function EditCategory() {
                         <Grid container spacing={1}>
                             <Grid size={12}>
                                 {editMode ?
-                                    <TextField
-                                        fullWidth
-                                        sx={{ mb: 1 }}
-                                        onFocus={handleFocus}
-                                        value={categoryAmount}
-                                        onChange={(event: any) => setCategoryAmount(event.target.value)}
+                                    <TextField fullWidth sx={{ mb: 1 }} onFocus={handleFocus}
+                                        value={categoryAmount} onChange={(e: any) => setCategoryAmount(e.target.value)}
                                         type="number"
                                         slotProps={{
-                                            input: {
-                                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                            },
-                                            htmlInput: {
-                                                step: 'any',
-                                            },
+                                            input: { startAdornment: <InputAdornment position="start">$</InputAdornment> },
+                                            htmlInput: { step: 'any' },
                                         }}
-                                        placeholder='Budget Amount'
-                                        label="Budget Amount"
-                                    />
+                                        placeholder='Budget Amount' label="Budget Amount" />
                                     : null}
                                 <Stack direction='row' justifyContent='space-between'>
                                     <Paper elevation={1} sx={{ borderRadius: 3 }}>
@@ -402,24 +226,19 @@ export default function EditCategory() {
                                             <Paper elevation={3} sx={{ px: 1 }}>
                                                 <Typography
                                                     color={(catAllowedTotal + categorySum) * incomeType < 0 ? 'error.main' : 'success.main'}
-                                                    style={{ fontWeight: 'bold' }}
-                                                    variant='body1'
-                                                >
+                                                    style={{ fontWeight: 'bold' }} variant='body1'>
                                                     Remaining: {formatter.format((catAllowedTotal + categorySum) * incomeType)}
                                                 </Typography>
                                             </Paper>
                                         </Box>
-                                        <LinearProgress
-                                            sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
+                                        <LinearProgress sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
                                             variant="determinate" color={((-1 * categorySum) / categoryAmount) > 1 ? 'error' : 'success'}
-                                            value={((-1 * categorySum * incomeType) / categoryAmount) * 100}
-                                        />
+                                            value={((-1 * categorySum * incomeType) / categoryAmount) * 100} />
                                     </Paper>
                                     {bigger ?
                                         <Fab color="secondary" variant='extended' onClick={addNewTransClick}>
                                             <AddIcon /> Add Transaction
-                                        </Fab> : null
-                                    }
+                                        </Fab> : null}
                                 </Stack>
                             </Grid>
                             <Box sx={{ mx: 1, mt: 0.5 }}><Typography color='error'>{errorText}</Typography></Box>
@@ -427,55 +246,48 @@ export default function EditCategory() {
                                 <Grid size={12}>
                                     <Grow in={editMode}>
                                         <DialogActions>
-                                            <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>
-                                                Save Changes</Button>
+                                            <Button fullWidth startIcon={<SaveIcon />} variant='contained' type='submit'>Save Changes</Button>
                                         </DialogActions>
                                     </Grow>
-                                </Grid>
-                                : null
-                            }
+                                </Grid> : null}
                             <Grid size={12} container>
                                 <Paper elevation={5} sx={{ width: '100%', borderRadius: 3 }}>
                                     <List dense>
                                         {transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID).length > 0 ?
                                             <>
                                                 <ListItem disablePadding key="1">
-                                                    <Typography color='text.secondary' variant='h6'
-                                                        sx={{ fontWeight: '600', ml: 1 }}>Tracked</Typography>
+                                                    <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml: 1 }}>Tracked</Typography>
                                                 </ListItem>
                                                 {transactionsArray.filter(x => x.categoryID === currentCategoryDetails?.recordID).sort(
-                                                    (a, b) => {
-                                                        return b.transactionDate - a.transactionDate;
-                                                    }
+                                                    (a, b) => b.transactionDate - a.transactionDate
                                                 ).map((row) => (
-                                                    <>
+                                                    <React.Fragment key={row.recordID}>
                                                         <Divider />
-                                                        <ListItem disablePadding key={row.recordID}>
+                                                        <ListItem disablePadding>
                                                             <ListItemButton onClick={() => openTransaction(row.recordID)}>
-                                                                <Grid size={12} container columnSpacing={1} alignItems='center' sx={{ width: '100%' }}>
+                                                                <Grid container columnSpacing={1} alignItems='center' sx={{ width: '100%' }}>
                                                                     <Grid size={1.3}>
                                                                         <Avatar sx={{ ml: -1, fontSize: 15, textAlign: 'center', bgcolor: 'primary.light' }}>
                                                                             {dayjs(row.transactionDate).format('MMM DD')}
                                                                         </Avatar>
                                                                     </Grid>
                                                                     <Grid size='grow'>
-                                                                        <Typography sx={{ mt: 0.5 }}
-                                                                            variant='body1'>{row.title}</Typography>
+                                                                        <Typography sx={{ mt: 0.5 }} variant='body1'>{row.title}</Typography>
                                                                     </Grid>
                                                                     <Grid size="auto" sx={{ textAlign: 'right' }}>
-                                                                        <Typography
-                                                                            variant='body1'>{(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}</Typography>
+                                                                        <Typography variant='body1'>
+                                                                            {(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}
+                                                                        </Typography>
                                                                     </Grid>
                                                                 </Grid>
                                                             </ListItemButton>
                                                         </ListItem>
-                                                    </>
+                                                    </React.Fragment>
                                                 ))}
                                             </>
                                             :
                                             <ListItem disablePadding key="2">
-                                                <Typography color='text.secondary' variant='h6'
-                                                    sx={{ fontWeight: '600', ml: 1 }}>Nothing Tracked Here</Typography>
+                                                <Typography color='text.secondary' variant='h6' sx={{ fontWeight: '600', ml: 1 }}>Nothing Tracked Here</Typography>
                                             </ListItem>
                                         }
                                     </List>
@@ -484,40 +296,23 @@ export default function EditCategory() {
                         </Grid>
                     </DialogContent>
                     {bigger ? null :
-                        <Fab color="secondary" sx={fabStyle} onClick={addNewTransClick}>
-                            <AddIcon />
-                        </Fab>
-                    }
+                        <Fab color="secondary" sx={fabStyle} onClick={addNewTransClick}><AddIcon /></Fab>}
                 </Box>
             </Dialog>
-            <Menu
-                id="long-menu"
-                slotProps={{
-                    list: {
-                        'aria-labelledby': 'long-button',
-                    },
-                }}
-                anchorEl={anchorEl}
-                open={moreOpen}
-                onClose={handleClose}
-            >
-                <MenuItem onClick={editModeClick}>
-                    <EditIcon sx={{ mr: 1 }} />
-                    Edit Category
+            <Menu anchorEl={anchorEl} open={moreOpen} onClose={() => setAnchorEl(null)}>
+                <MenuItem onClick={() => { setAnchorEl(null); setEditMode(!editMode); }}>
+                    <EditIcon sx={{ mr: 1 }} />Edit Category
                 </MenuItem>
-                <MenuItem onClick={balanceClick}>
-                    <BalanceIcon sx={{ mr: 1 }} />
-                    Balance Category
+                <MenuItem onClick={handleBalanceClick}>
+                    <BalanceIcon sx={{ mr: 1 }} />Balance Category
                 </MenuItem>
-                <MenuItem onClick={allocateRestClick}>
-                    <AccountBalanceWalletIcon sx={{ mr: 1 }} />
-                    Allocate Rest of Budget
+                <MenuItem onClick={handleAllocateClick}>
+                    <AccountBalanceWalletIcon sx={{ mr: 1 }} />Allocate Rest of Budget
                 </MenuItem>
-                <MenuItem onClick={handleDoubleCheck}>
-                    <DeleteIcon sx={{ mr: 1 }} />
-                    Delete Category
+                <MenuItem onClick={handleDeleteClick}>
+                    <DeleteIcon sx={{ mr: 1 }} />Delete Category
                 </MenuItem>
             </Menu>
         </>
-    )
+    );
 }

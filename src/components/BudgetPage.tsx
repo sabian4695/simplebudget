@@ -3,9 +3,9 @@ import Typography from '@mui/material/Typography';
 import Stack from "@mui/material/Stack";
 import BudgetSection from "./subcomponents/BudgetSection";
 import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
 import { useModalStore } from "../store/modalStore";
 import { useTableStore } from "../store/tableStore";
+import { useGlobalStore } from "../store/globalStore";
 import AddSection from "./modals/AddSection";
 import Box from '@mui/material/Box';
 import AddCategory from "./modals/AddCategory";
@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import EditCategory from "./modals/EditCategory";
 import LinearProgress from '@mui/material/LinearProgress';
+import Alert from '@mui/material/Alert';
 import Paper from "@mui/material/Paper";
 import useGrabBudgetData from "./extras/GrabBudgetData";
 import EditSection from "./modals/EditSection";
@@ -22,48 +23,26 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import CopyAllIcon from '@mui/icons-material/CopyAll';
 import CopyBudget from "./modals/CopyBudget";
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import Divider from '@mui/material/Divider';
+import Avatar from '@mui/material/Avatar';
+import Grid from '@mui/material/Grid';
+import useCategoryActions from "./extras/useCategoryActions";
+import BalanceIcon from '@mui/icons-material/Balance';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import SaveIcon from '@mui/icons-material/Save';
 
-interface TabPanelProps {
-    children?: React.ReactNode;
-    index: number;
-    value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-    const { children, value, index } = props;
-
-    return (
-        //@ts-ignore
-        <div
-            role="tabpanel"
-            hidden={value !== index}
-        >
-            {value === index && (
-                <>
-                    {children}
-                </>
-            )}
-            {/*@ts-ignore*/}
-        </div>
-    );
-}
-
-const CustomButton = styled(Button)({
-    textTransform: 'none',
-});
-
-const options: string[] = [];
-
-let monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-let d = dayjs().toDate();
-let i
-d.setMonth(d.getMonth() + 3);
-for (i = 0; i > -14; i--) {
-    options.push(monthName[d.getMonth()] + ' ' + d.getFullYear());
-    d.setMonth(d.getMonth() - 1);
-}
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -74,40 +53,60 @@ export default function BudgetPage() {
     const sectionsArray = useTableStore(s => s.sections)
     const transactionsArray = useTableStore(s => s.transactions)
     const setOpenCopyBudget = useModalStore(s => s.setCopyBudget)
+    const { balanceCategory, allocateRestOfBudget, promptDeleteCategory, deleteCategory, updateCategory } = useCategoryActions();
+    const [sidebarAnchorEl, setSidebarAnchorEl] = React.useState<null | HTMLElement>(null);
+    const sidebarMenuOpen = Boolean(sidebarAnchorEl);
+    const [sidebarEditMode, setSidebarEditMode] = React.useState(false);
+    const [sidebarEditName, setSidebarEditName] = React.useState('');
+    const [sidebarEditAmount, setSidebarEditAmount] = React.useState(0);
+    const [pendingDelete, setPendingDelete] = React.useState(false);
+    const areYouSureOpen = useModalStore(s => s.areYouSure);
+    const checkAccept = useGlobalStore(s => s.areYouSureAccept);
+    const setCheckAccept = useGlobalStore(s => s.setAreYouSureAccept);
     const { grabBudgetData } = useGrabBudgetData();
     const currentBudget = useTableStore(s => s.currentBudgetAndMonth)
     const setCurrentBudget = useTableStore(s => s.setCurrentBudgetAndMonth)
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [anchorEl1, setAnchorEl1] = React.useState<null | HTMLElement>(null);
     const categoryArray = useTableStore(s => s.categories)
-    const [selectedIndex, setSelectedIndex] = React.useState(options.indexOf(currentBudget.month + ' ' + currentBudget.year));
-    const [tabValue, setTabValue] = React.useState(0);
-    const open = Boolean(anchorEl);
     const moreOpen = Boolean(anchorEl1);
-    const handleClickListItem = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleMenuItemClick = (
-        event: React.MouseEvent<HTMLElement>,
-        index: number,
-    ) => {
-        setSelectedIndex(index);
-        setCurrentBudget(
-            {
-                budgetID: currentBudget.budgetID,
-                year: Number(options[index].split(' ')[1]),
-                month: options[index].split(' ')[0],
-            }
-        );
-        localStorage.setItem('currentBudget', JSON.stringify(
-            {
-                budgetID: currentBudget.budgetID,
-                year: Number(options[index].split(' ')[1]),
-                month: options[index].split(' ')[0],
-            }
-        ))
-        grabBudgetData(currentBudget.budgetID, Number(options[index].split(' ')[1]), options[index].split(' ')[0])
-        setAnchorEl(null);
+    const selectedMonth = dayjs(`${currentBudget.year}-${currentBudget.month}-01`, 'YYYY-MMMM-DD');
+    const theme = useTheme();
+    const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+    const selectedCategoryID = useModalStore(s => s.currentCategory);
+    const selectedSectionID = useModalStore(s => s.currentSection);
+    const setCurrentTransaction = useModalStore(s => s.setCurrentTransaction);
+    const setOpenEditTransaction = useModalStore(s => s.setEditTransaction);
+
+    // Desktop sidebar: selected category details
+    const selectedCategory = categoryArray.find(c => c.recordID === selectedCategoryID);
+    const selectedSection = sectionsArray.find(s => s.recordID === selectedSectionID);
+    const sidebarTransactions = transactionsArray
+        .filter(t => t.categoryID === selectedCategoryID)
+        .sort((a, b) => b.transactionDate - a.transactionDate);
+    const sidebarSpent = sidebarTransactions
+        .filter(t => t.transactionType === 'expense')
+        .reduce((a, t) => a + t.amount, 0);
+    const sidebarEarned = sidebarTransactions
+        .filter(t => t.transactionType === 'income')
+        .reduce((a, t) => a + t.amount, 0);
+    const sidebarTracked = Math.round((sidebarEarned - sidebarSpent) * 100) / 100;
+    const sidebarRemaining = selectedCategory ? selectedCategory.amount + sidebarTracked : 0;
+
+    const handleMonthChange = (newValue: any) => {
+        if (!newValue) return;
+        const year = Number(newValue.format('YYYY'));
+        const month = newValue.format('MMMM');
+        setCurrentBudget({
+            budgetID: currentBudget.budgetID,
+            year,
+            month,
+        });
+        localStorage.setItem('currentBudget', JSON.stringify({
+            budgetID: currentBudget.budgetID,
+            year,
+            month,
+        }));
+        grabBudgetData(currentBudget.budgetID, year, month);
     };
     let totalIncomeStart = categoryArray.reduce((accumulator, object) => {
         let section = sectionsArray.find(x => x.recordID === object.sectionID)
@@ -180,9 +179,6 @@ export default function BudgetPage() {
             }, 0)
         )
     }, [categoryArray, sectionsArray, transactionsArray])
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
     const handleOpenOptions = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl1(event.currentTarget);
     };
@@ -196,127 +192,267 @@ export default function BudgetPage() {
     React.useEffect(() => {
         window.scrollTo(0, 0)
     }, [])
+
+    // Handle sidebar delete confirmation
+    React.useEffect(() => {
+        if (!areYouSureOpen && pendingDelete) {
+            if (checkAccept) {
+                deleteCategory();
+                setCheckAccept(false);
+            }
+            setPendingDelete(false);
+        }
+    }, [areYouSureOpen]);
+
+    // Reset sidebar edit mode when category changes
+    React.useEffect(() => {
+        setSidebarEditMode(false);
+        if (selectedCategory) {
+            setSidebarEditName(selectedCategory.categoryName);
+            setSidebarEditAmount(selectedCategory.amount);
+        }
+    }, [selectedCategoryID, selectedCategory?.categoryName, selectedCategory?.amount]);
+
     function sumCat(idVal: string) {
         return categoryArray.filter(x => x.sectionID === idVal).reduce((accumulator, object) => {
             return accumulator + object.amount;
         }, 0)
     }
+
+    // Compute over-budget expense categories
+    const overBudgetCategories = categoryArray.filter(cat => {
+        const section = sectionsArray.find(s => s.recordID === cat.sectionID);
+        if (section?.sectionType !== 'expense') return false;
+        const spent = transactionsArray
+            .filter(t => t.categoryID === cat.recordID && t.transactionType === 'expense')
+            .reduce((acc, t) => acc + t.amount, 0);
+        return spent > cat.amount && cat.amount > 0;
+    });
+    const overBudgetTotal = overBudgetCategories.reduce((acc, cat) => {
+        const spent = transactionsArray
+            .filter(t => t.categoryID === cat.recordID && t.transactionType === 'expense')
+            .reduce((a, t) => a + t.amount, 0);
+        return acc + (spent - cat.amount);
+    }, 0);
+
     return (
         <>
-            <Box display='flex' flexDirection='column' alignItems='center'>
-                <Stack spacing={2} alignItems="stretch" sx={{ maxWidth: 400 }}>
-                    <Box>
-                        <Box sx={{ mt: -0.5 }} display='flex' flexDirection='row' alignSelf='flex-start'>
-                            <IconButton
-                                size='small'
-                                aria-label="more"
-                                aria-controls={moreOpen ? 'long-menu' : undefined}
-                                aria-expanded={moreOpen ? 'true' : undefined}
-                                aria-haspopup="true"
-                                onClick={handleOpenOptions}
-                            ><MoreVertIcon /></IconButton>
-                            <Typography display='inline' color='text.secondary' variant='h6'>Budget:</Typography>
-                            <CustomButton color={monthName[dayjs().toDate().getMonth()] === currentBudget.month ? 'success' : 'secondary'} variant="outlined" onClick={handleClickListItem} size='small' sx={{ py: 0, ml: 1 }}><Typography variant='h6'>{options[selectedIndex]}</Typography></CustomButton>
-                        </Box>
+            <Box display='flex' justifyContent='center' gap={3}>
+                <Box display='flex' flexDirection='column' alignItems='center' sx={{ flex: '0 1 400px', width: '100%' }}>
+                    <Stack spacing={2} alignItems="stretch" sx={{ width: '100%' }}>
                         <Box>
-                            <Tabs variant='fullWidth' sx={{ mt: 1 }} value={tabValue} onChange={(event: React.SyntheticEvent, newValue: number) => {
-                                setTabValue(newValue);
-                            }} centered>
-                                <Tab label="Planned" />
-                                <Tab label="Actual" />
-                            </Tabs>
-                            <TabPanel value={tabValue} index={0}>
-                                <Paper elevation={1} sx={{ borderRadius: 3 }}>
-                                    <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
-                                        <Paper elevation={3} sx={{ px: 1 }}>
-                                            <Typography color='text.secondary' variant='body1'>Income: {formatter.format(totalIncome)}</Typography>
-                                        </Paper>
-                                        <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
-                                            <Typography color='text.secondary' variant='body1'>Expenses: {formatter.format(totalExpenses)}</Typography>
-                                        </Paper>
-                                        <Paper elevation={3} sx={{ px: 1 }}>
-                                            <Typography
-                                                color={totalIncome - totalExpenses < 0 ? 'error.main' : 'success.main'}
-                                                style={{ fontWeight: 'bold' }}
-                                                variant='body1'
-                                            >
-                                                Leftover: {formatter.format(totalIncome - totalExpenses)}
-                                            </Typography>
-                                        </Paper>
-                                    </Box>
-                                    <LinearProgress
-                                        sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
-                                        variant="determinate" color={(totalExpenses / totalIncome) > 1 ? 'error' : 'success'}
-                                        value={(totalExpenses / totalIncome) * 100}
+                            <Box sx={{ mt: -0.5 }} display='flex' flexDirection='row' alignSelf='flex-start' alignItems='center'>
+                                <IconButton
+                                    size='small'
+                                    aria-label="more"
+                                    aria-controls={moreOpen ? 'long-menu' : undefined}
+                                    aria-expanded={moreOpen ? 'true' : undefined}
+                                    aria-haspopup="true"
+                                    onClick={handleOpenOptions}
+                                ><MoreVertIcon /></IconButton>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        views={['year', 'month']}
+                                        value={selectedMonth}
+                                        onChange={handleMonthChange}
+                                        slotProps={{
+                                            textField: {
+                                                size: 'small',
+                                                variant: 'outlined'
+                                            },
+                                        }}
                                     />
-                                </Paper>
-                            </TabPanel>
-                            <TabPanel value={tabValue} index={1}>
-                                <Paper elevation={1} sx={{ borderRadius: 3 }}>
-                                    <Box display='flex' alignItems='center' justifyContent='space-evenly' sx={{ width: '100%', p: 1, textAlign: 'center' }}>
-                                        <Paper elevation={3} sx={{ px: 1 }}>
-                                            <Typography color='text.secondary' variant='body1'>Received: {formatter.format(totalActualIncome)}</Typography>
-                                        </Paper>
-                                        <Paper elevation={3} sx={{ mx: 1, px: 1 }}>
-                                            <Typography color='text.secondary' variant='body1'>Spent: {formatter.format(totalActualExpenses)}</Typography>
-                                        </Paper>
-                                        <Paper elevation={3} sx={{ px: 1 }}>
-                                            <Typography
-                                                color={totalActualIncome - totalActualExpenses < 0 ? 'error.main' : 'success.main'}
-                                                style={{ fontWeight: 'bold' }}
-                                                variant='body1'
-                                            >
-                                                Difference: {formatter.format(totalActualIncome - totalActualExpenses)}
-                                            </Typography>
-                                        </Paper>
-                                    </Box>
-                                    <LinearProgress
-                                        sx={{ height: 10, borderBottomRightRadius: 6, borderBottomLeftRadius: 6 }}
-                                        variant="determinate" color={(totalActualExpenses / totalActualIncome) > 1 ? 'error' : 'success'}
-                                        value={(totalActualExpenses / totalActualIncome) * 100}
-                                    />
-                                </Paper>
-                            </TabPanel>
+                                </LocalizationProvider>
+                            </Box>
+                            <Paper elevation={2} sx={{ borderRadius: 3, mt: 1, p: 1.5 }}>
+                                <Box display='flex' justifyContent='space-between' sx={{ mb: 0.5 }}>
+                                    <Typography variant='caption' color='text.secondary'>Planned</Typography>
+                                    <Typography variant='caption' color='text.secondary'>Actual</Typography>
+                                </Box>
+                                <Box display='flex' justifyContent='space-between' alignItems='baseline'>
+                                    <Typography variant='body2' color='text.secondary'>
+                                        {formatter.format(totalIncome)} in
+                                    </Typography>
+                                    <Typography variant='body2' color='text.secondary'>
+                                        {formatter.format(totalActualIncome)} in
+                                    </Typography>
+                                </Box>
+                                <Box display='flex' justifyContent='space-between' alignItems='baseline'>
+                                    <Typography variant='body2' color='text.secondary'>
+                                        {formatter.format(totalExpenses)} out
+                                    </Typography>
+                                    <Typography variant='body2' color='text.secondary'>
+                                        {formatter.format(totalActualExpenses)} out
+                                    </Typography>
+                                </Box>
+                                <Box display='flex' justifyContent='space-between' alignItems='baseline' sx={{ mt: 0.5 }}>
+                                    <Typography
+                                        variant='body1'
+                                        sx={{ fontWeight: 'bold' }}
+                                        color={totalIncome - totalExpenses < 0 ? 'error.main' : 'success.main'}
+                                    >
+                                        {formatter.format(totalIncome - totalExpenses)}
+                                    </Typography>
+                                    <Typography
+                                        variant='body1'
+                                        sx={{ fontWeight: 'bold' }}
+                                        color={totalActualIncome - totalActualExpenses < 0 ? 'error.main' : 'success.main'}
+                                    >
+                                        {formatter.format(totalActualIncome - totalActualExpenses)}
+                                    </Typography>
+                                </Box>
+                                <LinearProgress
+                                    sx={{ height: 6, borderRadius: 3, mt: 1 }}
+                                    variant="determinate"
+                                    color={(totalActualExpenses / totalActualIncome) > 1 ? 'error' : 'success'}
+                                    value={Math.min((totalActualExpenses / (totalActualIncome || 1)) * 100, 100)}
+                                />
+                            </Paper>
                         </Box>
-                    </Box>
 
-                    {sectionsArray.filter(x => x.sectionType === 'income').map((row) => (
-                        <BudgetSection sectionID={row.recordID} key={row.recordID} />
-                    )
-                    )}
-                    {sectionsArray.filter(x => x.sectionType === 'expense').sort(function (a, b) {
-                        //@ts-ignore
-                        return sumCat(b.recordID) - sumCat(a.recordID);
-                    }).map((row) => (
-                        <BudgetSection sectionID={row.recordID} key={row.recordID} />
-                    )
-                    )}
-                    <Button variant='outlined' color='secondary' startIcon={<PostAddIcon />} onClick={() => setAddNewSection(true)}>Add Section</Button>
-                </Stack>
-            </Box >
+                        {overBudgetCategories.length > 0 && (
+                            <Alert severity="warning" variant="outlined" sx={{ py: 0 }}>
+                                {overBudgetCategories.length} {overBudgetCategories.length === 1 ? 'category' : 'categories'} over budget by {formatter.format(overBudgetTotal)}
+                            </Alert>
+                        )}
+
+                        {sectionsArray.filter(x => x.sectionType === 'income').map((row) => (
+                            <BudgetSection sectionID={row.recordID} key={row.recordID} />
+                        )
+                        )}
+                        {sectionsArray.filter(x => x.sectionType === 'expense').sort(function (a, b) {
+                            //@ts-ignore
+                            return sumCat(b.recordID) - sumCat(a.recordID);
+                        }).map((row) => (
+                            <BudgetSection sectionID={row.recordID} key={row.recordID} />
+                        )
+                        )}
+                        <Button variant='outlined' color='secondary' startIcon={<PostAddIcon />} onClick={() => setAddNewSection(true)}>Add Section</Button>
+                    </Stack>
+                </Box>
+
+                {isDesktop && selectedCategory && (
+                    <Box sx={{ flex: '0 1 360px', position: 'sticky', top: 80, alignSelf: 'flex-start' }}>
+                        <Paper elevation={4} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                            <Box sx={{ p: 1.5 }}>
+                                <Box display='flex' justifyContent='space-between' alignItems='flex-start'>
+                                    <Box>
+                                        <Typography variant='overline' color='text.secondary'>
+                                            {selectedSection?.sectionName}
+                                            {selectedSection?.sectionType === 'income' ? ' · Income' : ' · Expense'}
+                                        </Typography>
+                                        {sidebarEditMode ? (
+                                            <Box sx={{ mt: 0.5 }}>
+                                                <TextField size='small' variant='filled' fullWidth
+                                                    value={sidebarEditName}
+                                                    onChange={(e) => setSidebarEditName(e.target.value)}
+                                                    label="Category Name" sx={{ mb: 1 }} />
+                                                <TextField size='small' variant='filled' fullWidth type="number"
+                                                    value={sidebarEditAmount}
+                                                    onChange={(e) => setSidebarEditAmount(Number(e.target.value))}
+                                                    label="Budget Amount"
+                                                    slotProps={{
+                                                        input: { startAdornment: <InputAdornment position="start">$</InputAdornment> },
+                                                        htmlInput: { step: 'any' },
+                                                    }} />
+                                                <Button size='small' fullWidth variant='contained' startIcon={<SaveIcon />}
+                                                    sx={{ mt: 1 }}
+                                                    onClick={async () => {
+                                                        const err = await updateCategory(sidebarEditName, sidebarEditAmount);
+                                                        if (!err) setSidebarEditMode(false);
+                                                    }}>
+                                                    Save
+                                                </Button>
+                                            </Box>
+                                        ) : (
+                                            <Typography variant='h6'>{selectedCategory.categoryName}</Typography>
+                                        )}
+                                    </Box>
+                                    <IconButton size='small' onClick={(e) => setSidebarAnchorEl(e.currentTarget)}>
+                                        <MoreVertIcon />
+                                    </IconButton>
+                                </Box>
+                                <Box display='flex' justifyContent='space-between' sx={{ mt: 0.5 }}>
+                                    <Typography variant='body2' color='text.secondary'>
+                                        Budgeted: {formatter.format(selectedCategory.amount)}
+                                    </Typography>
+                                    <Typography variant='body2' color='text.secondary'>
+                                        Tracked: {formatter.format(Math.abs(sidebarTracked))}
+                                    </Typography>
+                                    <Typography
+                                        variant='body2'
+                                        sx={{ fontWeight: 'bold' }}
+                                        color={sidebarRemaining < 0 ? 'error.main' : 'success.main'}
+                                    >
+                                        Left: {formatter.format(sidebarRemaining)}
+                                    </Typography>
+                                </Box>
+                                <LinearProgress
+                                    sx={{ height: 4, borderRadius: 2, mt: 1 }}
+                                    variant="determinate"
+                                    color={sidebarSpent > selectedCategory.amount ? 'error' : 'success'}
+                                    value={Math.min((sidebarSpent / (selectedCategory.amount || 1)) * 100, 100)}
+                                />
+                            </Box>
+                            <List dense sx={{ maxHeight: 400, overflow: 'auto' }}>
+                                {sidebarTransactions.length > 0 ? sidebarTransactions.map((row) => (
+                                    <React.Fragment key={row.recordID}>
+                                        <Divider />
+                                        <ListItem disablePadding>
+                                            <ListItemButton onClick={() => {
+                                                setCurrentTransaction(row.recordID);
+                                                setOpenEditTransaction(true);
+                                            }}>
+                                                <Grid container columnSpacing={1} alignItems='center' sx={{ width: '100%' }}>
+                                                    <Grid size={1.5}>
+                                                        <Avatar sx={{ fontSize: 13, textAlign: 'center', bgcolor: 'primary.light', width: 36, height: 36 }}>
+                                                            {dayjs(row.transactionDate).format('MMM DD')}
+                                                        </Avatar>
+                                                    </Grid>
+                                                    <Grid size='grow'>
+                                                        <Typography variant='body2'>{row.title}</Typography>
+                                                    </Grid>
+                                                    <Grid size='auto'>
+                                                        <Typography variant='body2'>
+                                                            {(row.transactionType === 'expense' ? '-' : '+') + formatter.format(row.amount)}
+                                                        </Typography>
+                                                    </Grid>
+                                                </Grid>
+                                            </ListItemButton>
+                                        </ListItem>
+                                    </React.Fragment>
+                                )) : (
+                                    <ListItem>
+                                        <Typography variant='body2' color='text.secondary'>No transactions yet</Typography>
+                                    </ListItem>
+                                )}
+                            </List>
+                        </Paper>
+                    </Box>
+                )}
+            </Box>
             <Menu
-                id="lock-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                slotProps={{
-                    list: {
-                        'aria-labelledby': 'lock-button',
-                        role: 'listbox',
-                    },
-                    paper: { style: { maxHeight: 300 } },
-                }}
+                anchorEl={sidebarAnchorEl}
+                open={sidebarMenuOpen}
+                onClose={() => setSidebarAnchorEl(null)}
             >
-                {options.map((option, index) => (
-                    <MenuItem
-                        key={option}
-                        selected={index === selectedIndex}
-                        //@ts-ignore
-                        onClick={(event) => handleMenuItemClick(event, index)}
-                    >
-                        {option}
-                    </MenuItem>
-                ))}
+                <MenuItem onClick={() => {
+                    setSidebarAnchorEl(null);
+                    setSidebarEditName(selectedCategory?.categoryName || '');
+                    setSidebarEditAmount(selectedCategory?.amount || 0);
+                    setSidebarEditMode(true);
+                }}>
+                    <EditIcon sx={{ mr: 1 }} />Edit Category
+                </MenuItem>
+                <MenuItem onClick={() => { setSidebarAnchorEl(null); balanceCategory(); }}>
+                    <BalanceIcon sx={{ mr: 1 }} />Balance Category
+                </MenuItem>
+                <MenuItem onClick={() => { setSidebarAnchorEl(null); allocateRestOfBudget(); }}>
+                    <AccountBalanceWalletIcon sx={{ mr: 1 }} />Allocate Rest of Budget
+                </MenuItem>
+                <MenuItem onClick={() => { setSidebarAnchorEl(null); setPendingDelete(true); promptDeleteCategory(); }}>
+                    <DeleteIcon sx={{ mr: 1 }} />Delete Category
+                </MenuItem>
             </Menu>
             <Menu
                 slotProps={{
@@ -330,7 +466,7 @@ export default function BudgetPage() {
             >
                 <MenuItem onClick={copyBudgetClick}>
                     <CopyAllIcon sx={{ mr: 1 }} />
-                    Copy budget
+                    Copy budget outline
                 </MenuItem>
             </Menu>
             <AddCategory />

@@ -12,7 +12,8 @@ import { useTableStore } from "../../store/tableStore";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import IconButton from "@mui/material/IconButton";
 import LinearProgress, { linearProgressClasses } from "@mui/material/LinearProgress";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import GlobalJS from "../extras/GlobalJS";
 
@@ -38,6 +39,8 @@ export default function BudgetSection(sectionID: any) {
     const sectionsArray = useTableStore(s => s.sections)
     const categoriesArray = useTableStore(s => s.categories)
     const { grabCategorySum } = GlobalJS();
+    const theme = useTheme();
+    const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
     const [categoryArray, setCategoryArray] = React.useState(categoriesArray.filter(x => x.sectionID === sectionID.sectionID))
     let section = sectionsArray.find(x => x.recordID === sectionID.sectionID)
     React.useEffect(() => {
@@ -51,7 +54,9 @@ export default function BudgetSection(sectionID: any) {
     const openCategory = (categoryID: string) => {
         setSection(sectionID.sectionID)
         setCategory(categoryID)
-        setOpenEditCategory(true)
+        if (!isDesktop) {
+            setOpenEditCategory(true)
+        }
     }
     const openSection = () => {
         setSection(sectionID.sectionID)

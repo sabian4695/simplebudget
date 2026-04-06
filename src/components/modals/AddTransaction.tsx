@@ -29,6 +29,7 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { styled, lighten, darken } from '@mui/system';
 import Divider from '@mui/material/Divider';
+import Alert from '@mui/material/Alert';
 
 const GroupHeader = styled('div')(({ theme }) => ({
     position: 'sticky',
@@ -312,6 +313,13 @@ export default function AddTransaction() {
                     </DialogTitle>
                     <DialogContent dividers>
                         <Grid container spacing={2}>
+                            {currentBudget.month !== dayjs().format('MMMM') || currentBudget.year !== Number(dayjs().format('YYYY')) ? (
+                                <Grid size={12}>
+                                    <Alert severity="warning" variant="outlined" sx={{ py: 0 }}>
+                                        You're adding to {currentBudget.month} {currentBudget.year}
+                                    </Alert>
+                                </Grid>
+                            ) : null}
                             {splitBool ?
                                 <>
                                     <Grid size={12}><Typography variant='subtitle2'>{"Left to track: " + formatter.format(transactionAmount - splitArr.reduce((accumulator, object) => {
