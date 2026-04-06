@@ -16,6 +16,7 @@ import {
 import { useTableStore } from "../../store/tableStore";
 import SaveIcon from '@mui/icons-material/Save';
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -106,6 +107,7 @@ export default function EditSection() {
             return
         }
         setLoadingOpen(true)
+        await ensureSession();
         let catDelete = categoryArray.filter(x => x.sectionID === currentSectionID)
         await deleteTransactions(catDelete)
 
@@ -148,6 +150,7 @@ export default function EditSection() {
         setErrorText('')
         if (verifyInputs()) {
             setLoadingOpen(true)
+            await ensureSession();
             let { error } = await supabase
                 .from('sections')
                 .update({

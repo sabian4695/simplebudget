@@ -18,6 +18,7 @@ import { useTableStore } from "../../store/tableStore";
 import InputAdornment from '@mui/material/InputAdornment';
 import SaveIcon from '@mui/icons-material/Save';
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -118,6 +119,7 @@ export default function EditCategory() {
     async function balanceClick() {
         setAnchorEl(null);
         setLoadingOpen(true)
+        await ensureSession();
         let { error } = await supabase
             .from('categories')
             .update({
@@ -169,6 +171,7 @@ export default function EditCategory() {
             return
         }
         setLoadingOpen(true)
+        await ensureSession();
         let { data } = await supabase
             .from('transactions')
             .delete()
@@ -212,6 +215,7 @@ export default function EditCategory() {
         setErrorText('')
         if (verifyInputs()) {
             setLoadingOpen(true)
+            await ensureSession();
             let { error } = await supabase
                 .from('categories')
                 .update({

@@ -103,7 +103,7 @@ export const useGlobalStore = create<GlobalState>((set) => ({
     setAreYouSureAccept: (val) => set({ areYouSureAccept: val }),
     addTransactionCategory: null,
     setAddTransactionCategory: (val) => set({ addTransactionCategory: val }),
-    addTransactionType: null,
+    addTransactionType: 'expense',
     setAddTransactionType: (val) => set({ addTransactionType: val }),
 }));
 

@@ -15,6 +15,7 @@ import { useTableStore } from "../../store/tableStore";
 import InputAdornment from '@mui/material/InputAdornment';
 import AddIcon from "@mui/icons-material/Add";
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -52,6 +53,7 @@ export default function AddCategory() {
         setErrorText('')
         if (verifyInputs()) {
             setLoadingOpen(true)
+            await ensureSession();
             let newCategory = {
                 recordID: uuidv4(),
                 sectionID: currentSectionID,

@@ -12,6 +12,7 @@ import Typography from "@mui/material/Typography";
 import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import InputAdornment from '@mui/material/InputAdornment';
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -49,6 +50,7 @@ export default function ChangePassword() {
         event.preventDefault();
         setErrorText('')
         if (verifyInputs()) {
+            await ensureSession();
             const { data, error } = await supabase.auth.updateUser({
                 password: newPassword0,
             })

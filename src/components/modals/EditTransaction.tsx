@@ -23,6 +23,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
@@ -135,6 +136,7 @@ export default function EditTransaction() {
             return
         }
         setLoadingOpen(true)
+        await ensureSession();
         let { error } = await supabase
             .from('transactions')
             .delete()
@@ -171,6 +173,7 @@ export default function EditTransaction() {
         console.log(transactionCategory)
         if (verifyInputs()) {
             setLoadingOpen(true)
+            await ensureSession();
             let { error } = await supabase
                 .from('transactions')
                 .update({

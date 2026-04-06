@@ -16,6 +16,7 @@ import {
 import { useTableStore } from "../../store/tableStore";
 import SaveIcon from '@mui/icons-material/Save';
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -68,6 +69,7 @@ export default function CopyBudget() {
         event.preventDefault();
         setErrorText('')
         setLoadingOpen(true)
+        await ensureSession();
         if (verifyInputs()) {
 
             let allSections = await supaSections(currentBudget.budgetID, dayjs(fromMonth).format('MMMM'), Number(dayjs(fromMonth).format('YYYY')))

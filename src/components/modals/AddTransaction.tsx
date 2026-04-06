@@ -22,6 +22,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import AddIcon from "@mui/icons-material/Add";
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -125,11 +126,19 @@ export default function AddTransaction() {
             return
         }
         setLoadingOpen(true)
+        // Refresh session in case the user has been idle (iOS kills timers)
+        await ensureSession();
         if (splitBool) {
-            if (transactionAmount - splitArr.reduce((accumulator: any, object) => {
-                return accumulator + Number(object.transAmount);
-            }, 0).toFixed(2) !== 0) {
+            const splitTotal = splitArr.reduce((acc, obj) => acc + Number(obj.transAmount), 0);
+            if (Math.abs(Number(transactionAmount) - splitTotal) > 0.01) {
                 setErrorText('Must allocate full amount!')
+                setLoadingOpen(false)
+                return
+            }
+
+            // Validate all splits have a category selected
+            if (splitArr.some(row => row.cat === null || row.cat === undefined)) {
+                setErrorText('Please select a category for each split')
                 setLoadingOpen(false)
                 return
             }
@@ -138,10 +147,8 @@ export default function AddTransaction() {
                 return {
                     recordID: row.recId,
                     budgetID: currentBudget.budgetID,
-                    //@ts-ignore
                     categoryID: row.cat.id,
-                    //@ts-ignore
-                    amount: Math.round(row.transAmount * 100) / 100,
+                    amount: Math.round(Number(row.transAmount) * 100) / 100,
                     title: transactionTitle + ' ' + transactionAmount + ' split',
                     transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
                     transactionType: transactionType,
@@ -149,18 +156,23 @@ export default function AddTransaction() {
                 }
             })
 
-            addTransactions.forEach(async (x) => {
-                let { error } = await supabase
-                    .from('transactions')
-                    .insert(x)
-                if (error) {
-                    setErrorText(error.message)
-                    setLoadingOpen(false)
-                    return
+            try {
+                for (const x of addTransactions) {
+                    let { error } = await supabase
+                        .from('transactions')
+                        .insert(x)
+                    if (error) {
+                        setErrorText(error.message)
+                        setLoadingOpen(false)
+                        return
+                    }
+                    setTransactionsArray((prevState: any[]) => [...prevState, x]);
                 }
-                //@ts-ignore
-                setTransactionsArray(prevState => [...prevState, x]);
-            })
+            } catch (err: any) {
+                setErrorText(err.message || 'Failed to save split transactions')
+                setLoadingOpen(false)
+                return
+            }
 
             setAddNewTransaction(false)
             setLoadingOpen(false)
@@ -234,10 +246,15 @@ export default function AddTransaction() {
         }
     };
     React.useEffect(() => {
-        if (addNewTransaction) return;
+        if (addNewTransaction) {
+            // Set defaults when modal opens
+            if (transactionType === null) {
+                setTransactionType('expense')
+            }
+            return;
+        }
         setTransactionTitle('')
         setTransactionAmount(0)
-        //@ts-ignore
         setTransactionType('expense')
         setTransactionCategory(null)
         setTransactionDate(dayjs())
