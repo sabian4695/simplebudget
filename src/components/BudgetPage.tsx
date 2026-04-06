@@ -223,16 +223,25 @@ export default function BudgetPage() {
     const overBudgetCategories = categoryArray.filter(cat => {
         const section = sectionsArray.find(s => s.recordID === cat.sectionID);
         if (section?.sectionType !== 'expense') return false;
-        const spent = transactionsArray
+        if (cat.amount <= 0) return false;
+        const expenses = transactionsArray
             .filter(t => t.categoryID === cat.recordID && t.transactionType === 'expense')
             .reduce((acc, t) => acc + t.amount, 0);
-        return spent > cat.amount && cat.amount > 0;
+        const incomes = transactionsArray
+            .filter(t => t.categoryID === cat.recordID && t.transactionType === 'income')
+            .reduce((acc, t) => acc + t.amount, 0);
+        const netSpent = expenses - incomes;
+        return netSpent > cat.amount + 0.01 && netSpent > 0;
     });
     const overBudgetTotal = overBudgetCategories.reduce((acc, cat) => {
-        const spent = transactionsArray
+        const expenses = transactionsArray
             .filter(t => t.categoryID === cat.recordID && t.transactionType === 'expense')
             .reduce((a, t) => a + t.amount, 0);
-        return acc + (spent - cat.amount);
+        const incomes = transactionsArray
+            .filter(t => t.categoryID === cat.recordID && t.transactionType === 'income')
+            .reduce((a, t) => a + t.amount, 0);
+        const netSpent = expenses - incomes;
+        return acc + (netSpent - cat.amount);
     }, 0);
 
     return (
