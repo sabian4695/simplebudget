@@ -240,6 +240,13 @@ export default function AddTransaction() {
         //@ts-ignore
         setSplitArr(newArr);
     }
+    function allocateRest(splitRecId: string) {
+        const otherTotal = splitArr
+            .filter(obj => obj.recId !== splitRecId)
+            .reduce((acc, obj) => acc + Number(obj.transAmount), 0);
+        const remaining = Math.round((Number(transactionAmount) - otherTotal) * 100) / 100;
+        changeSplitAmount(splitRecId, remaining > 0 ? remaining : 0);
+    }
     const handleFocus = (event: any) => {
         if (event) {
             event.target.select()
@@ -409,7 +416,7 @@ export default function AddTransaction() {
                                                     required
                                                 />
                                             </Grid>
-                                            <Grid size={7}>
+                                            <Grid size={6}>
                                                 <Autocomplete
                                                     disablePortal={false}
                                                     options={categoryGroups}
@@ -430,7 +437,8 @@ export default function AddTransaction() {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid size={1}>
+                                            <Grid size={2}>
+                                                <IconButton size='small' title='Allocate rest' onClick={() => allocateRest(x.recId)}>$</IconButton>
                                                 <IconButton size='small' onClick={() => deleteSplitCat(x.recId)}><CloseIcon /></IconButton>
                                             </Grid>
                                         </>
