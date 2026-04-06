@@ -46,6 +46,8 @@ import AddTransaction from "./components/modals/AddTransaction";
 import Badge from '@mui/material/Badge';
 import AreYouSure from "./components/subcomponents/AreYouSure";
 import EditTransaction from "./components/modals/EditTransaction";
+import UpdatePrompt from "./components/subcomponents/UpdatePrompt";
+import { usePwaStore } from "./store/pwaStore";
 
 const fabStyle = {
   position: 'fixed',
@@ -75,6 +77,9 @@ export default function App() {
   const setBudgetArray = useTableStore(s => s.setBudgets)
   const setAddNewTransaction = useModalStore(s => s.setAddTransaction)
   const setSelectBudget = useModalStore(s => s.setSelectBudget)
+  const needRefresh = usePwaStore(s => s.needRefresh)
+  const setNeedRefresh = usePwaStore(s => s.setNeedRefresh)
+  const pwaUpdateSW = usePwaStore(s => s.updateSW)
   const setSectionArray = useTableStore(s => s.setSections)
   const setCategoryArray = useTableStore(s => s.setCategories)
   const transactionArray = useTableStore(s => s.transactions)
@@ -236,6 +241,11 @@ export default function App() {
         </Backdrop>
         <SelectBudget />
         <AreYouSure />
+        <UpdatePrompt
+          open={needRefresh}
+          onUpdate={() => { if (pwaUpdateSW) pwaUpdateSW(true); }}
+          onDismiss={() => setNeedRefresh(false)}
+        />
       </ThemeProvider>
     </>
   );
