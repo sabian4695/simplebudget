@@ -38,7 +38,7 @@ import {
 } from "./components/extras/api_functions";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
-import GrabBudgetData from "./components/extras/GrabBudgetData";
+import useGrabBudgetData from "./components/extras/GrabBudgetData";
 import SelectBudget from "./components/modals/SelectBudget";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -63,7 +63,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 export default function App() {
   let location = useLocation();
   const currentTheme = useGlobalStore(s => s.themeAtom);
-  const { grabBudgetData } = GrabBudgetData();
+  const { grabBudgetData } = useGrabBudgetData();
   const snackText = useGlobalStore(s => s.snackBarText);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('sm'));

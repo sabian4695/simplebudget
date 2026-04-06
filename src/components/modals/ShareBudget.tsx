@@ -15,7 +15,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import Alert from '@mui/material/Alert';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
-import { supabase } from "../LoginPage";
+import { supabase } from "../../lib/supabase";
 import { ensureSession } from "../extras/ensureSession";
 import { v4 as uuidv4 } from "uuid";
 import { useTheme } from "@mui/material/styles";

@@ -17,7 +17,7 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { supabase } from "./LoginPage";
+import { supabase } from "../lib/supabase";
 import logo from "../logo.png";
 import Stack from "@mui/material/Stack";
 import Backdrop from '@mui/material/Backdrop';

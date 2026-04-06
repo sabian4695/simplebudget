@@ -21,7 +21,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ShareIcon from '@mui/icons-material/Share';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { supabase } from "./LoginPage";
+import { supabase } from "../lib/supabase";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ShareBudget from "./modals/ShareBudget";

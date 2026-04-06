@@ -11,7 +11,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import InputAdornment from '@mui/material/InputAdornment';
-import { supabase } from "../LoginPage";
+import { supabase } from "../../lib/supabase";
 import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";

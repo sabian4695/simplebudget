@@ -22,7 +22,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
-import { supabase } from "../LoginPage";
+import { supabase } from "../../lib/supabase";
 import { ensureSession } from "../extras/ensureSession";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from '@mui/icons-material/Close';

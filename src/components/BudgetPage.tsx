@@ -16,7 +16,7 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import EditCategory from "./modals/EditCategory";
 import LinearProgress from '@mui/material/LinearProgress';
 import Paper from "@mui/material/Paper";
-import GrabBudgetData from "./extras/GrabBudgetData";
+import useGrabBudgetData from "./extras/GrabBudgetData";
 import EditSection from "./modals/EditSection";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
@@ -74,7 +74,7 @@ export default function BudgetPage() {
     const sectionsArray = useTableStore(s => s.sections)
     const transactionsArray = useTableStore(s => s.transactions)
     const setOpenCopyBudget = useModalStore(s => s.setCopyBudget)
-    const { grabBudgetData } = GrabBudgetData();
+    const { grabBudgetData } = useGrabBudgetData();
     const currentBudget = useTableStore(s => s.currentBudgetAndMonth)
     const setCurrentBudget = useTableStore(s => s.setCurrentBudgetAndMonth)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
