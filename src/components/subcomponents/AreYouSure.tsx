@@ -24,7 +24,7 @@ export default function AreYouSure() {
             <Dialog
                 open={open}
                 onClose={() => setOpen(false)}
-                PaperProps={dialogPaperStyles}
+                slotProps={{ paper: dialogPaperStyles }}
             >
                 <Box sx={{ bgcolor: 'background.paper', height: '100%' }}>
                     <DialogTitle id="alert-dialog-title">

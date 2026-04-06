@@ -77,7 +77,7 @@ export default function ChangePassword() {
                 onClose={() => setOpenModal(false)}
                 scroll='paper'
                 fullScreen={!bigger}
-                PaperProps={bigger ? dialogPaperStyles : undefined}
+                slotProps={{ paper: bigger ? dialogPaperStyles : undefined }}
             >
                 <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -92,21 +92,23 @@ export default function ChangePassword() {
                                     type={showPassword0 ? 'text' : 'password'}
                                     label="Current Password"
                                     value={currentPassword}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => {
-                                                    setShowPassword0(!showPassword0)
-                                                }}
-                                                onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                    event.preventDefault();
-                                                }}
-                                                edge="end"
-                                            >
-                                                {showPassword0 ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={() => {
+                                                        setShowPassword0(!showPassword0)
+                                                    }}
+                                                    onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                        event.preventDefault();
+                                                    }}
+                                                    edge="end"
+                                                >
+                                                    {showPassword0 ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>,
+                                        },
                                     }}
                                     onChange={(e) => setCurrentPassword(e.target.value)}
                                 />
@@ -118,21 +120,23 @@ export default function ChangePassword() {
                                     type={showPassword1 ? 'text' : 'password'}
                                     label="New Password"
                                     value={newPassword0}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => {
-                                                    setShowPassword1(!showPassword1)
-                                                }}
-                                                onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                    event.preventDefault();
-                                                }}
-                                                edge="end"
-                                            >
-                                                {showPassword1 ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={() => {
+                                                        setShowPassword1(!showPassword1)
+                                                    }}
+                                                    onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                        event.preventDefault();
+                                                    }}
+                                                    edge="end"
+                                                >
+                                                    {showPassword1 ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>,
+                                        },
                                     }}
                                     onChange={(e) => setNewPassword0(e.target.value)}
                                 />
@@ -144,21 +148,23 @@ export default function ChangePassword() {
                                     type={showPassword2 ? 'text' : 'password'}
                                     label="New Password Again"
                                     value={newPassword1}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                onClick={() => {
-                                                    setShowPassword2(!showPassword2)
-                                                }}
-                                                onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                    event.preventDefault();
-                                                }}
-                                                edge="end"
-                                            >
-                                                {showPassword2 ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={() => {
+                                                        setShowPassword2(!showPassword2)
+                                                    }}
+                                                    onMouseDown={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                        event.preventDefault();
+                                                    }}
+                                                    edge="end"
+                                                >
+                                                    {showPassword2 ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>,
+                                        },
                                     }}
                                     onChange={(e) => setNewPassword1(e.target.value)}
                                 />

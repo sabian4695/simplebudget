@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import BudgetPage from "./components/BudgetPage";
-import TransactionsPage from "./components/TransactionsPage";
-import AnalyticsPage from "./components/AnalyticsPage";
-import ErrorPage from "./components/ErrorPage"
-import LoginPage from "./components/LoginPage";
-import SettingsPage from "./components/SettingsPage";
-import SignUpPage from "./components/SignUpPage";
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 import { registerSW } from 'virtual:pwa-register';
 import { usePwaStore } from './store/pwaStore';
+
+// Lazy-loaded route components
+const BudgetPage = lazy(() => import("./components/BudgetPage"));
+const TransactionsPage = lazy(() => import("./components/TransactionsPage"));
+const AnalyticsPage = lazy(() => import("./components/AnalyticsPage"));
+const SettingsPage = lazy(() => import("./components/SettingsPage"));
+const LoginPage = lazy(() => import("./components/LoginPage"));
+const SignUpPage = lazy(() => import("./components/SignUpPage"));
+const ErrorPage = lazy(() => import("./components/ErrorPage"));
 
 // Register service worker with update prompt
 const updateSW = registerSW({
@@ -39,22 +43,30 @@ window.addEventListener('focus', () => {
     updateSW();
 });
 
+const PageLoader = () => (
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+    </Box>
+);
+
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
 root.render(
     <React.StrictMode>
         <BrowserRouter>
-            <Routes>
-                <Route path='/' errorElement={<ErrorPage />} element={<App />}>
-                    <Route path='budget' element={<BudgetPage />} />
-                    <Route path='transactions' element={<TransactionsPage />} />
-                    <Route path='analytics' element={<AnalyticsPage />} />
-                    <Route path='settings' element={<SettingsPage />} />
-                </Route>
-                <Route path='login' element={<LoginPage />} />
-                <Route path='signup' element={<SignUpPage />} />
-            </Routes>
+            <Suspense fallback={<PageLoader />}>
+                <Routes>
+                    <Route path='/' errorElement={<ErrorPage />} element={<App />}>
+                        <Route path='budget' element={<BudgetPage />} />
+                        <Route path='transactions' element={<TransactionsPage />} />
+                        <Route path='analytics' element={<AnalyticsPage />} />
+                        <Route path='settings' element={<SettingsPage />} />
+                    </Route>
+                    <Route path='login' element={<LoginPage />} />
+                    <Route path='signup' element={<SignUpPage />} />
+                </Routes>
+            </Suspense>
         </BrowserRouter>
     </React.StrictMode>
 );

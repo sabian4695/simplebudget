@@ -148,12 +148,14 @@ export default function TransactionsPage() {
                         onChange={(event: any) => setText(event)}
                         type="search"
                         label="Search Transactions"
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon />
-                                </InputAdornment>
-                            ),
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon />
+                                    </InputAdornment>
+                                ),
+                            },
                         }}
                     />
 

@@ -151,7 +151,7 @@ export default function SignUpPage() {
                 }}>
                 </Box>
                 <Dialog open={true}
-                    PaperProps={dialogPaperStyles}>
+                    slotProps={{ paper: dialogPaperStyles }}>
                     <Box component='form'
                         onSubmit={supaSignUpFc}
                         sx={{
@@ -230,17 +230,19 @@ export default function SignUpPage() {
                                             helperText={passwordText}
                                             error={passwordText.length > 0}
                                             value={password}
-                                            InputProps={{
-                                                endAdornment: <InputAdornment position="end">
-                                                    <IconButton
-                                                        aria-label="toggle password visibility"
-                                                        onClick={handleClickShowPassword}
-                                                        onMouseDown={handleMouseDownPassword}
-                                                        edge="end"
-                                                    >
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                    </IconButton>
-                                                </InputAdornment>
+                                            slotProps={{
+                                                input: {
+                                                    endAdornment: <InputAdornment position="end">
+                                                        <IconButton
+                                                            aria-label="toggle password visibility"
+                                                            onClick={handleClickShowPassword}
+                                                            onMouseDown={handleMouseDownPassword}
+                                                            edge="end"
+                                                        >
+                                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        </IconButton>
+                                                    </InputAdornment>,
+                                                },
                                             }}
                                             onChange={(e) => setPassword(e.target.value)}
                                         />
@@ -254,17 +256,19 @@ export default function SignUpPage() {
                                             helperText={passwordText1}
                                             error={password !== password1}
                                             value={password1}
-                                            InputProps={{
-                                                endAdornment: <InputAdornment position="end">
-                                                    <IconButton
-                                                        aria-label="toggle password visibility"
-                                                        onClick={handleClickShowPassword}
-                                                        onMouseDown={handleMouseDownPassword}
-                                                        edge="end"
-                                                    >
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                    </IconButton>
-                                                </InputAdornment>
+                                            slotProps={{
+                                                input: {
+                                                    endAdornment: <InputAdornment position="end">
+                                                        <IconButton
+                                                            aria-label="toggle password visibility"
+                                                            onClick={handleClickShowPassword}
+                                                            onMouseDown={handleMouseDownPassword}
+                                                            edge="end"
+                                                        >
+                                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        </IconButton>
+                                                    </InputAdornment>,
+                                                },
                                             }}
                                             onChange={(e) => setPassword1(e.target.value)}
                                         />
