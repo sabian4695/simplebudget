@@ -136,7 +136,7 @@ export default function CopyBudget() {
                 <Box sx={{ bgcolor: 'background.paper', height: '100%' }} component='form' onSubmit={handleSubmit}>
                     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Stack direction='row' alignItems='center' spacing={1}>
-                            <div>Copy Budget Data</div>
+                            <div>Copy Budget Outline</div>
                         </Stack>
                         <IconButton onClick={() => setOpenCopyBudget(false)}><CloseIcon /></IconButton>
                     </DialogTitle>
