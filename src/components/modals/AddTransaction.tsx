@@ -22,6 +22,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import AddIcon from "@mui/icons-material/Add";
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -81,12 +82,21 @@ export default function AddTransaction() {
     };
     const categoriesArray = useTableStore(s => s.categories)
     const sectionsArray = useTableStore(s => s.sections)
+    const transactionsArr = useTableStore(s => s.transactions)
     const categoryGroups = categoriesArray.map((option) => {
-        const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
+        const section = sectionsArray.find(x => x.recordID === option.sectionID)
+        const sectionName = section?.sectionName ?? ""
+        const expenses = transactionsArr.filter(x => x.categoryID === option.recordID && x.transactionType === "expense").reduce((a, o) => a + o.amount, 0)
+        const incomes = transactionsArr.filter(x => x.categoryID === option.recordID && x.transactionType === "income").reduce((a, o) => a + o.amount, 0)
+        const tracked = Math.round((incomes - expenses + Number.EPSILON) * 100) / 100
+        const remaining = section?.sectionType === 'income'
+            ? option.amount + tracked
+            : option.amount + tracked
         return {
-            sectionName: sectionName === undefined ? "" : sectionName,
+            sectionName,
             id: option.recordID,
-            label: option.categoryName
+            label: option.categoryName,
+            remaining: Math.round(remaining * 100) / 100,
         };
     }).sort(function (a, b) {
         if (a.sectionName < b.sectionName) { return -1; }
@@ -125,11 +135,19 @@ export default function AddTransaction() {
             return
         }
         setLoadingOpen(true)
+        // Refresh session in case the user has been idle (iOS kills timers)
+        await ensureSession();
         if (splitBool) {
-            if (transactionAmount - splitArr.reduce((accumulator: any, object) => {
-                return accumulator + Number(object.transAmount);
-            }, 0).toFixed(2) !== 0) {
+            const splitTotal = splitArr.reduce((acc, obj) => acc + Number(obj.transAmount), 0);
+            if (Math.abs(Number(transactionAmount) - splitTotal) > 0.01) {
                 setErrorText('Must allocate full amount!')
+                setLoadingOpen(false)
+                return
+            }
+
+            // Validate all splits have a category selected
+            if (splitArr.some(row => row.cat === null || row.cat === undefined)) {
+                setErrorText('Please select a category for each split')
                 setLoadingOpen(false)
                 return
             }
@@ -138,10 +156,8 @@ export default function AddTransaction() {
                 return {
                     recordID: row.recId,
                     budgetID: currentBudget.budgetID,
-                    //@ts-ignore
                     categoryID: row.cat.id,
-                    //@ts-ignore
-                    amount: Math.round(row.transAmount * 100) / 100,
+                    amount: Math.round(Number(row.transAmount) * 100) / 100,
                     title: transactionTitle + ' ' + transactionAmount + ' split',
                     transactionDate: dayjs(transactionDate).valueOf() !== null ? dayjs(transactionDate).valueOf() : dayjs().valueOf(),
                     transactionType: transactionType,
@@ -149,18 +165,23 @@ export default function AddTransaction() {
                 }
             })
 
-            addTransactions.forEach(async (x) => {
-                let { error } = await supabase
-                    .from('transactions')
-                    .insert(x)
-                if (error) {
-                    setErrorText(error.message)
-                    setLoadingOpen(false)
-                    return
+            try {
+                for (const x of addTransactions) {
+                    let { error } = await supabase
+                        .from('transactions')
+                        .insert(x)
+                    if (error) {
+                        setErrorText(error.message)
+                        setLoadingOpen(false)
+                        return
+                    }
+                    setTransactionsArray((prevState: any[]) => [...prevState, x]);
                 }
-                //@ts-ignore
-                setTransactionsArray(prevState => [...prevState, x]);
-            })
+            } catch (err: any) {
+                setErrorText(err.message || 'Failed to save split transactions')
+                setLoadingOpen(false)
+                return
+            }
 
             setAddNewTransaction(false)
             setLoadingOpen(false)
@@ -228,16 +249,28 @@ export default function AddTransaction() {
         //@ts-ignore
         setSplitArr(newArr);
     }
+    function allocateRest(splitRecId: string) {
+        const otherTotal = splitArr
+            .filter(obj => obj.recId !== splitRecId)
+            .reduce((acc, obj) => acc + Number(obj.transAmount), 0);
+        const remaining = Math.round((Number(transactionAmount) - otherTotal) * 100) / 100;
+        changeSplitAmount(splitRecId, remaining > 0 ? remaining : 0);
+    }
     const handleFocus = (event: any) => {
         if (event) {
             event.target.select()
         }
     };
     React.useEffect(() => {
-        if (addNewTransaction) return;
+        if (addNewTransaction) {
+            // Set defaults when modal opens
+            if (transactionType === null) {
+                setTransactionType('expense')
+            }
+            return;
+        }
         setTransactionTitle('')
         setTransactionAmount(0)
-        //@ts-ignore
         setTransactionType('expense')
         setTransactionCategory(null)
         setTransactionDate(dayjs())
@@ -359,6 +392,14 @@ export default function AddTransaction() {
                                             setTransactionCategory(newValue)
                                         }}
                                         renderInput={(params) => <TextField onFocus={handleFocus} margin="none" {...params} label="Category" />}
+                                        renderOption={(props, option) => (
+                                            <li {...props} key={option.id}>
+                                                <Box display='flex' justifyContent='space-between' width='100%'>
+                                                    <span>{option.label}</span>
+                                                    <Typography variant='body2' color='text.secondary'>{formatter.format(option.remaining)}</Typography>
+                                                </Box>
+                                            </li>
+                                        )}
                                         renderGroup={(params) => (
                                             <li>
                                                 <GroupHeader>{params.group}</GroupHeader>
@@ -392,7 +433,7 @@ export default function AddTransaction() {
                                                     required
                                                 />
                                             </Grid>
-                                            <Grid size={7}>
+                                            <Grid size={6}>
                                                 <Autocomplete
                                                     disablePortal={false}
                                                     options={categoryGroups}
@@ -405,6 +446,14 @@ export default function AddTransaction() {
                                                         changeSplitCat(x.recId, newValue)
                                                     }}
                                                     renderInput={(params) => <TextField variant='filled' required onFocus={handleFocus} margin="none" {...params} label="Category" />}
+                                                    renderOption={(props, option) => (
+                                                        <li {...props} key={option.id}>
+                                                            <Box display='flex' justifyContent='space-between' width='100%'>
+                                                                <span>{option.label}</span>
+                                                                <Typography variant='body2' color='text.secondary'>{formatter.format(option.remaining)}</Typography>
+                                                            </Box>
+                                                        </li>
+                                                    )}
                                                     renderGroup={(params) => (
                                                         <li>
                                                             <GroupHeader>{params.group}</GroupHeader>
@@ -413,7 +462,8 @@ export default function AddTransaction() {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid size={1}>
+                                            <Grid size={2}>
+                                                <IconButton size='small' title='Allocate rest' onClick={() => allocateRest(x.recId)}>$</IconButton>
                                                 <IconButton size='small' onClick={() => deleteSplitCat(x.recId)}><CloseIcon /></IconButton>
                                             </Grid>
                                         </>

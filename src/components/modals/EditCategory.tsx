@@ -6,6 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
 import BalanceIcon from '@mui/icons-material/Balance';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { useModalStore } from '../../store/modalStore';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -18,6 +19,7 @@ import { useTableStore } from "../../store/tableStore";
 import InputAdornment from '@mui/material/InputAdornment';
 import SaveIcon from '@mui/icons-material/Save';
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
@@ -118,6 +120,7 @@ export default function EditCategory() {
     async function balanceClick() {
         setAnchorEl(null);
         setLoadingOpen(true)
+        await ensureSession();
         let { error } = await supabase
             .from('categories')
             .update({
@@ -146,6 +149,55 @@ export default function EditCategory() {
         setSnackText('Category Balanced!')
         setSnackOpen(true)
     }
+    async function allocateRestClick() {
+        setAnchorEl(null);
+        // Sum all income category budgets
+        const totalIncome = categoryArray
+            .filter(c => sectionsArray.find(s => s.recordID === c.sectionID)?.sectionType === 'income')
+            .reduce((acc, c) => acc + Number(c.amount), 0);
+        // Sum all expense category budgets, excluding this category
+        const totalExpense = categoryArray
+            .filter(c => sectionsArray.find(s => s.recordID === c.sectionID)?.sectionType === 'expense')
+            .filter(c => c.recordID !== currentCategoryID)
+            .reduce((acc, c) => acc + Number(c.amount), 0);
+        // What's left depends on whether this is an income or expense category
+        let remaining: number;
+        if (currentSectionType === 'income') {
+            // For income: remaining = total tracked income - other income budgets
+            const otherIncome = categoryArray
+                .filter(c => sectionsArray.find(s => s.recordID === c.sectionID)?.sectionType === 'income')
+                .filter(c => c.recordID !== currentCategoryID)
+                .reduce((acc, c) => acc + Number(c.amount), 0);
+            remaining = totalIncome - otherIncome;
+        } else {
+            // For expense: remaining = total income - all other expense budgets
+            remaining = totalIncome - totalExpense;
+        }
+        remaining = Math.round(Math.max(remaining, 0) * 100) / 100;
+        setLoadingOpen(true);
+        await ensureSession();
+        let { error } = await supabase
+            .from('categories')
+            .update({ amount: remaining })
+            .eq('recordID', currentCategoryID);
+        if (error) {
+            setLoadingOpen(false);
+            setErrorText(error.message);
+            return;
+        }
+        let newArr = categoryArray.map(obj => {
+            if (obj.recordID === currentCategoryID) {
+                return { ...obj, amount: remaining };
+            }
+            return obj;
+        });
+        setCategoryArray(newArr);
+        setCategoryAmount(remaining);
+        setLoadingOpen(false);
+        setSnackSev('success');
+        setSnackText('Allocated ' + formatter.format(remaining) + ' to this category');
+        setSnackOpen(true);
+    }
     async function handleDoubleCheck() {
         setCategoryDelete(true)
         setAnchorEl(null);
@@ -169,6 +221,7 @@ export default function EditCategory() {
             return
         }
         setLoadingOpen(true)
+        await ensureSession();
         let { data } = await supabase
             .from('transactions')
             .delete()
@@ -212,6 +265,7 @@ export default function EditCategory() {
         setErrorText('')
         if (verifyInputs()) {
             setLoadingOpen(true)
+            await ensureSession();
             let { error } = await supabase
                 .from('categories')
                 .update({
@@ -450,6 +504,10 @@ export default function EditCategory() {
                 <MenuItem onClick={balanceClick}>
                     <BalanceIcon sx={{ mr: 1 }} />
                     Balance Category
+                </MenuItem>
+                <MenuItem onClick={allocateRestClick}>
+                    <AccountBalanceWalletIcon sx={{ mr: 1 }} />
+                    Allocate Rest of Budget
                 </MenuItem>
                 <MenuItem onClick={handleDoubleCheck}>
                     <DeleteIcon sx={{ mr: 1 }} />

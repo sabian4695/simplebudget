@@ -12,6 +12,7 @@ import { dialogPaperStyles, useGlobalStore } from "../../store/globalStore";
 import { useTableStore } from "../../store/tableStore";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import GrabBudgetData from "../extras/GrabBudgetData";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from '@mui/icons-material/Close';
@@ -44,6 +45,7 @@ export default function AddBudget() {
             return
         }
         setLoadingOpen(true)
+        await ensureSession();
         let newBudget = {
             recordID: uuidv4(),
             creatorID: currentUserDetails.recordID,

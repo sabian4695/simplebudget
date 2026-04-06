@@ -23,6 +23,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
@@ -48,6 +49,11 @@ const GroupHeader = styled('div')(({ theme }) => ({
 
 const GroupItems = styled('ul')({
     padding: 0,
+});
+
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
 });
 
 export default function EditTransaction() {
@@ -86,12 +92,19 @@ export default function EditTransaction() {
     };
     const categoriesArray = useTableStore(s => s.categories)
     const sectionsArray = useTableStore(s => s.sections)
+    const transactionsArr = useTableStore(s => s.transactions)
     const categoryGroups = categoriesArray.map((option) => {
-        const sectionName = sectionsArray.find(x => x.recordID === option.sectionID)?.sectionName
+        const section = sectionsArray.find(x => x.recordID === option.sectionID)
+        const sectionName = section?.sectionName ?? ""
+        const expenses = transactionsArr.filter(x => x.categoryID === option.recordID && x.transactionType === "expense").reduce((a, o) => a + o.amount, 0)
+        const incomes = transactionsArr.filter(x => x.categoryID === option.recordID && x.transactionType === "income").reduce((a, o) => a + o.amount, 0)
+        const tracked = Math.round((incomes - expenses + Number.EPSILON) * 100) / 100
+        const remaining = option.amount + tracked
         return {
-            sectionName: sectionName === undefined ? "" : sectionName,
+            sectionName,
             id: option.recordID,
-            label: option.categoryName
+            label: option.categoryName,
+            remaining: Math.round(remaining * 100) / 100,
         };
     }).sort(function (a, b) {
         if (a.sectionName < b.sectionName) { return -1; }
@@ -135,6 +148,7 @@ export default function EditTransaction() {
             return
         }
         setLoadingOpen(true)
+        await ensureSession();
         let { error } = await supabase
             .from('transactions')
             .delete()
@@ -171,6 +185,7 @@ export default function EditTransaction() {
         console.log(transactionCategory)
         if (verifyInputs()) {
             setLoadingOpen(true)
+            await ensureSession();
             let { error } = await supabase
                 .from('transactions')
                 .update({
@@ -321,6 +336,14 @@ export default function EditTransaction() {
                                         setTransactionCategory(newValue)
                                     }}
                                     renderInput={(params) => <TextField onFocus={handleFocus} margin="none" {...params} label="Category" />}
+                                    renderOption={(props, option) => (
+                                        <li {...props} key={option.id}>
+                                            <Box display='flex' justifyContent='space-between' width='100%'>
+                                                <span>{option.label}</span>
+                                                <Typography variant='body2' color='text.secondary'>{formatter.format(option.remaining)}</Typography>
+                                            </Box>
+                                        </li>
+                                    )}
                                     renderGroup={(params) => (
                                         <li>
                                             <GroupHeader>{params.group}</GroupHeader>

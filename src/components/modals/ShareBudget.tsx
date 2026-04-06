@@ -16,6 +16,7 @@ import Alert from '@mui/material/Alert';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import { v4 as uuidv4 } from "uuid";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -50,6 +51,7 @@ export default function ShareBudget() {
             budgetID: currentBudgetDetails.budgetID,
             sharedToID: shareToID
         }
+        await ensureSession();
         let { error } = await supabase
             .from('shared')
             .insert(newShare)

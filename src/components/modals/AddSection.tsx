@@ -15,6 +15,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import AddIcon from '@mui/icons-material/Add';
 import { supabase } from "../LoginPage";
+import { ensureSession } from "../extras/ensureSession";
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
@@ -60,6 +61,7 @@ export default function AddSection() {
         setErrorText('')
         if (verifyInputs()) {
             setLoadingOpen(true)
+            await ensureSession();
             let newSection = {
                 recordID: uuidv4(),
                 budgetID: currentBudget.budgetID,
