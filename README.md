@@ -77,4 +77,4 @@ Deployed on [Vercel](https://vercel.com). Push to the main branch to trigger a d
 
 ## License
 
-See [LICENSE](LICENSE) and [COPYING](COPYING).
+See [LICENSE](LICENSE).

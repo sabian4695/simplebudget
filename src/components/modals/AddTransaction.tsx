@@ -28,7 +28,7 @@ import IconButton from "@mui/material/IconButton";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { styled, lighten, darken } from '@mui/system';
-import Divider from '@mui/material/Divider';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import Alert from '@mui/material/Alert';
 
 const GroupHeader = styled('div')(({ theme }) => ({
@@ -421,10 +421,9 @@ export default function AddTransaction() {
                             }
                             {splitBool ?
                                 <Grid container spacing={1}>
-                                    <Grid size={12}><Divider variant="middle" /></Grid>
                                     {splitArr.map((x) => (
                                         <>
-                                            <Grid size={4} key={x.recId}>
+                                            <Grid size={3.5} key={x.recId}>
                                                 <TextField
                                                     onFocus={handleFocus}
                                                     fullWidth
@@ -437,7 +436,7 @@ export default function AddTransaction() {
                                                         input: {
                                                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
                                                         },
-                                                        htmlInput: { step: '.01' },
+                                                        htmlInput: { step: '.01' }
                                                     }}
                                                     placeholder='Amount'
                                                     label="Amount"
@@ -445,7 +444,7 @@ export default function AddTransaction() {
                                                     required
                                                 />
                                             </Grid>
-                                            <Grid size={6}>
+                                            <Grid size={6.5}>
                                                 <Autocomplete
                                                     disablePortal={false}
                                                     options={categoryGroups}
@@ -474,8 +473,10 @@ export default function AddTransaction() {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid size={2}>
-                                                <IconButton size='small' title='Allocate rest' onClick={() => allocateRest(x.recId)}>$</IconButton>
+                                            <Grid size={1}>
+                                                <IconButton size='small' title='Allocate rest' onClick={() => allocateRest(x.recId)}><AttachMoneyIcon /></IconButton>
+                                            </Grid>
+                                            <Grid size={1}>
                                                 <IconButton size='small' onClick={() => deleteSplitCat(x.recId)}><CloseIcon /></IconButton>
                                             </Grid>
                                         </>
