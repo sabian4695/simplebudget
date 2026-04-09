@@ -341,7 +341,7 @@ export default function AddTransaction() {
                                     </ToggleButtonGroup>
                                 </Grid>
                             }
-                            <Grid size={{ xs: 7, md: 12 }}>
+                            <Grid size={{ xs: 6, md: 12 }}>
                                 <TextField
                                     onFocus={handleFocus}
                                     fullWidth
@@ -359,7 +359,7 @@ export default function AddTransaction() {
                                     label={splitBool ? "Total Amount" : "Amount"}
                                 />
                             </Grid>
-                            <Grid size={{ xs: 5, md: 12 }}>
+                            <Grid size={{ xs: 6, md: 12 }}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
                                         closeOnSelect

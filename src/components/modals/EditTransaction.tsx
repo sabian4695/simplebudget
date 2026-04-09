@@ -281,7 +281,7 @@ export default function EditTransaction() {
                                     <ToggleButton value="expense">Expense</ToggleButton>
                                 </ToggleButtonGroup>
                             </Grid>
-                            <Grid size={{ xs: 7, md: 12 }}>
+                            <Grid size={{ xs: 6, md: 12 }}>
                                 <TextField
                                     autoFocus
                                     onFocus={handleFocus}
@@ -299,7 +299,7 @@ export default function EditTransaction() {
                                     label="Amount"
                                 />
                             </Grid>
-                            <Grid size={{ xs: 5, md: 12 }}>
+                            <Grid size={{ xs: 6, md: 12 }}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
                                         closeOnSelect
