@@ -14,6 +14,7 @@ export default function UpdatePrompt({ open, onUpdate, onDismiss }: UpdatePrompt
         <Snackbar
             open={open}
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            sx={{ top: 'max(24px, env(safe-area-inset-top, 24px))' }}
         >
             <Alert
                 severity="info"
