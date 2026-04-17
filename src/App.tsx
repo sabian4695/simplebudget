@@ -195,10 +195,10 @@ export default function App() {
         }}>
           <Box sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}><AppToolbar /></Box>
           <Box component="main"
-            sx={{ width: '100%', p: 2, mb: 8, height: '100%' }}>
+            sx={{ width: '100%', p: 2, mb: 8, height: '100%', paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}>
             <Toolbar /><Outlet />
           </Box>
-          <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+          <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} elevation={3}>
             <BottomNavigation
               showLabels
               value={tabValue}
