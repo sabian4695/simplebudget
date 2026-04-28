@@ -143,7 +143,7 @@ export default function LoginPage() {
                                     type="email"
                                     autoFocus
                                     label="Email"
-                                    value-={email}
+                                    value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
                             </Grid>
