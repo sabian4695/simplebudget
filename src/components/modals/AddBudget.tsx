@@ -20,6 +20,46 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+
+const DEFAULT_BUDGET_TEMPLATE: { sectionName: string; sectionType: string; categories: string[] }[] = [
+    {
+        sectionName: 'Income',
+        sectionType: 'income',
+        categories: ['Paycheck', 'Side Hustle', 'Other Income'],
+    },
+    {
+        sectionName: 'Housing',
+        sectionType: 'expense',
+        categories: ['Rent / Mortgage', 'Utilities', 'Internet', 'Home Maintenance'],
+    },
+    {
+        sectionName: 'Transportation',
+        sectionType: 'expense',
+        categories: ['Gas', 'Car Insurance', 'Car Maintenance'],
+    },
+    {
+        sectionName: 'Food',
+        sectionType: 'expense',
+        categories: ['Groceries', 'Restaurants'],
+    },
+    {
+        sectionName: 'Personal',
+        sectionType: 'expense',
+        categories: ['Clothing', 'Entertainment', 'Subscriptions', 'Health & Fitness', 'Fun Money']
+    },
+    {
+        sectionName: 'Savings',
+        sectionType: 'expense',
+        categories: ['Emergency Fund', 'Retirement', 'Investments'],
+    },
+    {
+        sectionName: 'Lifestyle',
+        sectionType: 'expense',
+        categories: ['Pet Care', 'Miscellaneous', 'Giving'],
+    },
+];
 
 export default function AddBudget() {
     const { grabBudgetData } = useGrabBudgetData();
@@ -27,7 +67,10 @@ export default function AddBudget() {
     const addNewBudget = useModalStore(s => s.addBudget);
     const setAddNewBudget = useModalStore(s => s.setAddBudget);
     const [budgetName, setBudgetName] = React.useState('');
+    const [useDefault, setUseDefault] = React.useState(false);
     const [errorText, setErrorText] = React.useState('');
+    const setSectionArray = useTableStore(s => s.setSections);
+    const setCategoryArray = useTableStore(s => s.setCategories);
     const currentBudgetDetails = useTableStore(s => s.currentBudgetAndMonth)
     const setCurrentBudget = useTableStore(s => s.setCurrentBudgetAndMonth)
     const setBudgetArray = useTableStore(s => s.setBudgets)
@@ -67,6 +110,53 @@ export default function AddBudget() {
         }
         localStorage.setItem('currentBudget', JSON.stringify(currentBudget))
         setCurrentBudget(currentBudget)
+
+        if (useDefault) {
+            const allSections: any[] = [];
+            const allCategories: any[] = [];
+
+            for (const template of DEFAULT_BUDGET_TEMPLATE) {
+                const sectionID = uuidv4();
+                allSections.push({
+                    recordID: sectionID,
+                    budgetID: newBudget.recordID,
+                    sectionName: template.sectionName,
+                    sectionType: template.sectionType,
+                    sectionYear: currentBudgetDetails.year,
+                    sectionMonth: currentBudgetDetails.month,
+                });
+                for (const catName of template.categories) {
+                    allCategories.push({
+                        recordID: uuidv4(),
+                        sectionID: sectionID,
+                        categoryName: catName,
+                        amount: 0,
+                    });
+                }
+            }
+
+            const { error: secError } = await supabase
+                .from('sections')
+                .insert(allSections);
+            if (secError) {
+                setLoadingOpen(false);
+                setErrorText(secError.message);
+                return;
+            }
+
+            const { error: catError } = await supabase
+                .from('categories')
+                .insert(allCategories);
+            if (catError) {
+                setLoadingOpen(false);
+                setErrorText(catError.message);
+                return;
+            }
+
+            setSectionArray(prev => [...prev, ...allSections]);
+            setCategoryArray(prev => [...prev, ...allCategories]);
+        }
+
         await grabBudgetData(currentBudget.budgetID, currentBudgetDetails.year, currentBudgetDetails.month)
         setAddNewBudget(false)
         setLoadingOpen(false)
@@ -77,6 +167,7 @@ export default function AddBudget() {
     React.useEffect(() => {
         if (addNewBudget) return;
         setBudgetName('')
+        setUseDefault(false)
         setErrorText('')
     }, [addNewBudget])
     return (
@@ -101,6 +192,17 @@ export default function AddBudget() {
                                     onChange={(event: any) => setBudgetName(event.target.value)}
                                     type="text"
                                     label="Budget Name"
+                                />
+                            </Grid>
+                            <Grid size={12}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={useDefault}
+                                            onChange={(e) => setUseDefault(e.target.checked)}
+                                        />
+                                    }
+                                    label="Include default sections & categories"
                                 />
                             </Grid>
                         </Grid>
