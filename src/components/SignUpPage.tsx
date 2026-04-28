@@ -79,8 +79,6 @@ export default function SignUpPage() {
         event.preventDefault();
         setLoadingOpen(true)
         setErrorText('')
-        let userData1: any
-        let signupErr: any
         if (validateFormFull()) {
             try {
                 const { data: userData, error: signupErr } = await supabase.auth.signUp({
@@ -91,12 +89,12 @@ export default function SignUpPage() {
                     setErrorText(signupErr.message)
                     console.error(signupErr?.message, signupErr?.code)
                     return
-                } if (!userData) {
+                }
+                if (!userData) {
                     setErrorText("Error adding user")
                     console.error("Error adding user", 1234)
                     return
                 }
-                userData1 = userData
 
                 const { error: signupErr1 } = await supabase
                     .from('users')
@@ -110,21 +108,21 @@ export default function SignUpPage() {
                     console.error(signupErr1?.message, signupErr1?.code)
                     return
                 }
-            } catch (error: any) {
-                setErrorText(error?.message)
-                return
-            } finally {
+
+                // Only run on success — no finally block
                 setCurrentUser({
-                    //@ts-ignore
-                    recordID: userData1.user?.id,
+                    recordID: userData.user?.id ?? '',
                     fullName: fullName,
                     userType: 'free'
                 });
-                setLoadingOpen(false)
                 setSignedUpBool(true)
                 setSnackSev('success')
                 setSnackText('Signup Successful - please verify email to login')
                 setSnackOpen(true)
+            } catch (error: any) {
+                setErrorText(error?.message)
+            } finally {
+                setLoadingOpen(false)
             }
         }
     }

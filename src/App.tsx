@@ -139,31 +139,37 @@ export default function App() {
     if (allBudgets) {
       if (allBudgets.length > 0) {
         await setBudgetArray(allBudgets)
+        let resolvedBudget = {
+          budgetID: currentBudget.budgetID,
+          year: currentBudget.year,
+          month: currentBudget.month,
+        }
         if (allBudgets.length === 1) {
-          let setBudgetVal = {
+          resolvedBudget = {
             budgetID: allBudgets[0].recordID,
             year: currentBudget.year,
             month: currentBudget.month,
           }
-          await setCurrentBudget(setBudgetVal)
-          localStorage.setItem('currentBudget', JSON.stringify(setBudgetVal))
+          await setCurrentBudget(resolvedBudget)
+          localStorage.setItem('currentBudget', JSON.stringify(resolvedBudget))
         } else if (allBudgets.length > 1) { //if there's multiple, check if localStorage budget exists in the array
           let posCurrent = localStorage.getItem('currentBudget')
           if (posCurrent !== null) {
-            if (allBudgets.find(x => x.recordID === JSON.parse(posCurrent || '{}').budgetID)) {
-              let setBudgetVal = {
-                budgetID: JSON.parse(localStorage.getItem('currentBudget') || '{}').budgetID,
+            const parsed = JSON.parse(posCurrent || '{}')
+            if (allBudgets.find(x => x.recordID === parsed.budgetID)) {
+              resolvedBudget = {
+                budgetID: parsed.budgetID,
                 year: currentBudget.year,
                 month: currentBudget.month,
               }
-              setCurrentBudget(setBudgetVal)
+              setCurrentBudget(resolvedBudget)
             }
           } //if there's nothing in localstorage, open the selector for the user to choose
           else {
             setSelectBudget(true)
           }
         }
-        await grabBudgetData(currentBudget.budgetID, currentBudget.year, currentBudget.month)
+        await grabBudgetData(resolvedBudget.budgetID, resolvedBudget.year, resolvedBudget.month)
       } else if (allBudgets.length === 0) {
         setBudgetArray([])
         setSectionArray([])

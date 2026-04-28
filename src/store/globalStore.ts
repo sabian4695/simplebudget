@@ -36,16 +36,21 @@ if (localStorage.getItem("userTheme") === null) {
 }
 
 let user: any;
-if (localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token') === null) {
-    user = '1';
-} else {
-    user = JSON.parse(localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token')!).user;
+let auth: string;
+try {
+    const raw = localStorage.getItem('sb-psdmjjcvaxejxktqwdcm-auth-token');
+    if (raw) {
+        const parsed = JSON.parse(raw);
+        user = parsed?.user ?? null;
+    }
+} catch {
+    user = null;
 }
 
-let auth: string;
-if (user.aud === 'authenticated') {
+if (user && user.aud === 'authenticated') {
     auth = 'true';
 } else {
+    user = { id: '' };
     auth = 'false';
 }
 
