@@ -16,6 +16,9 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import EditCategory from "./modals/EditCategory";
 import LinearProgress from '@mui/material/LinearProgress';
 import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Paper from "@mui/material/Paper";
 import useGrabBudgetData from "./extras/GrabBudgetData";
 import EditSection from "./modals/EditSection";
@@ -62,6 +65,7 @@ export default function BudgetPage() {
     const [sidebarEditName, setSidebarEditName] = React.useState('');
     const [sidebarEditAmount, setSidebarEditAmount] = React.useState(0);
     const [pendingDelete, setPendingDelete] = React.useState(false);
+    const [overBudgetExpanded, setOverBudgetExpanded] = React.useState(false);
     const areYouSureOpen = useModalStore(s => s.areYouSure);
     const checkAccept = useGlobalStore(s => s.areYouSureAccept);
     const setCheckAccept = useGlobalStore(s => s.setAreYouSureAccept);
@@ -328,8 +332,37 @@ export default function BudgetPage() {
                         </Box>
 
                         {overBudgetCategories.length > 0 && (
-                            <Alert severity="warning" variant="outlined" sx={{ py: 0 }}>
-                                {overBudgetCategories.length} {overBudgetCategories.length === 1 ? 'category' : 'categories'} over budget by {formatter.format(overBudgetTotal)}
+                            <Alert
+                                severity="warning"
+                                variant="outlined"
+                                sx={{ py: 0, cursor: 'pointer', userSelect: 'none' }}
+                                onClick={() => setOverBudgetExpanded(prev => !prev)}
+                                action={overBudgetExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                            >
+                                <Box>
+                                    {overBudgetCategories.length} {overBudgetCategories.length === 1 ? 'category' : 'categories'} over budget by {formatter.format(overBudgetTotal)}
+                                    <Collapse in={overBudgetExpanded}>
+                                        <List dense disablePadding sx={{ mt: 0.5 }}>
+                                            {overBudgetCategories.map(cat => {
+                                                const expenses = transactionsArray
+                                                    .filter(t => t.categoryID === cat.recordID && t.transactionType === 'expense')
+                                                    .reduce((a, t) => a + t.amount, 0);
+                                                const incomes = transactionsArray
+                                                    .filter(t => t.categoryID === cat.recordID && t.transactionType === 'income')
+                                                    .reduce((a, t) => a + t.amount, 0);
+                                                const overBy = (expenses - incomes) - cat.amount;
+                                                return (
+                                                    <ListItem key={cat.recordID} disablePadding sx={{ py: 0.25 }}>
+                                                        <Typography variant="body2" sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                                                            <span>{cat.categoryName}</span>
+                                                            <span style={{ fontWeight: 600 }}>{formatter.format(overBy)}</span>
+                                                        </Typography>
+                                                    </ListItem>
+                                                );
+                                            })}
+                                        </List>
+                                    </Collapse>
+                                </Box>
                             </Alert>
                         )}
 
